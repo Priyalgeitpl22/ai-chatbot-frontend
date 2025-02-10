@@ -63,6 +63,32 @@ export const CheckAccessibility = styled.button`
   background: none;
 `;
 
+export const TrackingCode = styled.button`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: none;
+  border-radius: 4px;
+  color: #3e5164;
+  cursor: pointer;
+  background: none;
+`;
+
+export const CodeInput = styled.textarea`
+  padding: 8px 12px;
+  border: 1px solid #cfd9e5;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  width: 620px;
+  height: 80px;
+  margin-right: 12px;
+  font-size: 14px;
+  white-space: pre-wrap;
+  font-family: monospace;
+  resize: none;
+`;
+
 export const ColorCheckBox = styled.input`
   width: 24px;
   height: 24px;;
@@ -91,6 +117,23 @@ export const ColorCheckBox = styled.input`
     opacity: 0.8;
   }
 `;
+
+export const CopyButton = styled.button`
+font-weight: bold;
+border: none;
+border-radius: 6px;
+color: #fff;
+background-color: #7ed8d6;
+cursor: pointer;
+font-size: 16px;
+margin: 8px 6px;
+
+:hover {
+  background-color: #7ed8d6;
+  opacity: 0.8;
+}
+`;
+
 export const CustomTabs = styled(Tabs)`
   border-bottom: 2px solid #ddd;
   min-height: 40px;
