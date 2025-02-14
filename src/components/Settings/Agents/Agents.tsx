@@ -33,7 +33,6 @@ const Agents: React.FC = () => {
         return;
       }
       const resultAction = await dispatch(fetchAgents(user.orgId));
-      // Check if the action is fulfilled before updating local state
       if (fetchAgents.fulfilled.match(resultAction)) {
         setAgents(resultAction.payload.data || []);
       } else {
@@ -134,11 +133,23 @@ const Agents: React.FC = () => {
                       <StyledTableCell>{agent.email}</StyledTableCell>
                       <StyledTableCell>
                         {agent.schedule && agent.schedule.schedule.length > 0 ? (
-                          agent.schedule.schedule.map((slot, idx) => (
-                            <div key={idx}>
-                              {slot.day} from {slot.hours[0].startTime} to {slot.hours[0].endTime}
-                            </div>
-                          ))
+                          agent.schedule.schedule.map((slot, idx) => {
+                            // If the API returned the schedule in payload format, it may have
+                            // starttime and endTime fields directly instead of a nested "hours" array.
+                            const start =
+                              slot.hours && slot.hours.length > 0
+                                ? slot.hours[0].startTime
+                                : slot.starttime;
+                            const end =
+                              slot.hours && slot.hours.length > 0
+                                ? slot.hours[0].endTime
+                                : slot.endTime;
+                            return (
+                              <div key={idx}>
+                                {slot.day} from {start} to {end}
+                              </div>
+                            );
+                          })
                         ) : (
                           <div>offline</div>
                         )}

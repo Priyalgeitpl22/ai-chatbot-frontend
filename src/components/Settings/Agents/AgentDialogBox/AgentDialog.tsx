@@ -22,7 +22,6 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { createAgent, updateAgent } from "../../../../redux/slice/agentsSlice";
 import {
-  DialogContainer,
   TabPanel,
   FormGroup,
   AvatarWrapper,
@@ -30,28 +29,16 @@ import {
 } from "./AgentDialog.styled";
 import { AppDispatch, RootState } from "../../../../redux/store/store";
 
-interface Availability {
-  day: string;
-  from: string;
-  to: string;
-}
+import dayjs, { Dayjs } from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 interface ScheduleSlot {
   day: string;
-  hours: { startTime: string; endTime: string }[];
+  // Internally, we store times as Dayjs objects for the TimePicker
+  hours: { startTime: Dayjs; endTime: Dayjs }[];
 }
-// export interface Agent {
-//   id?: string;
-//   fullName: string;
-//   email: string;
-//   phone: string;
-//   profilePicture: string;
-//   role: string;
-//   schedule: {
-//     timeZone: string;
-//     schedule: ScheduleSlot[];
-//   };
-// }
 
 export interface Agent {
   id: string;
@@ -63,26 +50,37 @@ export interface Agent {
   phone?: string;
   schedule: {
     timeZone: string;
-    schedule: ScheduleSlot[];
+    schedule: (ScheduleSlot & {
+      starttime?: string; // flat keys from payload
+      endTime?: string;   // flat keys from payload
+    })[];
   };
 }
+
 interface AgentDialogProps {
   open: boolean;
   onClose: () => void;
   agent?: Agent | null;
 }
 
+// Default times for new agent: 9:00 AM and 5:00 PM
+const defaultStartTime: Dayjs = dayjs("09:00", "HH:mm");
+const defaultEndTime: Dayjs = dayjs("17:00", "HH:mm");
+
+// Default agent in internal format (with valid Dayjs objects)
 const defaultAgent: Agent = {
   fullName: "",
   email: "",
   phone: "",
   profilePicture: "",
-  // timezone: "UTC -05:00 Eastern Time",
   role: "Agent",
   schedule: {
     timeZone: "UTC -05:00 Eastern Time",
     schedule: [
-      { day: "Monday", hours: [{ startTime: "09:00", endTime: "17:00" }] },
+      {
+        day: "Monday",
+        hours: [{ startTime: defaultStartTime, endTime: defaultEndTime }],
+      },
     ],
   },
   id: "",
@@ -95,18 +93,89 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [formData, setFormData] = useState<Agent>(defaultAgent);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
 
+  // -------------------------------
+  // Effect: Convert schedule on open
+  // -------------------------------
   useEffect(() => {
+    // Only run conversion when the dialog opens
+    if (!open) return;
+
     if (agent) {
-      setFormData(agent);
+      // If editing, parse the agent’s schedule
+      const timeZoneValue = agent.schedule.timeZone || defaultAgent.schedule.timeZone;
+
+      const convertedSchedule = {
+        timeZone: timeZoneValue,
+        schedule: agent.schedule.schedule.map((slot) => {
+          // Attempt to extract start/end from either flat keys or nested hours
+          let startVal: string | Dayjs | undefined;
+          let endVal: string | Dayjs | undefined;
+
+          // If the API uses "starttime"/"endTime" fields:
+          if (slot.starttime) {
+            startVal = slot.starttime;
+            endVal = slot.endTime;
+          }
+          // Otherwise, if we have an hours array:
+          else if (slot.hours?.[0]) {
+            startVal = slot.hours[0].startTime;
+            endVal = slot.hours[0].endTime;
+          }
+
+          // Convert or fallback to default
+          let parsedStart = dayjs(startVal, ["h:mmA", "h:mm A", "HH:mm"], true);
+
+          console.log(parsedStart.isValid(),"parsedStart")
+          if (!parsedStart.isValid() && dayjs.isDayjs(startVal)) {
+            // If it's already a Dayjs object, keep it
+            parsedStart = startVal as Dayjs;
+            // console.log(parsedStart,"parsedStartDate")
+          } else if (!parsedStart.isValid()) {
+            // fallback
+            parsedStart = defaultStartTime;
+            console.log(parsedStart,"parsedStartDate")
+          }
+
+          let parsedEnd = dayjs(endVal, ["h:mmA", "HH:mm"]);
+          if (!parsedEnd.isValid() && dayjs.isDayjs(endVal)) {
+            parsedEnd = endVal as Dayjs;
+            console.log(parsedEnd,"parsedEndDate")
+          } else if (!parsedEnd.isValid()) {
+            parsedEnd = defaultEndTime;
+            console.log(parsedEnd,"parsedEndDate")
+          }
+
+          return {
+            day: slot.day,
+            hours: [
+              {
+                startTime: parsedStart,
+                endTime: parsedEnd,
+              },
+            ],
+          };
+        }),
+      };
+
+      setFormData({
+        ...agent,
+        schedule: convertedSchedule,
+      });
     } else {
+      // If creating a new agent, use the default agent
       setFormData(defaultAgent);
     }
-  }, [agent, open]);
+  }, [open, agent]);
 
-  // General input change handler
+  console.log("formData",formData)
+
+  // ------------------------------------------------------
+  // Input handlers (personal details & schedule day/times)
+  // ------------------------------------------------------
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -114,13 +183,18 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
-    if (name) {
+    if (name === "timezone") {
+      setFormData((prev) => ({
+        ...prev,
+        schedule: { ...prev.schedule, timeZone: value },
+      }));
+    } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
       setFormData((prev) => ({
@@ -130,7 +204,6 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
     }
   };
 
-  // Add a new availability slot
   const handleAddSchedule = () => {
     setFormData((prev) => ({
       ...prev,
@@ -138,7 +211,10 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
         ...prev.schedule,
         schedule: [
           ...prev.schedule.schedule,
-          { day: "Monday", hours: [{ startTime: "", endTime: "" }] },
+          {
+            day: "Monday",
+            hours: [{ startTime: defaultStartTime, endTime: defaultEndTime }],
+          },
         ],
       },
     }));
@@ -163,20 +239,20 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
   const handleHoursChange = (
     index: number,
     hourIndex: number,
-    field: keyof ScheduleSlot["hours"][0],
-    value: string
+    field: "startTime" | "endTime",
+    newValue: Dayjs | null
   ) => {
+    if (!newValue) return;
     setFormData((prev) => {
       const updatedSchedule = prev.schedule.schedule.map((slot, i) => {
         if (i === index) {
           const updatedHours = slot.hours.map((hour, hIndex) =>
-            hIndex === hourIndex ? { ...hour, [field]: value } : hour
+            hIndex === hourIndex ? { ...hour, [field]: newValue } : hour
           );
           return { ...slot, hours: updatedHours };
         }
         return slot;
       });
-
       return {
         ...prev,
         schedule: { ...prev.schedule, schedule: updatedSchedule },
@@ -184,19 +260,32 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
     });
   };
 
+  // ---------------------
+  // Navigation (Stepper)
+  // ---------------------
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
+  // ---------------------
+  // Save & Payload
+  // ---------------------
   const handleSave = () => {
     const payload = {
       email: formData.email,
       fullName: formData.fullName,
-      phone: formData.phone,
+      phone: formData.phone || "",
       role: formData.role,
       orgId: user!.orgId,
       aiOrgId: user?.aiOrgId,
       profilePicture: selectedFile || undefined,
-      schedule: formData.schedule,
+      schedule: {
+        timeZone: formData.schedule.timeZone,
+        schedule: formData.schedule.schedule.map((slot) => ({
+          day: slot.day,
+          starttime: slot.hours[0].startTime.format("h:mmA"),
+          endTime: slot.hours[0].endTime.format("h:mmA"),
+        })),
+      },
     };
 
     if (agent) {
@@ -224,192 +313,187 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
     setActiveStep(0);
     onClose();
   };
-  console.log(formData, "formData");
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogContainer>
-        <DialogTitle>
-          <Stepper activeStep={activeStep} alternativeLabel>
-            {steps.map((label, idx) => (
-              <Step key={idx}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </DialogTitle>
-        <DialogContent>
-          {activeStep === 0 && (
-            <TabPanel key={activeStep}>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <AvatarWrapper>
-                  <Avatar
-                    src={formData.profilePicture}
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      border: "2px solid #6fc8c7",
-                    }}
+      <DialogTitle>
+        <Stepper activeStep={activeStep} alternativeLabel>
+          {steps.map((label, idx) => (
+            <Step key={idx}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </DialogTitle>
+      <DialogContent>
+        {activeStep === 0 && (
+          <TabPanel key={activeStep}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <AvatarWrapper>
+                <Avatar
+                  src={formData.profilePicture}
+                  sx={{ width: 80, height: 80, border: "2px solid #6fc8c7" }}
+                />
+                <IconButton component="label" sx={{ color: "#6fc8c7" }}>
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleFileChange}
                   />
-                  <IconButton component="label" sx={{ color: "#6fc8c7" }}>
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                    <AddAPhoto />
-                  </IconButton>
-                </AvatarWrapper>
-                <FormGroup>
-                  <TextField
-                    label="Name"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="outlined"
-                  />
-                  <TextField
-                    label="Email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="outlined"
-                  />
-                  <TextField
-                    label="Phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="outlined"
-                  />
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>User Role</InputLabel>
-                    <Select
-                      label="User Role"
-                      name="role"
-                      value={formData.role}
-                      onChange={handleSelectChange}
-                    >
-                      <MenuItem value="Admin">Admin</MenuItem>
-                      <MenuItem value="Agent">Agent</MenuItem>
-                    </Select>
-                  </FormControl>
-                </FormGroup>
-              </motion.div>
-            </TabPanel>
-          )}
-          {activeStep === 1 && (
-            <TabPanel key={activeStep}>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                  <InputLabel>Time Zone</InputLabel>
+                  <AddAPhoto />
+                </IconButton>
+              </AvatarWrapper>
+              <FormGroup>
+                <TextField
+                  label="Name"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  fullWidth
+                  variant="outlined"
+                />
+                <TextField
+                  label="Email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  fullWidth
+                  variant="outlined"
+                />
+                <TextField
+                  label="Phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  fullWidth
+                  variant="outlined"
+                />
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel>User Role</InputLabel>
                   <Select
-                    label="Time Zone"
-                    name="timezone"
-                    value={formData.schedule.timeZone}
+                    label="User Role"
+                    name="role"
+                    value={formData.role}
                     onChange={handleSelectChange}
                   >
-                    <MenuItem value="UTC -05:00 Eastern Time">
-                      UTC -05:00 Eastern Time
-                    </MenuItem>
-                    <MenuItem value="UTC -08:00 Pacific Time">
-                      UTC -08:00 Pacific Time
-                    </MenuItem>
+                    <MenuItem value="Admin">Admin</MenuItem>
+                    <MenuItem value="Agent">Agent</MenuItem>
                   </Select>
                 </FormControl>
-                <AvailabilityContainer>
-                  <InputLabel>Availability</InputLabel>
-                  {formData.schedule.schedule.map((slot, index) => (
-                    <div key={index} className="availability-row">
-                      <Select
-                        value={slot.day}
-                        onChange={(e) =>
-                          handleScheduleChange(index, "day", e.target.value)
-                        }
-                        variant="outlined"
-                      >
-                        <MenuItem value="WeekEnds">WeekEnds</MenuItem>
-                        <MenuItem value="WeekDays">WeekDays</MenuItem>
-                        <MenuItem value="Monday">Monday</MenuItem>
-                        <MenuItem value="Tuesday">Tuesday</MenuItem>
-                        <MenuItem value="Wednesday">Wednesday</MenuItem>
-                        <MenuItem value="Thursday">Thursday</MenuItem>
-                        <MenuItem value="Friday">Friday</MenuItem>
-                        <MenuItem value="Saturday">Saturday</MenuItem>
-                        <MenuItem value="Sunday">Sunday</MenuItem>
-                      </Select>
-                      <TextField
-                        type="time"
-                        value={slot.hours[0].startTime}
-                        onChange={(e) =>
-                          handleHoursChange(
-                            index,
-                            0,
-                            "startTime",
-                            e.target.value
-                          )
-                        }
-                        variant="outlined"
-                      />
-                      <TextField
-                        type="time"
-                        value={slot.hours[0].endTime}
-                        onChange={(e) =>
-                          handleHoursChange(index, 0, "endTime", e.target.value)
-                        }
-                        variant="outlined"
-                      />
-                    </div>
-                  ))}
-                  <Button
-                    onClick={handleAddSchedule}
-                    variant="outlined"
-                    sx={{
-                      width: "150px",
-                    }}
+              </FormGroup>
+            </motion.div>
+          </TabPanel>
+        )}
+        {activeStep === 1 && (
+          <TabPanel key={activeStep}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                <InputLabel>Time Zone</InputLabel>
+                <Select
+                  label="Time Zone"
+                  name="timezone"
+                  value={formData.schedule.timeZone}
+                  onChange={handleSelectChange}
+                >
+                  <MenuItem value="UTC -05:00 Eastern Time">
+                    UTC -05:00 Eastern Time
+                  </MenuItem>
+                  <MenuItem value="UTC -08:00 Pacific Time">
+                    UTC -08:00 Pacific Time
+                  </MenuItem>
+                </Select>
+              </FormControl>
+              <AvailabilityContainer>
+                <InputLabel>Availability</InputLabel>
+                {formData.schedule.schedule.map((slot, index) => (
+                  <div
+                    key={index}
+                    className="availability-row"
+                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
                   >
-                    + Add Hours
-                  </Button>
-                </AvailabilityContainer>
-              </motion.div>
-            </TabPanel>
-          )}
-        </DialogContent>
-        <DialogActions>
-          {activeStep === 0 ? (
+                    <Select
+                      value={slot.day}
+                      onChange={(e) =>
+                        handleScheduleChange(index, "day", e.target.value)
+                      }
+                      variant="outlined"
+                      sx={{ minWidth: "140px" }}
+                    >
+                      <MenuItem value="WeekEnds">WeekEnds</MenuItem>
+                      <MenuItem value="WeekDays">WeekDays</MenuItem>
+                      <MenuItem value="Monday">Monday</MenuItem>
+                      <MenuItem value="Tuesday">Tuesday</MenuItem>
+                      <MenuItem value="Wednesday">Wednesday</MenuItem>
+                      <MenuItem value="Thursday">Thursday</MenuItem>
+                      <MenuItem value="Friday">Friday</MenuItem>
+                      <MenuItem value="Saturday">Saturday</MenuItem>
+                      <MenuItem value="Sunday">Sunday</MenuItem>
+                    </Select>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <TimePicker
+                        label="Start Time"
+                        value={slot.hours[0].startTime}
+                        onChange={(newValue) =>
+                          handleHoursChange(index, 0, "startTime", newValue)
+                        }
+                        ampm
+                        slots={{ textField: TextField }}
+                        slotProps={{ textField: { variant: "outlined" } }}
+                      />
+                      <TimePicker
+                        label="End Time"
+                        value={slot.hours[0].endTime}
+                        onChange={(newValue) =>
+                          handleHoursChange(index, 0, "endTime", newValue)
+                        }
+                        ampm
+                        slots={{ textField: TextField }}
+                        slotProps={{ textField: { variant: "outlined" } }}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                ))}
+                <Button
+                  onClick={handleAddSchedule}
+                  variant="outlined"
+                  sx={{ width: "150px" }}
+                >
+                  + Add Hours
+                </Button>
+              </AvailabilityContainer>
+            </motion.div>
+          </TabPanel>
+        )}
+      </DialogContent>
+      <DialogActions>
+        {activeStep === 0 ? (
+          <Button
+            variant="contained"
+            onClick={handleNext}
+            sx={{ backgroundColor: "#6fc8c7", textTransform: "none" }}
+          >
+            Next
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="outlined"
+              onClick={handleBack}
+              sx={{ textTransform: "none" }}
+            >
+              Back
+            </Button>
             <Button
               variant="contained"
-              onClick={handleNext}
-              sx={{
-                backgroundColor: "#6fc8c7",
-                textTransform: "none",
-              }}
+              onClick={handleSave}
+              sx={{ textTransform: "none", backgroundColor: "#6fc8c7" }}
             >
-              Next
+              Save
             </Button>
-          ) : (
-            <>
-              <Button
-                variant="outlined"
-                onClick={handleBack}
-                sx={{ textTransform: "none" }}
-              >
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSave}
-                sx={{ textTransform: "none", backgroundColor: "#6fc8c7" }}
-              >
-                Save
-              </Button>
-            </>
-          )}
-        </DialogActions>
-      </DialogContainer>
+          </>
+        )}
+      </DialogActions>
     </Dialog>
   );
 };
