@@ -48,6 +48,7 @@ function Login() {
 
           toast.success("Logged in successfully!");
           navigate('/');
+          window.location.reload();
         } catch (err) {
           console.error('Login failed:', err);
           toast.error("Login failed. Please try again.");

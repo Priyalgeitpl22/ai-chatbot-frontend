@@ -26,7 +26,7 @@ export default function Tasks() {
   return (
     <TaskContainer>
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+        <Box sx={{ width:'100%', display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
           <CircularProgress />
         </Box>
       ) : error ? (
@@ -44,7 +44,7 @@ export default function Tasks() {
           )}
         </>
       ) : (
-        <Typography>No tasks available</Typography>
+        <Box sx={{width:'100%',display:'flex', alignItems:'center', justifyContent:'center'}}>No tasks available</Box>
       )}
     </TaskContainer>
   );

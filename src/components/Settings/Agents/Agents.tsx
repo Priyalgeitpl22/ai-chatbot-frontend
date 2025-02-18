@@ -13,16 +13,67 @@ import {
   UserName,
   ActionButton,
 } from "./Agents.styled";
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from "lucide-react";
 import AgentDialog from "./AgentDialogBox/AgentDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { fetchAgents } from "../../../redux/slice/agentsSlice";
 import Loader from "../../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
-import { Agent } from "./AgentDialogBox/AgentDialog";
 import dayjs, { Dayjs } from "dayjs";
 import { Button } from "../../../styles/layout.styled";
+
+export interface Agent {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  orgId: string;
+  profilePicture: File | null;
+  phone?: string;
+  schedule: {
+    timeZone: string;
+    schedule: (ScheduleSlot & { startTime?: string; endTime?: string })[];
+  };
+}
+
+interface ScheduleSlot {
+  day: string;
+  hours: { startTime: Dayjs; endTime: Dayjs }[];
+}
+
+interface AgentAvatarProps {
+  profilePicture: File | string | null;
+  fullName: string;
+}
+
+const AgentAvatar: React.FC<AgentAvatarProps> = ({ profilePicture, fullName }) => {
+  const [url, setUrl] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!profilePicture) {
+      setUrl(undefined);
+      return;
+    }
+    if (typeof profilePicture === "string") {
+      setUrl(profilePicture);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(profilePicture);
+    setUrl(objectUrl);
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [profilePicture]);
+
+  return (
+    <Avatar
+      src={url || ""}
+      alt={fullName}
+      style={{ marginRight: 8, width: 32, height: 32 }}
+    />
+  );
+};
 
 const Agents: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,23 +125,21 @@ const Agents: React.FC = () => {
     if (editingAgent) {
       setAgents(
         agents.map((agent) =>
-          agent.id === editingAgent.id
-            ? { ...editingAgent, ...newAgent }
-            : agent
+          agent.id === editingAgent.id ? { ...editingAgent, ...newAgent } : agent
         )
       );
-      setIsDialogOpen(false); 
+      setIsDialogOpen(false);
     } else {
       setAgents([...agents, agentWithId]);
       setIsDialogOpen(false);
     }
   };
+
   const formatTime = (time: Dayjs | string | undefined) => {
     if (!time) return "N/A";
     const t = dayjs(time);
     return t.isValid() ? t.format("hh:mm A") : "N/A";
   };
-  
 
   const handleDeleteAgent = (id: string) => {
     setAgents(agents.filter((agent) => agent.id !== id));
@@ -109,82 +158,86 @@ const Agents: React.FC = () => {
         />
         <Button onClick={handleOpenDialog}>Add User</Button>
       </AgentHeader>
-        <StyledTableContainer >
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                <StyledTableCell>S.No.</StyledTableCell>
-                <StyledTableCell>Name</StyledTableCell>
-                <StyledTableCell>Phone</StyledTableCell>
-                <StyledTableCell>Email</StyledTableCell>
-                <StyledTableCell>Availability</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
-              </TableRow>
-            </StyledTableHead>
-            <TableBody style={{ background: "#ffff" }}>
-              {agents.length > 0 ? (
-                agents.map((agent, index) => (
-                  <TableRow key={agent.id}>
-                    <StyledTableCell sx={{ textAlign: "center" }}>
-                      {index + 1}
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <UserInfoContainer>
-                        <Avatar
-                          src={agent.profilePicture || ""}
-                          alt={agent.fullName}
-                          style={{ marginRight: 8, width: 32, height: 32 }}
-                        />
-                        <UserName variant="body1">
-                        {agent.fullName}
-                      </UserName>
-                      </UserInfoContainer>
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      {agent.phone || "N/A"}
-                    </StyledTableCell>
-                    <StyledTableCell>{agent.email}</StyledTableCell>
-                    <StyledTableCell>
-                      {agent?.schedule?.schedule?.length > 0 ? (
-                         <AvailabilityList>
-                         {agent.schedule.schedule.map((slot, idx) => {
-                           const start =
-                             slot.hours?.[0]?.startTime || slot.startTime;
-                           const end =
-                             slot.hours?.[0]?.endTime || slot.endTime;
-                           return (
+      <StyledTableContainer>
+        <Table>
+          <StyledTableHead>
+            <TableRow>
+              <StyledTableCell>S.No.</StyledTableCell>
+              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Phone</StyledTableCell>
+              <StyledTableCell>Email</StyledTableCell>
+              <StyledTableCell>Availability</StyledTableCell>
+              <StyledTableCell>Actions</StyledTableCell>
+            </TableRow>
+          </StyledTableHead>
+          <TableBody style={{ background: "#ffff" }}>
+            {agents.length > 0 ? (
+              agents.map((agent, index) => (
+                <TableRow key={agent.id}>
+                  <StyledTableCell sx={{ textAlign: "center" }}>
+                    {index + 1}
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <UserInfoContainer>
+                      <AgentAvatar
+                        profilePicture={agent.profilePicture}
+                        fullName={agent.fullName}
+                      />
+                      <UserName variant="body1">{agent.fullName}</UserName>
+                    </UserInfoContainer>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    {agent.phone || "N/A"}
+                  </StyledTableCell>
+                  <StyledTableCell>{agent.email}</StyledTableCell>
+                  <StyledTableCell>
+                    {agent?.schedule?.schedule?.length > 0 ? (
+                      <AvailabilityList>
+                        {agent.schedule.schedule.map((slot, idx) => {
+                          const start =
+                            slot.hours?.[0]?.startTime || slot.startTime;
+                          const end =
+                            slot.hours?.[0]?.endTime || slot.endTime;
+                          return (
                             <AvailabilityChip
-                            key={idx}
-                            label={`${slot.day}: ${formatTime(start)} - ${formatTime(end)}`}
-                          />
-                          
-                           );
-                         })}
-                       </AvailabilityList>
-                      ) : (
-                        <div>offline</div>
-                      )}
-                    </StyledTableCell>
-                    <StyledTableCell >
-                    <ActionButton color="primary" size="small" onClick={() => handleEditAgent(agent)}>
+                              key={idx}
+                              label={`${slot.day}: ${formatTime(start)} - ${formatTime(end)}`}
+                            />
+                          );
+                        })}
+                      </AvailabilityList>
+                    ) : (
+                      <div>offline</div>
+                    )}
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <ActionButton
+                      color="primary"
+                      size="small"
+                      onClick={() => handleEditAgent(agent)}
+                    >
                       <Edit size={18} />
                     </ActionButton>
-                    <ActionButton color="error" size="small" onClick={() => handleDeleteAgent(agent.id)}>
+                    <ActionButton
+                      color="error"
+                      size="small"
+                      onClick={() => handleDeleteAgent(agent.id)}
+                    >
                       <Trash2 size={18} />
                     </ActionButton>
                   </StyledTableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <StyledTableCell colSpan={5} sx={{ textAlign: "center" }}>
-                    No agents found
-                  </StyledTableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </StyledTableContainer>
+              ))
+            ) : (
+              <TableRow>
+                <StyledTableCell colSpan={5} sx={{ textAlign: "center" }}>
+                  No agents found
+                </StyledTableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </StyledTableContainer>
       <Toaster />
     </AgentsContainer>
   );

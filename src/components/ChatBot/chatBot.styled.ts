@@ -3,7 +3,6 @@ import { Box, TextField, IconButton } from "@mui/material";
 
 export const ChatContainer = styled(Box)`
   width: 350px;
-  height: 98%;
   border-radius: 8px;
   overflow: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);

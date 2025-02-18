@@ -8,6 +8,7 @@ import {
   Users,
   MessageSquare,
   Building,
+  LayoutList,
 } from "lucide-react";
 import {
   SidebarContainer,
@@ -74,7 +75,7 @@ const Sidebar = () => {
           to="/tasks"
           className={location.pathname === "/tasks" ? "active" : ""}
         >
-          <Users size={18} />
+          <LayoutList size={18} />
           Tasks
         </NavItem>
         {/* <SettingsWrapper>

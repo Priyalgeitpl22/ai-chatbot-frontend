@@ -3,7 +3,7 @@ import { Box, Typography, TextField, Button } from '@mui/material';
 
 export const FormContainer = styled(Box)(`
   width: min-content;
-  min-width: 960px;
+  width: 98%;
   height: 98%;
   padding: 20px;
   border-radius: 8px;

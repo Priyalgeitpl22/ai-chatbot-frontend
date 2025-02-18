@@ -49,7 +49,7 @@ export interface Agent {
   email: string;
   role: string;
   orgId: string;
-  profilePicture: string;
+  profilePicture: File | null;
   phone?: string;
   schedule: {
     timeZone: string;
@@ -71,7 +71,7 @@ const defaultAgent: Agent = {
   fullName: "",
   email: "",
   phone: "",
-  profilePicture: "",
+  profilePicture: null,
   role: "Agent",
   schedule: {
     timeZone: "UTC -05:00 Eastern Time",
@@ -92,16 +92,23 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
   const [activeStep, setActiveStep] = useState<number>(0);
   const [formData, setFormData] = useState<Agent>(defaultAgent);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
 
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   useEffect(() => {
     if (!open) return;
 
     if (agent) {
       const timeZoneValue = agent.schedule.timeZone || defaultAgent.schedule.timeZone;
-
       const convertedSchedule = {
         timeZone: timeZoneValue,
         schedule: agent.schedule.schedule.map((slot) => {
@@ -144,10 +151,15 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
 
       setFormData({
         ...agent,
+        profilePicture: null, 
         schedule: convertedSchedule,
       });
+      setSelectedFile(null);
+      setPreviewUrl(undefined);
     } else {
       setFormData(defaultAgent);
+      setSelectedFile(null);
+      setPreviewUrl(undefined);
     }
   }, [open, agent]);
 
@@ -174,8 +186,13 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
       setSelectedFile(file);
       setFormData((prev) => ({
         ...prev,
-        profilePicture: URL.createObjectURL(file),
+        profilePicture: file,
       }));
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      const newUrl = URL.createObjectURL(file);
+      setPreviewUrl(newUrl);
     }
   };
 
@@ -256,7 +273,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
       role: formData.role,
       orgId: user!.orgId,
       aiOrgId: user?.aiOrgId,
-      profilePicture: formData.profilePicture || "",
+      profilePicture: selectedFile,
       schedule: {
         timeZone: formData.schedule.timeZone,
         schedule: formData.schedule.schedule.map((slot) => ({
@@ -270,6 +287,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
         })),
       },
     };
+    console.log(agent,"agent")
 
     if (agent) {
       dispatch(updateAgent({ agentId: agent.id ?? "", data: payload }) as any)
@@ -319,10 +337,8 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             transition={{ duration: 0.3 }}
           >
             <AvatarWrapper>
-              <Avatar
-                src={formData.profilePicture}
-                alt={formData.fullName}
-              />
+            <Avatar src={previewUrl || (typeof agent?.profilePicture === "string" ? agent.profilePicture : "")} alt={formData.fullName} />
+
               <IconButton component="label">
                 <input
                   type="file"
@@ -342,12 +358,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 fullWidth
                 variant="outlined"
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'var(--theme-color)',
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "var(--theme-color)",
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'var(--theme-color)',
+                    "&.Mui-focused fieldset": {
+                      borderColor: "var(--theme-color)",
                     },
                   },
                 }}
@@ -360,12 +376,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 fullWidth
                 variant="outlined"
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'var(--theme-color)',
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "var(--theme-color)",
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'var(--theme-color)',
+                    "&.Mui-focused fieldset": {
+                      borderColor: "var(--theme-color)",
                     },
                   },
                 }}
@@ -378,12 +394,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 fullWidth
                 variant="outlined"
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'var(--theme-color)',
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "var(--theme-color)",
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'var(--theme-color)',
+                    "&.Mui-focused fieldset": {
+                      borderColor: "var(--theme-color)",
                     },
                   },
                 }}
@@ -396,11 +412,11 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                   value={formData.role}
                   onChange={handleSelectChange}
                   sx={{
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'var(--theme-color)',
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "var(--theme-color)",
                     },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'var(--theme-color)',
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "var(--theme-color)",
                     },
                   }}
                 >
@@ -426,11 +442,11 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 value={formData.schedule.timeZone}
                 onChange={handleSelectChange}
                 sx={{
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'var(--theme-color)',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--theme-color)",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'var(--theme-color)',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--theme-color)",
                   },
                 }}
               >
@@ -442,77 +458,85 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
               <Typography variant="h6" sx={{ color: "#1e293b", display: "flex", alignItems: "center", gap: 1 }}>
                 <Schedule /> Availability
               </Typography>
-              {formData.schedule.schedule.map((slot, index) => (
-                <motion.div
-                  key={index}
-                  className="availability-row"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{ padding: "10px 10px" }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <Select
-                    value={slot.day}
-                    onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
-                    variant="outlined"
-                    sx={{
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'var(--theme-color)',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'var(--theme-color)',
-                      },
-                    }}
+              {formData.schedule.schedule.map((slot, index) => {
+                const start = slot.hours?.[0]?.startTime || slot.startTime;
+                const end = slot.hours?.[0]?.endTime || slot.endTime;
+                return (
+                  <motion.div
+                    key={index}
+                    className="availability-row"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: "10px 10px" }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
                   >
-                    <MenuItem value="WeekEnds">WeekEnds</MenuItem>
-                    <MenuItem value="WeekDays">WeekDays</MenuItem>
-                    <MenuItem value="Monday">Monday</MenuItem>
-                    <MenuItem value="Tuesday">Tuesday</MenuItem>
-                    <MenuItem value="Wednesday">Wednesday</MenuItem>
-                    <MenuItem value="Thursday">Thursday</MenuItem>
-                    <MenuItem value="Friday">Friday</MenuItem>
-                    <MenuItem value="Saturday">Saturday</MenuItem>
-                    <MenuItem value="Sunday">Sunday</MenuItem>
-                  </Select>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker
-                      label="Start Time"
-                      value={slot.hours[0].startTime}
-                      onChange={(newValue) => handleHoursChange(index, 0, "startTime", newValue)}
-                      ampm
+                    <Select
+                      value={slot.day}
+                      onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
+                      variant="outlined"
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'var(--theme-color)',
-                          },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'var(--theme-color)',
-                          },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "var(--theme-color)",
+                        },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "var(--theme-color)",
                         },
                       }}
-                    />
-                    <TimePicker
-                      label="End Time"
-                      value={slot.hours[0].endTime}
-                      onChange={(newValue) => handleHoursChange(index, 0, "endTime", newValue)}
-                      ampm
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'var(--theme-color)',
+                    >
+                      <MenuItem value="WeekEnds">WeekEnds</MenuItem>
+                      <MenuItem value="WeekDays">WeekDays</MenuItem>
+                      <MenuItem value="Monday">Monday</MenuItem>
+                      <MenuItem value="Tuesday">Tuesday</MenuItem>
+                      <MenuItem value="Wednesday">Wednesday</MenuItem>
+                      <MenuItem value="Thursday">Thursday</MenuItem>
+                      <MenuItem value="Friday">Friday</MenuItem>
+                      <MenuItem value="Saturday">Saturday</MenuItem>
+                      <MenuItem value="Sunday">Sunday</MenuItem>
+                    </Select>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <TimePicker
+                        label="Start Time"
+                        value={slot.hours[0].startTime}
+                        onChange={(newValue) =>
+                          handleHoursChange(index, 0, "startTime", newValue)
+                        }
+                        ampm
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "&:hover fieldset": {
+                              borderColor: "var(--theme-color)",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "var(--theme-color)",
+                            },
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'var(--theme-color)',
+                        }}
+                      />
+                      <TimePicker
+                        label="End Time"
+                        value={slot.hours[0].endTime}
+                        onChange={(newValue) =>
+                          handleHoursChange(index, 0, "endTime", newValue)
+                        }
+                        ampm
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "&:hover fieldset": {
+                              borderColor: "var(--theme-color)",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "var(--theme-color)",
+                            },
                           },
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                  <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
-                    <Delete />
-                  </IconButton>
-                </motion.div>
-              ))}
+                        }}
+                      />
+                    </LocalizationProvider>
+                    <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
+                      <Delete />
+                    </IconButton>
+                  </motion.div>
+                );
+              })}
               <Button
                 onClick={handleAddSchedule}
                 style={{
@@ -530,11 +554,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
       </DialogContent>
       <DialogActions sx={{ padding: 3, gap: 2 }}>
         {activeStep === 0 ? (
-          <Button
-            onClick={handleNext}
-          >
-            Next
-          </Button>
+          <Button onClick={handleNext}>Next</Button>
         ) : (
           <>
             <Button
@@ -546,11 +566,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             >
               Back
             </Button>
-            <Button
-              onClick={handleSave}
-            >
-              Save
-            </Button>
+            <Button onClick={handleSave}>Save</Button>
           </>
         )}
       </DialogActions>

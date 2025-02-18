@@ -20,7 +20,7 @@ interface CreateAgentPayload {
   fullName: string;
   phone: string;
   orgId: string;
-  profilePicture?: string;
+  profilePicture: File |  null;
   schedule?:any
 }
 
