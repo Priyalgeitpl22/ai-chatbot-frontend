@@ -31,6 +31,7 @@ import { getScript, saveConfigurations } from "../../../redux/slice/chatSlice";
 import { ContentContainer } from "./configuration.styled";
 import Loader from "../../Loader";
 import toast, {Toaster} from "react-hot-toast";
+import { Button } from "../../../styles/layout.styled";
 
 const Configuration = () => {
   const [settings, setSettings] = useState({
@@ -190,7 +191,7 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-              <FormControlLabel
+              {/* <FormControlLabel
                 control={
                   <Checkbox
                     checked={settings.availability}
@@ -205,10 +206,10 @@ const Configuration = () => {
                     fontWeight: 600,
                   },
                 }}
-              />
-            <SaveButton color="var(--theme-color)" onClick={handleSave}>
+              /> */}
+            <Button onClick={handleSave}>
               Save
-            </SaveButton>
+            </Button>
             </Section>
           </motion.div>
           <ChatBot settings={settings} />

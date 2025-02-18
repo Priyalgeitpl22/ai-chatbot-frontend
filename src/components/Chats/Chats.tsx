@@ -9,6 +9,8 @@ import { useSocket } from "../../context/SocketContext";
 import Loader from "../../components/Loader";
 import { ChatContainer } from "./ChatSideBar/chatSidebar.styled";
 import { ThreadType } from "../../enums";
+import { PlaceholderContainer } from "./ChatArea/chatArea.styled";
+import { Typography } from "@mui/material";
 
 export default function Chats() {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,7 +18,9 @@ export default function Chats() {
   const { socket } = useSocket();
 
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
-  const [selectedThreadType, setSelectedThreadType] = useState<string>(ThreadType.UNASSIGNED);
+  const [selectedThreadType, setSelectedThreadType] = useState<string>(
+    ThreadType.UNASSIGNED
+  );
   const [messages, setMessages] = useState<any[]>([]);
   const [lastEvent, setLastEvent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,20 +62,42 @@ export default function Chats() {
   }
 
   return (
-    <ChatContainer>
-      <ChatSideBar
-        selectedType={selectedThreadType}
-        onSelectType={setSelectedThreadType}
-      />
-      <ChatList
-        threads={threads.filter((thread) => thread.type === selectedThreadType)}
-        onSelectThread={(newThreadId: string) => setSelectedThreadId(newThreadId)}
-        type={selectedThreadType} selectedThreadId={selectedThreadId}
-      />
-      <ChatArea
-        onSelectThread={(newThreadId: string) => setSelectedThreadId(newThreadId)}
-        selectedThreadId={selectedThreadId}
-      />
-    </ChatContainer>
+    <>
+      {threads.length > 0 ? (
+        <ChatContainer>
+          <ChatSideBar
+            selectedType={selectedThreadType}
+            onSelectType={setSelectedThreadType}
+          />
+          <ChatList
+            threads={threads.filter(
+              (thread) => thread.type === selectedThreadType
+            )}
+            onSelectThread={(newThreadId: string) =>
+              setSelectedThreadId(newThreadId)
+            }
+            type={selectedThreadType}
+            selectedThreadId={selectedThreadId}
+          />
+          <ChatArea
+            onSelectThread={(newThreadId: string) =>
+              setSelectedThreadId(newThreadId)
+            }
+            selectedThreadId={selectedThreadId}
+          />
+        </ChatContainer>
+      ) : (
+        <PlaceholderContainer>
+        <img
+          src="https://img.freepik.com/free-vector/cartoon-style-robot-vectorart_78370-4103.jpg"
+          alt="No conversation selected"
+          width="300"
+        />
+        <Typography sx={{ color: "#000000" }}>
+          No chats available.
+        </Typography>
+      </PlaceholderContainer>
+      )}
+    </>
   );
 }

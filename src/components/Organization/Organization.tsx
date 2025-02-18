@@ -6,13 +6,12 @@ import { fetchOrganization, updateOrganization } from '../../redux/slice/organiz
 import {
   FormContainer,
   FormTitle,
-  StyledTextField,
-  StyledButton
-} from './organization.styled';
+  StyledTextField} from './organization.styled';
 import { AppDispatch, RootState } from '../../redux/store/store';
 import industriesData from './Industry.json';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Loader from '../Loader';
+import { Button } from '../../styles/layout.styled';
 
 interface Field {
   label: string;
@@ -141,9 +140,9 @@ const OrganizationForm: React.FC = () => {
         }}
       >
         <FormTitle>Organization Form</FormTitle>
-        <StyledButton type="submit" form="org-form">
+        <Button type="submit" form="org-form">
           Update
-        </StyledButton>
+        </Button>
       </Box>
       <Box component="form" id="org-form" noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>

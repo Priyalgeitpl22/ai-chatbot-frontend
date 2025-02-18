@@ -76,7 +76,7 @@ export const UIContainer = styled.div`
 
 export const LogoContainer = styled.div`
   display: flex;
-  width: 45%;
+  width: 30%;
   gap: 10px;
 `;
 

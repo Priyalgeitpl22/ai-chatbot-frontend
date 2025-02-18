@@ -1,0 +1,51 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store/store";
+import TaskList from "./TaskList/TaskList";
+import { TaskContainer } from "./tasks.styled";
+import { getAllTasks } from "../../redux/slice/taskSlice";
+import { CircularProgress, Box, Typography } from "@mui/material";
+import ChatArea from "../Chats/ChatArea/ChatArea";
+
+export default function Tasks() {
+  const dispatch = useDispatch<AppDispatch>();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    dispatch(getAllTasks());
+  }, [dispatch]);
+
+  const { tasks, loading, error } = useSelector((state: RootState) => state.task);
+
+  const handleSelectTask = (taskId: string) => {
+    setSelectedTaskId(taskId); // Set selected task ID
+  };
+
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId); // Find the selected task
+
+  return (
+    <TaskContainer>
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Typography color="error">{error}</Typography>
+      ) : tasks.length > 0 ? (
+        <>
+          <TaskList
+            tasks={tasks}
+            onSelectTask={handleSelectTask}
+            selectedTaskId={selectedTaskId}
+          />
+          
+          {selectedTask && (
+            <ChatArea onClose={() => setSelectedTaskId(null)} selectedThreadId={selectedTask.threadId} />
+          )}
+        </>
+      ) : (
+        <Typography>No tasks available</Typography>
+      )}
+    </TaskContainer>
+  );
+}

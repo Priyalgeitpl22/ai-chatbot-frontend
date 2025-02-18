@@ -7,7 +7,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import { Send } from "lucide-react";
+import { Send, X } from "lucide-react";  // Import the X icon for the close button
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
@@ -37,7 +37,8 @@ interface ChatData {
 
 interface ChatAreaProps {
   selectedThreadId: string | null;
-  onSelectThread: (type: string) => void;
+  onSelectThread?: (type: string) => void;
+  onClose?: () => void; 
 }
 
 const motionVariants = {
@@ -45,7 +46,7 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function ChatArea({ selectedThreadId }: ChatAreaProps) {
+export default function ChatArea({ selectedThreadId, onClose }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
@@ -182,12 +183,16 @@ export default function ChatArea({ selectedThreadId }: ChatAreaProps) {
       ) : (
         <>
           <ChatHeader>
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box display="flex" alignItems="center" gap={2} sx={{ flexGrow: 1 }}>
               <Avatar style={{ backgroundColor: "var(--theme-color)" }}>
                 U
               </Avatar>
               <Typography variant="subtitle1">Unknown Visitor</Typography>
             </Box>
+            {/* Close button on the right */}
+            <IconButton onClick={onClose} sx={{ padding: 0 }}>
+              <X size={24} />
+            </IconButton>
           </ChatHeader>
           <ChatMessages id="chatMessagesContainer">
             {delayedLoading ? (

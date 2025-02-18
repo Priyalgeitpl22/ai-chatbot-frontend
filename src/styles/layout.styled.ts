@@ -8,6 +8,7 @@ export const SidebarContainer = styled(motion.aside)`
   border-right: 1px solid #e2e8f0;
   margin-top: 6px;
   border-radius: 10px;
+  min-width: 200px;
 `;
 
 export const HeaderContainer = styled.header`
@@ -125,4 +126,22 @@ export const ContentArea = styled.div`
   flex-grow: 1;
   padding: 5px 10px;
   background-color: var(--theme-color-light);
+`;
+
+export const Button = styled.button`
+font-weight: semibold;
+width:100px;
+padding: 8px 12px;
+border: none;
+border-radius: 6px;
+color: #1e293b;
+background-color:var(--theme-color);
+cursor: pointer;
+font-size: 16px;  
+font-weight: 600;
+
+:hover {
+  background-color: var(--theme-color);
+  opacity: 0.8;
+}
 `;

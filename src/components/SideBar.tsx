@@ -70,7 +70,14 @@ const Sidebar = () => {
           <Users size={18} />
           Agents
         </NavItem>
-        <SettingsWrapper>
+        <NavItem
+          to="/tasks"
+          className={location.pathname === "/tasks" ? "active" : ""}
+        >
+          <Users size={18} />
+          Tasks
+        </NavItem>
+        {/* <SettingsWrapper>
           <div onClick={() => setIsSettingsOpen(!isSettingsOpen)}>
             <NavItem
               to="#"
@@ -112,7 +119,7 @@ const Sidebar = () => {
               </SubNavItem>
             </SubmenuWrapper>
           )}
-        </SettingsWrapper>
+        </SettingsWrapper> */}
       </nav>
     </SidebarContainer>
   );

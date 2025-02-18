@@ -66,6 +66,7 @@ export const PlaceholderContainer = styled(Box)({
   justifyContent: 'center',
   height: '-webkit-fill-available',
   textAlign: 'center',
+  background: '#ffff'
 });
 
 export const BotMessage = styled(Box)({

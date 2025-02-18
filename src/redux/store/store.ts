@@ -5,6 +5,7 @@ import agentsReducer from '../slice/agentsSlice';
 import threadReducer from "../slice/threadSlice";
 import chatsReducer from "../slice/chatSlice";
 import authReducer from "../slice/authSlice";
+import taskReducer from "../slice/taskSlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
     agents: agentsReducer,
     thread: threadReducer,
     chats: chatsReducer,
-    auth: authReducer
+    auth: authReducer,
+    task: taskReducer
   },
 });
 

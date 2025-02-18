@@ -11,6 +11,7 @@ import {
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useSocket } from "../../context/SocketContext";
 import { NotificationContainer } from "./notification.styled";
+import toast from "react-hot-toast";
 
 const NotificationComponent: React.FC = () => {
   const [notifications, setNotifications] = useState<string[]>([]);
@@ -30,6 +31,7 @@ const NotificationComponent: React.FC = () => {
 
     const handleNotification = (data: { message: string }) => {
       console.log("📩 Notification received:", data.message);
+      toast.success("📩 New Notification received:");
       setNotifications((prev) => [...prev, data.message]);
       playNotificationSound();
     };
@@ -58,13 +60,26 @@ const NotificationComponent: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
+          gap: "10px"
         }}
         onClick={handleClick}
       >
-        <Badge badgeContent={notifications.length} color="error">
-          <NotificationsIcon sx={{ fontSize: 25, color: 'var(--theme-color-dark)' }} />
+        <Badge
+          badgeContent={notifications.length}
+          style={{
+            fontSize: "10px",
+            minWidth: "14px",
+            lineHeight: 1,
+            padding: "0 4px",
+            height: "14px",
+          }}
+          color="error"
+        >
+          <NotificationsIcon
+            sx={{ fontSize: 25, color: "var(--theme-color-dark)" }}
+          />
         </Badge>
-        <Typography variant="subtitle2" sx={{ fontSize: 10, color: '#696969' }}>
+        <Typography variant="subtitle2" sx={{ fontSize: 10, color: "#696969" }}>
           Notifications
         </Typography>
       </IconButton>

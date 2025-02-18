@@ -23,6 +23,7 @@ import Sidebar from "./components/SideBar";
 import Home from "./pages/Home/Home";
 import { SocketProvider } from "./context/SocketContext";
 import { Toaster } from "react-hot-toast";
+import Tasks from "./components/Tasks/Tasks";
 
 const AuthGuard = ({ children }: { children: JSX.Element }) => {
   const token = Cookies.get("access_token");
@@ -80,6 +81,7 @@ function AppRoutes() {
                       <Route path="/" element={<Home />} />
                       <Route path="/chats" element={<Chats />} />
                       <Route path="/organization" element={<Organization />} />
+                      <Route path="/tasks" element={<Tasks />} />
                       <Route path="/settings/configuration" element={<Configuration />} />
                       <Route path="/settings/agents" element={<Agents />} />
                     </Routes>

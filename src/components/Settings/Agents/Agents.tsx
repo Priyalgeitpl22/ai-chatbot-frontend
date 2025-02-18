@@ -107,7 +107,7 @@ const Agents: React.FC = () => {
           onSave={handleSaveAgent}
           agent={editingAgent}
         />
-        <CreateAgent onClick={handleOpenDialog}>Add User</CreateAgent>
+        <Button onClick={handleOpenDialog}>Add User</Button>
       </AgentHeader>
         <StyledTableContainer >
           <Table>
