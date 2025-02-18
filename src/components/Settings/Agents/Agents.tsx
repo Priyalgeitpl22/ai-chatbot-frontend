@@ -4,7 +4,6 @@ import {
   AgentsContainer,
   AgentHeader,
   SectionTitle,
-  CreateAgent,
   StyledTableContainer,
   StyledTableCell,
   StyledTableHead,
@@ -23,6 +22,7 @@ import Loader from "../../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
 import { Agent } from "./AgentDialogBox/AgentDialog";
 import dayjs, { Dayjs } from "dayjs";
+import { Button } from "../../../styles/layout.styled";
 
 const Agents: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { Box, Chip, IconButton, TableCell, TableContainer, TableHead, Typography } from "@mui/material";
-import { motion } from 'framer-motion';
 
 export const AgentsContainer = styled.div`
   width: 98%;
@@ -31,37 +30,10 @@ export const SectionTitle = styled.h2`
     color: #35495c;
     display: flex;
   `;
-export const CreateAgent = styled(motion.button)`
-    font-weight: bold;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--theme-color), var(--theme-color));
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-    outline: none;
-    letter-spacing: 1px;
-
-    &:hover {
-      background: linear-gradient(135deg, var(--theme-color), #378f8f);
-      transform: scale(1.05);
-      box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    &:active {
-      transform: scale(0.95);
-      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-    }
-  `;
-
 
 export const StyledTableContainer = styled(TableContainer)`
     max-height: 400px;
     overflow-y: auto;
-    margin: 2px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   background-color: #ffffff;

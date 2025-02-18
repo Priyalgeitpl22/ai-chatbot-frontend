@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Button,
   Avatar,
   FormControl,
   InputLabel,
@@ -16,8 +15,9 @@ import {
   StepLabel,
   SelectChangeEvent,
   DialogTitle,
+  Typography,
 } from "@mui/material";
-import { AddAPhoto, Delete } from "@mui/icons-material";
+import { AddAPhoto, Delete, Schedule } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { createAgent, updateAgent } from "../../../../redux/slice/agentsSlice";
@@ -28,7 +28,6 @@ import {
   AvailabilityContainer,
 } from "./AgentDialog.styled";
 import { AppDispatch, RootState } from "../../../../redux/store/store";
-
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
@@ -37,6 +36,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import toast, { Toaster } from "react-hot-toast";
+import { Button } from "../../../../styles/layout.styled";
 
 interface ScheduleSlot {
   day: string;
@@ -312,175 +312,242 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
       </DialogTitle>
       <DialogContent>
         {activeStep === 0 && (
-          <TabPanel key={activeStep}>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <AvatarWrapper>
-                <Avatar
-                  src={formData.profilePicture}
-                  sx={{ width: 80, height: 80, border: "2px solid #6fc8c7" }}
+          <TabPanel
+            key={activeStep}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <AvatarWrapper>
+              <Avatar
+                src={formData.profilePicture}
+                alt={formData.fullName}
+              />
+              <IconButton component="label">
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleFileChange}
                 />
-                <IconButton component="label" sx={{ color: "#6fc8c7" }}>
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                  <AddAPhoto />
-                </IconButton>
-              </AvatarWrapper>
-              <FormGroup>
-                <TextField
-                  label="Name"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  fullWidth
-                  variant="outlined"
-                />
-                <TextField
-                  label="Email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  fullWidth
-                  variant="outlined"
-                />
-                <TextField
-                  label="Phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  fullWidth
-                  variant="outlined"
-                />
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>User Role</InputLabel>
-                  <Select
-                    label="User Role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleSelectChange}
-                  >
-                    <MenuItem value="Admin">Admin</MenuItem>
-                    <MenuItem value="Agent">Agent</MenuItem>
-                  </Select>
-                </FormControl>
-              </FormGroup>
-            </motion.div>
+                <AddAPhoto fontSize="small" />
+              </IconButton>
+            </AvatarWrapper>
+            <FormGroup>
+              <TextField
+                label="Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                  },
+                }}
+              />
+              <TextField
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                  },
+                }}
+              />
+              <TextField
+                label="Phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                  },
+                }}
+              />
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>User Role</InputLabel>
+                <Select
+                  label="User Role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleSelectChange}
+                  sx={{
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'var(--theme-color)',
+                    },
+                  }}
+                >
+                  <MenuItem value="Admin">Admin</MenuItem>
+                  <MenuItem value="Agent">Agent</MenuItem>
+                </Select>
+              </FormControl>
+            </FormGroup>
           </TabPanel>
         )}
         {activeStep === 1 && (
-          <TabPanel key={activeStep}>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                <InputLabel>Time Zone</InputLabel>
-                <Select
-                  label="Time Zone"
-                  name="timezone"
-                  value={formData.schedule.timeZone}
-                  onChange={handleSelectChange}
+          <TabPanel
+            key={activeStep}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Time Zone</InputLabel>
+              <Select
+                label="Time Zone"
+                name="timezone"
+                value={formData.schedule.timeZone}
+                onChange={handleSelectChange}
+                sx={{
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'var(--theme-color)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'var(--theme-color)',
+                  },
+                }}
+              >
+                <MenuItem value="UTC -05:00 Eastern Time">UTC -05:00 Eastern Time</MenuItem>
+                <MenuItem value="UTC -08:00 Pacific Time">UTC -08:00 Pacific Time</MenuItem>
+              </Select>
+            </FormControl>
+            <AvailabilityContainer>
+              <Typography variant="h6" sx={{ color: "#1e293b", display: "flex", alignItems: "center", gap: 1 }}>
+                <Schedule /> Availability
+              </Typography>
+              {formData.schedule.schedule.map((slot, index) => (
+                <motion.div
+                  key={index}
+                  className="availability-row"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ padding: "10px 10px" }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <MenuItem value="UTC -05:00 Eastern Time">
-                    UTC -05:00 Eastern Time
-                  </MenuItem>
-                  <MenuItem value="UTC -08:00 Pacific Time">
-                    UTC -08:00 Pacific Time
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              <AvailabilityContainer>
-                <InputLabel>Availability</InputLabel>
-                {formData.schedule.schedule.map((slot, index) => (
-                  <div
-                    key={index}
-                    className="availability-row"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      justifyContent: "space-between",
+                  <Select
+                    value={slot.day}
+                    onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
+                    variant="outlined"
+                    sx={{
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'var(--theme-color)',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'var(--theme-color)',
+                      },
                     }}
                   >
-                    <Select
-                      value={slot.day}
-                      onChange={(e) =>
-                        handleScheduleChange(index, "day", e.target.value)
-                      }
-                      variant="outlined"
-                      sx={{ minWidth: "140px" }}
-                    >
-                      <MenuItem value="WeekEnds">WeekEnds</MenuItem>
-                      <MenuItem value="WeekDays">WeekDays</MenuItem>
-                      <MenuItem value="Monday">Monday</MenuItem>
-                      <MenuItem value="Tuesday">Tuesday</MenuItem>
-                      <MenuItem value="Wednesday">Wednesday</MenuItem>
-                      <MenuItem value="Thursday">Thursday</MenuItem>
-                      <MenuItem value="Friday">Friday</MenuItem>
-                      <MenuItem value="Saturday">Saturday</MenuItem>
-                      <MenuItem value="Sunday">Sunday</MenuItem>
-                    </Select>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <TimePicker
-                        label="Start Time"
-                        value={slot.hours[0].startTime}
-                        onChange={(newValue) =>
-                          handleHoursChange(index, 0, "startTime", newValue)
-                        }
-                        ampm
-                        slots={{ textField: TextField }}
-                        slotProps={{ textField: { variant: "outlined" } }}
-                      />
-                      <TimePicker
-                        label="End Time"
-                        value={slot.hours[0].endTime}
-                        onChange={(newValue) =>
-                          handleHoursChange(index, 0, "endTime", newValue)
-                        }
-                        ampm
-                        slots={{ textField: TextField }}
-                        slotProps={{ textField: { variant: "outlined" } }}
-                      />
-                    </LocalizationProvider>
-                    <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
-                      <Delete />
-                    </IconButton>
-                  </div>
-                ))}
-                <Button
-                  onClick={handleAddSchedule}
-                  variant="outlined"
-                  sx={{ width: "150px" }}
-                >
-                  + Add Hours
-                </Button>
-              </AvailabilityContainer>
-            </motion.div>
+                    <MenuItem value="WeekEnds">WeekEnds</MenuItem>
+                    <MenuItem value="WeekDays">WeekDays</MenuItem>
+                    <MenuItem value="Monday">Monday</MenuItem>
+                    <MenuItem value="Tuesday">Tuesday</MenuItem>
+                    <MenuItem value="Wednesday">Wednesday</MenuItem>
+                    <MenuItem value="Thursday">Thursday</MenuItem>
+                    <MenuItem value="Friday">Friday</MenuItem>
+                    <MenuItem value="Saturday">Saturday</MenuItem>
+                    <MenuItem value="Sunday">Sunday</MenuItem>
+                  </Select>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TimePicker
+                      label="Start Time"
+                      value={slot.hours[0].startTime}
+                      onChange={(newValue) => handleHoursChange(index, 0, "startTime", newValue)}
+                      ampm
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: 'var(--theme-color)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'var(--theme-color)',
+                          },
+                        },
+                      }}
+                    />
+                    <TimePicker
+                      label="End Time"
+                      value={slot.hours[0].endTime}
+                      onChange={(newValue) => handleHoursChange(index, 0, "endTime", newValue)}
+                      ampm
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: 'var(--theme-color)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'var(--theme-color)',
+                          },
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                  <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
+                    <Delete />
+                  </IconButton>
+                </motion.div>
+              ))}
+              <Button
+                onClick={handleAddSchedule}
+                style={{
+                  width: "fit-content",
+                  background: "#fff",
+                  fontWeight: 400,
+                  border: "1px solid var(--theme-color)",
+                }}
+              >
+                + Add Hours
+              </Button>
+            </AvailabilityContainer>
           </TabPanel>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ padding: 3, gap: 2 }}>
         {activeStep === 0 ? (
           <Button
-            variant="contained"
             onClick={handleNext}
-            sx={{ backgroundColor: "#6fc8c7", textTransform: "none" }}
           >
             Next
           </Button>
         ) : (
           <>
             <Button
-              variant="outlined"
               onClick={handleBack}
-              sx={{ textTransform: "none" }}
+              style={{
+                border: "1px solid var(--theme-color)",
+                background: "#fff",
+              }}
             >
               Back
             </Button>
             <Button
-              variant="contained"
               onClick={handleSave}
-              sx={{ textTransform: "none", backgroundColor: "#6fc8c7" }}
             >
               Save
             </Button>

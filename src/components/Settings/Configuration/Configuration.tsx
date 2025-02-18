@@ -6,7 +6,6 @@ import {
   SectionTitle,
   ColorGrid,
   ColorOption,
-  SaveButton,
   CustomTabs,
   CustomTab,
   TrackingCode,
@@ -191,22 +190,6 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-              {/* <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={settings.availability}
-                    onChange={(e) => handleChange("availability", e.target.checked)}
-                  />
-                }
-                label="Available"
-                sx={{
-                  "& .MuiFormControlLabel-label": {
-                    color: "#35495c",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                  },
-                }}
-              /> */}
             <Button onClick={handleSave}>
               Save
             </Button>
