@@ -17,7 +17,7 @@ import {
   SelectChangeEvent,
   DialogTitle,
 } from "@mui/material";
-import { AddAPhoto } from "@mui/icons-material";
+import { AddAPhoto, Delete } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { createAgent, updateAgent } from "../../../../redux/slice/agentsSlice";
@@ -30,10 +30,13 @@ import {
 import { AppDispatch, RootState } from "../../../../redux/store/store";
 
 import dayjs, { Dayjs } from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import toast, {Toaster} from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 interface ScheduleSlot {
   day: string;
@@ -50,21 +53,19 @@ export interface Agent {
   phone?: string;
   schedule: {
     timeZone: string;
-    schedule: (ScheduleSlot & {
-      startTime?: string;
-      endTime?: string;
-    })[];
+    schedule: (ScheduleSlot & { startTime?: string; endTime?: string })[];
   };
 }
 
 interface AgentDialogProps {
   open: boolean;
   onClose: () => void;
+  onSave: (newAgent: Omit<Agent, "id">) => void;
   agent?: Agent | null;
 }
 
-const defaultStartTime: Dayjs = dayjs("09:00", "HH:mm");
-const defaultEndTime: Dayjs = dayjs("17:00", "HH:mm");
+const defaultStartTime: Dayjs = dayjs("09:00AM", "hh:mmA");
+const defaultEndTime: Dayjs = dayjs("05:00PM", "hh:mmA");
 
 const defaultAgent: Agent = {
   fullName: "",
@@ -87,7 +88,7 @@ const defaultAgent: Agent = {
 
 const steps = ["Personal Details", "Schedule"];
 
-const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
+const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent }) => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [formData, setFormData] = useState<Agent>(defaultAgent);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -110,28 +111,23 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
           if (slot.startTime) {
             startVal = slot.startTime;
             endVal = slot.endTime;
-          }
-          else if (slot.hours?.[0]) {
+          } else if (slot.hours?.[0]) {
             startVal = slot.hours[0].startTime;
             endVal = slot.hours[0].endTime;
           }
 
           let parsedStart = dayjs(startVal, ["h:mmA", "h:mm A", "HH:mm"], true);
-
           if (!parsedStart.isValid() && dayjs.isDayjs(startVal)) {
             parsedStart = startVal as Dayjs;
           } else if (!parsedStart.isValid()) {
             parsedStart = defaultStartTime;
-            console.log(parsedStart,"parsedStartDate")
           }
 
           let parsedEnd = dayjs(endVal, ["h:mmA", "HH:mm"]);
           if (!parsedEnd.isValid() && dayjs.isDayjs(endVal)) {
             parsedEnd = endVal as Dayjs;
-            console.log(parsedEnd,"parsedEndDate")
           } else if (!parsedEnd.isValid()) {
             parsedEnd = defaultEndTime;
-            console.log(parsedEnd,"parsedEndDate")
           }
 
           return {
@@ -199,6 +195,16 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
     }));
   };
 
+  const handleDeleteSchedule = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      schedule: {
+        ...prev.schedule,
+        schedule: prev.schedule.schedule.filter((_, i) => i !== index),
+      },
+    }));
+  };
+
   const handleScheduleChange = (
     index: number,
     field: keyof ScheduleSlot,
@@ -241,6 +247,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
 
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
+
   const handleSave = () => {
     const payload = {
       email: formData.email,
@@ -249,13 +256,17 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
       role: formData.role,
       orgId: user!.orgId,
       aiOrgId: user?.aiOrgId,
-      profilePicture: selectedFile || undefined,
+      profilePicture: formData.profilePicture || "",
       schedule: {
         timeZone: formData.schedule.timeZone,
         schedule: formData.schedule.schedule.map((slot) => ({
           day: slot.day,
-          startTime: slot.hours[0].startTime.format("h:mmA"),
-          endTime: slot.hours[0].endTime.format("h:mmA"),
+          hours: [
+            {
+              startTime: slot.hours[0].startTime,
+              endTime: slot.hours[0].endTime,
+            },
+          ],
         })),
       },
     };
@@ -264,20 +275,19 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
       dispatch(updateAgent({ agentId: agent.id ?? "", data: payload }) as any)
         .unwrap()
         .then(() => {
-          console.log("Agent updated successfully");
           toast.success("Agent updated successfully");
+          onSave(payload);
         })
         .catch((error: any) => {
-          toast.error("Failed to update agent");
           console.error("Error updating agent:", error);
+          toast.error("Failed to update agent");
         });
     } else {
       dispatch(createAgent(payload) as any)
         .unwrap()
         .then(() => {
-          console.log("Agent created successfully");
           toast.success("Agent created successfully");
-          
+          onSave(payload);
         })
         .catch((error: any) => {
           console.error("Error creating agent:", error);
@@ -385,7 +395,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
                   <div
                     key={index}
                     className="availability-row"
-                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      justifyContent: "space-between",
+                    }}
                   >
                     <Select
                       value={slot.day}
@@ -427,6 +442,9 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, agent }) => {
                         slotProps={{ textField: { variant: "outlined" } }}
                       />
                     </LocalizationProvider>
+                    <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
+                      <Delete />
+                    </IconButton>
                   </div>
                 ))}
                 <Button

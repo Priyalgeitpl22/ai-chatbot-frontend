@@ -34,7 +34,7 @@ import toast, {Toaster} from "react-hot-toast";
 
 const Configuration = () => {
   const [settings, setSettings] = useState({
-    iconColor: "var(--theme-color)",
+    iconColor: "#c0dbf9",
     chatWindowColor: "#ffffff",
     fontColor: "#333333",
     position: "bottom-right",
@@ -44,7 +44,7 @@ const Configuration = () => {
   });
   const [activeTab, setActiveTab] = useState("configure");
   const [embedCode, setEmbedCode] = useState("");
-  const colors = ["#45607c", "var(--theme-color)", "#b15194", "#f8b771", "#546db9"];
+  const colors = ["#45607c", "#c0dbf9", "#b15194", "#f8b771", "#546db9"];
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { IconButton, TableCell, TableContainer, TableHead } from "@mui/material";
+import { Box, Chip, IconButton, TableCell, TableContainer, TableHead, Typography } from "@mui/material";
 import { motion } from 'framer-motion';
 
 export const AgentsContainer = styled.div`
@@ -56,16 +56,15 @@ export const CreateAgent = styled(motion.button)`
       box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
     }
   `;
-export const AgentTable = styled.div`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
-  `;
+
 
 export const StyledTableContainer = styled(TableContainer)`
     max-height: 400px;
     overflow-y: auto;
+    margin: 2px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
     &::-webkit-scrollbar {
       width: 8px; 
     }
@@ -92,16 +91,15 @@ export const StyledTableHead = styled(TableHead)`
     z-index: 1;
   `;
 
-export const StyledTableHeadCell = styled(TableCell)`
-    color: #282828;
-    font-weight: 600;
-    font-size: 16px;
-    background-color: #fafafa;
-  `;
 export const StyledTableCell = styled(TableCell)`
   color: #222222;
   font-weight: 500;
   font-size: 16px;
+  &.MuiTableCell-head {
+    background-color: #F8F7FD;
+    color: #424242;
+    font-weight: 600;
+  }
   .MuiSelect-root {
     &::before, &::after {
       border: none;  
@@ -113,18 +111,35 @@ export const StyledTableCell = styled(TableCell)`
   }
 `;
 
-export const CustomEditIconButton = styled(IconButton)`
-  color: var(--theme-color);
-  margin-right: 8px;
-  &:hover {
-    color: #3e5164;
-  }
+
+export const AvailabilityList = styled.div`
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 8px;        
 `;
 
-export const CustomDeleteIconButton = styled(IconButton)`
-  color: #e2575b;
-  margin-right: 8px;
+export const AvailabilityChip = styled(Chip)`
+  background-color: #F8F7FD;
+  color: #424242;
+  font-weight: 500;
+  padding: 4px 8px;
+  height: auto;
+`;
+
+export const UserInfoContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+export const UserName = styled(Typography)`
+  font-weight: 500;
+  color: #2D3748;
+`;
+
+export const ActionButton = styled(IconButton)`
+  padding: 8px;
   &:hover {
-    color: #3e5164;
+    background-color: #F8F7FD;
   }
 `;

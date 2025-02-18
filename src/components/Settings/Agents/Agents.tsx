@@ -6,20 +6,23 @@ import {
   SectionTitle,
   CreateAgent,
   StyledTableContainer,
-  StyledTableHeadCell,
-  AgentTable,
   StyledTableCell,
   StyledTableHead,
-  CustomDeleteIconButton,
-  CustomEditIconButton,
+  AvailabilityChip,
+  AvailabilityList,
+  UserInfoContainer,
+  UserName,
+  ActionButton,
 } from "./Agents.styled";
-import { Edit, Delete } from "@mui/icons-material";
+import { Edit, Trash2 } from 'lucide-react';
 import AgentDialog from "./AgentDialogBox/AgentDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
-import { Agent, fetchAgents } from "../../../redux/slice/agentsSlice";
+import { fetchAgents } from "../../../redux/slice/agentsSlice";
 import Loader from "../../../components/Loader";
-import toast, {Toaster} from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import { Agent } from "./AgentDialogBox/AgentDialog";
+import dayjs, { Dayjs } from "dayjs";
 
 const Agents: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,13 +31,14 @@ const Agents: React.FC = () => {
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useSelector((state: RootState) => state.user);
-  const {data} = useSelector((state: RootState) => state.agents);
+  const { data } = useSelector((state: RootState) => state.agents);
 
   useEffect(() => {
-    if(data){
+    if (data) {
       setAgents(data);
     }
   }, [data]);
+
   useEffect(() => {
     setLoading(true);
     if (user) {
@@ -75,12 +79,18 @@ const Agents: React.FC = () => {
             : agent
         )
       );
+      setIsDialogOpen(false); 
     } else {
       setAgents([...agents, agentWithId]);
+      setIsDialogOpen(false);
     }
-
-    setIsDialogOpen(false);
   };
+  const formatTime = (time: Dayjs | string | undefined) => {
+    if (!time) return "N/A";
+    const t = dayjs(time);
+    return t.isValid() ? t.format("hh:mm A") : "N/A";
+  };
+  
 
   const handleDeleteAgent = (id: string) => {
     setAgents(agents.filter((agent) => agent.id !== id));
@@ -99,20 +109,19 @@ const Agents: React.FC = () => {
         />
         <CreateAgent onClick={handleOpenDialog}>Add User</CreateAgent>
       </AgentHeader>
-      <AgentTable>
-        <StyledTableContainer>
+        <StyledTableContainer >
           <Table>
             <StyledTableHead>
               <TableRow>
-                <StyledTableHeadCell>S.No.</StyledTableHeadCell>
-                <StyledTableHeadCell>Name</StyledTableHeadCell>
-                <StyledTableHeadCell>Phone</StyledTableHeadCell>
-                <StyledTableHeadCell>Email</StyledTableHeadCell>
-                <StyledTableHeadCell>Availability</StyledTableHeadCell>
-                <StyledTableHeadCell>Actions</StyledTableHeadCell>
+                <StyledTableCell>S.No.</StyledTableCell>
+                <StyledTableCell>Name</StyledTableCell>
+                <StyledTableCell>Phone</StyledTableCell>
+                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Availability</StyledTableCell>
+                <StyledTableCell>Actions</StyledTableCell>
               </TableRow>
             </StyledTableHead>
-            <TableBody style={{ background: '#ffff'}}>
+            <TableBody style={{ background: "#ffff" }}>
               {agents.length > 0 ? (
                 agents.map((agent, index) => (
                   <TableRow key={agent.id}>
@@ -120,58 +129,55 @@ const Agents: React.FC = () => {
                       {index + 1}
                     </StyledTableCell>
                     <StyledTableCell>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          cursor: "pointer",
-                        }}
-                      >
+                      <UserInfoContainer>
                         <Avatar
                           src={agent.profilePicture || ""}
                           alt={agent.fullName}
                           style={{ marginRight: 8, width: 32, height: 32 }}
                         />
+                        <UserName variant="body1">
                         {agent.fullName}
-                      </div>
+                      </UserName>
+                      </UserInfoContainer>
                     </StyledTableCell>
                     <StyledTableCell>
                       {agent.phone || "N/A"}
                     </StyledTableCell>
                     <StyledTableCell>{agent.email}</StyledTableCell>
                     <StyledTableCell>
-                      {agent.schedule && agent.schedule.schedule.length > 0 ? (
-                        agent.schedule.schedule.map((slot, idx) => {
-                          const start = slot.hours?.[0]?.startTime || slot.startTime;
-                          const end = slot.hours?.[0]?.endTime || slot.endTime;
-                          return (
-                            <div key={idx}>
-                              {slot.day} from {start} to {end}
-                            </div>
-                          );
-                        })  
+                      {agent?.schedule?.schedule?.length > 0 ? (
+                         <AvailabilityList>
+                         {agent.schedule.schedule.map((slot, idx) => {
+                           const start =
+                             slot.hours?.[0]?.startTime || slot.startTime;
+                           const end =
+                             slot.hours?.[0]?.endTime || slot.endTime;
+                           return (
+                            <AvailabilityChip
+                            key={idx}
+                            label={`${slot.day}: ${formatTime(start)} - ${formatTime(end)}`}
+                          />
+                          
+                           );
+                         })}
+                       </AvailabilityList>
                       ) : (
                         <div>offline</div>
                       )}
                     </StyledTableCell>
-                    <StyledTableCell>
-                      <CustomEditIconButton
-                        onClick={() => handleEditAgent(agent)}
-                      >
-                        <Edit />
-                      </CustomEditIconButton>
-                      <CustomDeleteIconButton
-                        onClick={() => handleDeleteAgent(agent.id)}
-                      >
-                        <Delete />
-                      </CustomDeleteIconButton>
-                    </StyledTableCell>
+                    <StyledTableCell >
+                    <ActionButton color="primary" size="small" onClick={() => handleEditAgent(agent)}>
+                      <Edit size={18} />
+                    </ActionButton>
+                    <ActionButton color="error" size="small" onClick={() => handleDeleteAgent(agent.id)}>
+                      <Trash2 size={18} />
+                    </ActionButton>
+                  </StyledTableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <StyledTableCell colSpan={6} sx={{ textAlign: "center" }}>
+                  <StyledTableCell colSpan={5} sx={{ textAlign: "center" }}>
                     No agents found
                   </StyledTableCell>
                 </TableRow>
@@ -179,7 +185,6 @@ const Agents: React.FC = () => {
             </TableBody>
           </Table>
         </StyledTableContainer>
-      </AgentTable>
       <Toaster />
     </AgentsContainer>
   );
