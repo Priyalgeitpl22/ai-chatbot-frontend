@@ -13,6 +13,7 @@ import {
 import { RootState, AppDispatch } from "../../redux/store/store";
 import { changePassword } from "../../redux/slice/authSlice";
 import toast, { Toaster } from "react-hot-toast";
+import Loader from "../Loader";
 
 const ChangePassword: React.FC = () => {
   const navigate = useNavigate();
@@ -21,11 +22,12 @@ const ChangePassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const dispatch = useDispatch<AppDispatch>();
-  const { user, loading, passwordChangeSuccess } = useSelector(
+  const { user } = useSelector(
     (state: RootState) => state.user
   );
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async() => {
     if (!existingPassword || !newPassword || !confirmPassword) {
       toast.error("All fields are required!");
       return;
@@ -40,25 +42,25 @@ const ChangePassword: React.FC = () => {
       toast.error("User not found. Please log in again.");
       return;
     }
-
-    dispatch(
-      changePassword({
-        email: user.email,
-        existingPassword,
-        newPassword,
-      })
-    );
-  };
-  useEffect(() => {
+    setLoading(true);
     try {
-      if (passwordChangeSuccess) {
-        toast.success("Password changed successfully!");
-        navigate("/");
-      }
+      await dispatch(
+        changePassword({
+          email: user.email,
+          existingPassword,
+          newPassword,
+        })
+      ).unwrap();
+      toast.success("Password changed successfully!");
+      navigate("/");
+      window.location.reload();
     } catch (error) {
       toast.error("Error changing password. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  }, [passwordChangeSuccess]);
+  };
+ 
 
   return (
     <PageContainer>
@@ -108,12 +110,12 @@ const ChangePassword: React.FC = () => {
           <StyledButton
             variant="contained"
             onClick={handleChangePassword}
-            disabled={loading}
           >
-            {loading ? "Changing..." : "Change Password"}
+            Change Password
           </StyledButton>
         </FormSection>
       </ChangePasswordCard>
+      {loading && <Loader />}
       <Toaster />
     </PageContainer>
   );

@@ -12,6 +12,7 @@ import industriesData from './Industry.json';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Loader from '../Loader';
 import { Button } from '../../styles/layout.styled';
+import toast, {Toaster} from 'react-hot-toast';
 
 interface Field {
   label: string;
@@ -119,9 +120,9 @@ const OrganizationForm: React.FC = () => {
       setLoading(false);
 
       if (updateOrganization.fulfilled.match(response)) {
-        alert("Organization updated successfully!");
+        toast.success("Organization updated successfully!");
       } else {
-        alert(`Update failed: ${response.payload}`);
+        toast.success(`Update failed: ${response.payload}`);
       }
     }, 1000);
   };
@@ -192,6 +193,7 @@ const OrganizationForm: React.FC = () => {
           ))}
         </Grid>
       </Box>
+      <Toaster />
     </FormContainer>
   );
 };

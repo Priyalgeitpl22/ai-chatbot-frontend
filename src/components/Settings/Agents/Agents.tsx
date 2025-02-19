@@ -95,9 +95,11 @@ const Agents: React.FC = () => {
     if (user) {
       dispatch(fetchAgents(user.orgId))
         .unwrap()
-        .then(() => {
+        .then((result) => {
           setLoading(false);
-          toast.success("Agents fetched successfully");
+          if (result?.data && result?.data?.length > 0) {
+            toast.success("Agents fetched successfully");
+          }
         })
         .catch((error) => {
           console.error("Failed to fetch agents:", error);

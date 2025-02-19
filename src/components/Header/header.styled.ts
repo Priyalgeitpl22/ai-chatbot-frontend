@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 export const SearchBar = styled.div`
   display: flex;
   height: 27px;
-  width: 100%;
+  width: 80%;
   align-items: center;
   background-color: #f1f5f9;
   border-radius: 0.5rem;

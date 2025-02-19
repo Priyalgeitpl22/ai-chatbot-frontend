@@ -37,6 +37,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../../../styles/layout.styled";
+import Loader from "../../../Loader";
 
 interface ScheduleSlot {
   day: string;
@@ -93,6 +94,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
   const [formData, setFormData] = useState<Agent>(defaultAgent);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
@@ -265,7 +267,8 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  const handleSave = () => {
+  const handleSave = async() => {
+    setLoading(true);
     const payload = {
       email: formData.email,
       fullName: formData.fullName,
@@ -289,32 +292,53 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
     };
     console.log(agent,"agent")
 
-    if (agent) {
-      dispatch(updateAgent({ agentId: agent.id ?? "", data: payload }) as any)
-        .unwrap()
-        .then(() => {
-          toast.success("Agent updated successfully");
-          onSave(payload);
-        })
-        .catch((error: any) => {
-          console.error("Error updating agent:", error);
-          toast.error("Failed to update agent");
-        });
-    } else {
-      dispatch(createAgent(payload) as any)
-        .unwrap()
-        .then(() => {
-          toast.success("Agent created successfully");
-          onSave(payload);
-        })
-        .catch((error: any) => {
-          console.error("Error creating agent:", error);
-          toast.error("Failed to create agent");
-        });
+    // if (agent) {
+    //   dispatch(updateAgent({ agentId: agent.id ?? "", data: payload }) as any)
+    //     .unwrap()
+    //     .then(() => {
+    //       toast.success("Agent updated successfully");
+    //       onSave(payload);
+    //     })
+    //     .catch((error: any) => {
+    //       console.error("Error updating agent:", error);
+    //       toast.error("Failed to update agent");
+    //     });
+    // } else {
+    //   dispatch(createAgent(payload) as any)
+    //     .unwrap()
+    //     .then(() => {
+    //       toast.success("Agent created successfully");
+    //       onSave(payload);
+    //     })
+    //     .catch((error: any) => {
+    //       console.error("Error creating agent:", error);
+    //       toast.error("Failed to create agent");
+    //     });
+    // }
+    // setFormData(defaultAgent);
+    // setActiveStep(0);
+    // onClose();
+
+    try {
+      if (agent) {
+        await dispatch(updateAgent({ agentId: agent.id ?? "", data: payload }) as any).unwrap();
+        toast.success("Agent updated successfully");
+        onSave(payload);
+      } else {
+        await dispatch(createAgent(payload) as any).unwrap();
+        toast.success("Agent created successfully");
+        onSave(payload);
+      }
+    } catch (error: any) {
+      console.error("Error updating/creating agent:", error);
+      toast.error(agent ? "Failed to update agent" : "Failed to create agent");
+    } finally {
+      setLoading(false);
+      setFormData(defaultAgent);
+      setActiveStep(0);
+      window.location.reload();
+      onClose();
     }
-    setFormData(defaultAgent);
-    setActiveStep(0);
-    onClose();
   };
 
   return (
@@ -459,8 +483,6 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 <Schedule /> Availability
               </Typography>
               {formData.schedule.schedule.map((slot, index) => {
-                const start = slot.hours?.[0]?.startTime || slot.startTime;
-                const end = slot.hours?.[0]?.endTime || slot.endTime;
                 return (
                   <motion.div
                     key={index}
@@ -570,6 +592,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
           </>
         )}
       </DialogActions>
+      {loading && <Loader />}
       <Toaster />
     </Dialog>
   );

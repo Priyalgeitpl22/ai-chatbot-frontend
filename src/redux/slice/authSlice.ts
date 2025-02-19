@@ -16,7 +16,6 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   success: boolean | null;
-  passwordChangeSuccess: boolean;
 }
 interface ResetPasswordData {
   email: string;
@@ -181,7 +180,6 @@ const authSlice = createSlice({
     loading: false,
     error: null,
     success: null,
-    passwordChangeSuccess: false,
   } as AuthState,
   reducers: {
     resetSuccessState: (state) => {
@@ -277,15 +275,12 @@ const authSlice = createSlice({
       })
       .addCase(changePassword.pending, (state) => {
         state.loading = true;
-        state.passwordChangeSuccess = false;
       })
       .addCase(changePassword.fulfilled, (state) => {
         state.loading = false;
-        state.passwordChangeSuccess = true;
       })
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
-        state.passwordChangeSuccess = false;
         if (action.payload) {
           state.error = action.payload as string;
         } else if (action.error.message) {

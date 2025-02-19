@@ -86,7 +86,7 @@ const Configuration = () => {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(embedCode).then(() => alert("Embed code copied!"));
+    navigator.clipboard.writeText(embedCode).then(() => toast.success("Code copied to clipboard"));
   };
 
   const handleTabChange = (_: any, newValue: SetStateAction<string>) => {

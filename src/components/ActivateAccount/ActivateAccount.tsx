@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import {
   PageContainer,
   AuthCard,
@@ -10,8 +10,10 @@ import {
   StyledTextField,
   StyledButton,
 } from "./activateAccount.styled";
-import { AppDispatch, RootState } from "../../redux/store/store";
+import { AppDispatch } from "../../redux/store/store";
 import { activateAccount } from "../../redux/slice/authSlice";
+import toast, {Toaster} from "react-hot-toast";
+import Loader from "../Loader";
 
 const ActivateAccount = () => {
   const [password, setPassword] = useState("");
@@ -20,8 +22,8 @@ const ActivateAccount = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const { loading, error, success } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -35,11 +37,6 @@ const ActivateAccount = () => {
     }
   }, [searchParams, navigate]);
 
-  useEffect(() => {
-    if (success) {
-      navigate("/login");
-    }
-  }, [success, navigate]);
 
   const handleSubmitPassword = async() => {
     if (!password || !token || !email) {
@@ -51,9 +48,17 @@ const ActivateAccount = () => {
       password,
       email
     }
-    const response = await dispatch(activateAccount(payload)).unwrap();
-    if(response.code === 200) {
-      navigate('/login')
+    try {
+      setLoading(true);
+      const response = await dispatch(activateAccount(payload)).unwrap();
+      if (response.code === 200) {
+        toast.success("Account activated successfully. Please login to continue.");
+        navigate("/login");
+      }
+    } catch (error: any) {
+      console.error("Error activating account:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,21 +80,20 @@ const ActivateAccount = () => {
             Enter your new password to activate your account.
           </Typography>
 
-          {error && <Typography color="error">{error}</Typography>}
-
           <StyledTextField
             label="New Password"
             variant="outlined"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
           />
 
-          <StyledButton fullWidth onClick={handleSubmitPassword} disabled={loading}>
-            {loading ? "Activating..." : "Activate Account"}
+          <StyledButton fullWidth onClick={handleSubmitPassword}>
+            Activate Account
           </StyledButton>
         </FormSection>
+        {loading && <Loader />}
+        <Toaster />
       </AuthCard>
     </PageContainer>
   );
