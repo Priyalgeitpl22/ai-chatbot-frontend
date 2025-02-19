@@ -41,7 +41,7 @@ const ActivateAccount = () => {
     }
   }, [success, navigate]);
 
-  const handleSubmitPassword = () => {
+  const handleSubmitPassword = async() => {
     if (!password || !token || !email) {
       return;
     }
@@ -51,7 +51,10 @@ const ActivateAccount = () => {
       password,
       email
     }
-    dispatch(activateAccount(payload)).unwrap();
+    const response = await dispatch(activateAccount(payload)).unwrap();
+    if(response.code === 200) {
+      navigate('/login')
+    }
   };
 
   return (

@@ -72,7 +72,7 @@ export const activateAccount = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error?.response?.data?.message || error.message || "Network error"
+        error?.response?.data || error.message || "Network error"
       );
     }
   }
