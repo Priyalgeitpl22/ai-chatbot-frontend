@@ -2,11 +2,10 @@ import styled from "@emotion/styled";
 import { Box, Chip, IconButton, TableCell, TableContainer, TableHead, Typography } from "@mui/material";
 
 export const AgentsContainer = styled.div`
-  width: 98%;
+  width: 94%;
   height: 98%;
   display: flex;
   border-radius: 8px;
-  overflow: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   background: white;
   position: relative;
@@ -32,13 +31,15 @@ export const SectionTitle = styled.h2`
   `;
 
 export const StyledTableContainer = styled(TableContainer)`
-    max-height: 400px;
-    overflow-y: auto;
+  width: auto;
+  max-height: 400px;
+  overflow: auto !important;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   background-color: #ffffff;
     &::-webkit-scrollbar {
       width: 8px; 
+      height:6px;
     }
   
     &::-webkit-scrollbar-track {
@@ -67,6 +68,7 @@ export const StyledTableCell = styled(TableCell)`
   color: #222222;
   font-weight: 500;
   font-size: 16px;
+  text-align: center;
   &.MuiTableCell-head {
     background-color: #F8F7FD;
     color: #424242;

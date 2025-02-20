@@ -1,19 +1,20 @@
 import React, { useEffect } from 'react';
-import { ListItemAvatar, Avatar, ListItemText, Box, Typography } from '@mui/material';
+import { ListItemAvatar, Avatar, ListItemText, Box, Typography, Divider } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChatListContainer,
-  ChatListHeader,
   ChatListItem,
   ThreadList,
   TimeStamp,
   MessagePreview,
+  SearchBar,
 } from './chatList.styled';
 import { useSocket } from '../../../context/SocketContext';
 import { useDispatch } from 'react-redux';
 import { getAllThreads, Thread } from '../../../redux/slice/threadSlice';
 import { AppDispatch } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
+import { Search } from 'lucide-react';
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -50,18 +51,18 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
 
   return (
     <ChatListContainer>
-      <ChatListHeader>
-        <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 600 }}>
-          Threads  
-        </Typography>
-      </ChatListHeader>
+      <SearchBar>
+        <Search size={20} color="#64748b" />
+        <input placeholder="Search conversations..." />
+      </SearchBar>
+      <Divider />
       <Box sx={{ overflowY: 'auto', flex: 1 }}>
         {threads && threads.length > 0 ? (
           <AnimatePresence>
             <ThreadList>
               {threads.map((thread, index) => {
                 const isActive = thread.id === selectedThreadId; // Correct active thread logic
-                
+
                 return (
                   <MotionChatListItem
                     key={thread.id}

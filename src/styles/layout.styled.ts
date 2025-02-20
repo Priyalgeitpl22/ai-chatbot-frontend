@@ -13,11 +13,11 @@ export const SidebarContainer = styled(motion.aside)`
 
 export const HeaderContainer = styled.header`
   height: 64px;
-  gap: 8px;
   display: flex;
   align-items: center;
   padding: 10px;
   background: var(--white-fade-gradient);
+  justify-content: space-between;
 `;
 
 export const Logo = styled.div`

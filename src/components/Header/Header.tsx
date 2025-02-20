@@ -1,10 +1,8 @@
-import { Search } from "lucide-react";
 import { HeaderContainer } from "../../styles/layout.styled";
 import {
   AppSubtitle,
   AppTitle,
   LogoContainer,
-  SearchBar,
   TitleContainer,
 } from "../Header/header.styled";
 import UserProfileMenu from "../User-Profile/UserProfile";
@@ -92,11 +90,6 @@ const Header = () => {
           <AppSubtitle>Automate, Assist, Accelerate</AppSubtitle>
         </TitleContainer>
       </LogoContainer>
-      <SearchBar>
-        <Search size={20} color="#64748b" />
-        <input placeholder="Search conversations..." />
-      </SearchBar>
-
       <HeaderOptions>
         <div
           style={{

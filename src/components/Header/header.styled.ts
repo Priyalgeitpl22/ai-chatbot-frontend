@@ -1,27 +1,5 @@
 import styled from '@emotion/styled';
 
-export const SearchBar = styled.div`
-  display: flex;
-  height: 27px;
-  width: 80%;
-  align-items: center;
-  background-color: #f1f5f9;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1rem;
-  border: 1px solid var(--theme-color);
-  
-  input {
-    background: none;
-    border: none;
-    outline: none;
-    color: #64748b;
-    width: 100%;
-
-    &::placeholder {
-      color: #94a3b8;
-    }
-  }
-`;
 export const NotificationBell = styled.button`
   background: none;
   border: none;

@@ -49,7 +49,7 @@ interface AgentAvatarProps {
 
 const AgentAvatar: React.FC<AgentAvatarProps> = ({ profilePicture, fullName }) => {
   const [url, setUrl] = useState<string | undefined>(undefined);
-
+  
   useEffect(() => {
     if (!profilePicture) {
       setUrl(undefined);
@@ -83,6 +83,7 @@ const Agents: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useSelector((state: RootState) => state.user);
   const { data } = useSelector((state: RootState) => state.agents);
+  const isAdmin = user?.role === "Admin"; 
 
   useEffect(() => {
     if (data) {
@@ -151,7 +152,7 @@ const Agents: React.FC = () => {
     <AgentsContainer>
       {loading && <Loader />}
       <AgentHeader>
-        <SectionTitle>Agents</SectionTitle>
+        <SectionTitle>Users</SectionTitle>
         <AgentDialog
           open={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
@@ -169,7 +170,10 @@ const Agents: React.FC = () => {
               <StyledTableCell>Phone</StyledTableCell>
               <StyledTableCell>Email</StyledTableCell>
               <StyledTableCell>Availability</StyledTableCell>
-              <StyledTableCell>Actions</StyledTableCell>
+              <StyledTableCell>Role</StyledTableCell>
+              {isAdmin && ( // Render "Actions" header only if admin
+                <StyledTableCell>Actions</StyledTableCell>
+              )}
             </TableRow>
           </StyledTableHead>
           <TableBody style={{ background: "#ffff" }}>
@@ -212,27 +216,30 @@ const Agents: React.FC = () => {
                       <div>offline</div>
                     )}
                   </StyledTableCell>
-                  <StyledTableCell>
-                    <ActionButton
-                      color="primary"
-                      size="small"
-                      onClick={() => handleEditAgent(agent)}
-                    >
-                      <Edit size={18} />
-                    </ActionButton>
-                    <ActionButton
-                      color="error"
-                      size="small"
-                      onClick={() => handleDeleteAgent(agent.id)}
-                    >
-                      <Trash2 size={18} />
-                    </ActionButton>
-                  </StyledTableCell>
+                  <StyledTableCell>{agent.role}</StyledTableCell>
+                  {isAdmin && ( // Render "Actions" cell only if admin
+                    <StyledTableCell sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <ActionButton
+                        color="primary"
+                        size="small"
+                        onClick={() => handleEditAgent(agent)}
+                      >
+                        <Edit size={18} />
+                      </ActionButton>
+                      <ActionButton
+                        color="error"
+                        size="small"
+                        onClick={() => handleDeleteAgent(agent.id)}
+                      >
+                        <Trash2 size={18} />
+                      </ActionButton>
+                    </StyledTableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <StyledTableCell colSpan={5} sx={{ textAlign: "center" }}>
+                <StyledTableCell colSpan={isAdmin ? 7 : 6} sx={{ textAlign: "center" }}>
                   No agents found
                 </StyledTableCell>
               </TableRow>
