@@ -217,8 +217,8 @@ const Agents: React.FC = () => {
                     )}
                   </StyledTableCell>
                   <StyledTableCell>{agent.role}</StyledTableCell>
-                  {isAdmin && ( // Render "Actions" cell only if admin
-                    <StyledTableCell sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  {isAdmin && (
+                    <StyledTableCell >
                       <ActionButton
                         color="primary"
                         size="small"

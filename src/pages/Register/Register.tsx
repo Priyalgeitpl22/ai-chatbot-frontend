@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { Typography } from "@mui/material";
 import { Facebook, Linkedin } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../redux/slice/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { AppDispatch } from "../../redux/store/store"; 
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import {
   PageContainer,
   RegisterCard,
@@ -18,9 +18,9 @@ import {
   PreviewContainer,
   PreviewImage,
 } from "./register.styled";
-import { Link as RouterLink } from "react-router-dom";
 import Loader from "../../components/Loader"; 
 import toast, { Toaster } from "react-hot-toast";
+import fieldValidation from "../../validations/FieldValidation"; 
 
 interface RegisterFormData {
   profilePicture: File | null;
@@ -43,6 +43,29 @@ const formFields: { name: keyof Omit<RegisterFormData, "profilePicture">; label:
   { name: "password", label: "Password", type: "text" },
 ];
 
+const getValidationError = (
+  field: Exclude<keyof RegisterFormData, "profilePicture">,
+  value: string
+): string => {
+  const rules = fieldValidation[field];
+  if (!rules) return "";
+  if (rules.required && (!value || value.trim() === "")) {
+    return rules.required.message;
+  }
+  if (typeof value === "string") {
+    if (rules.minLength && value.length < rules.minLength.value) {
+      return rules.minLength.message;
+    }
+    if (rules.pattern) {
+      const patternRegex = new RegExp(rules.pattern.value);
+      if (!patternRegex.test(value)) {
+        return rules.pattern.message;
+      }
+    }
+  }
+  return "";
+};
+
 const Register = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate(); 
@@ -59,28 +82,69 @@ const Register = () => {
     password: "",
   });
 
-  // State to store the preview image URL
+  const [errors, setErrors] = useState<{ [key in keyof RegisterFormData]?: string }>({});
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  // State to control the full screen loader
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handler for text input fields
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      let newValue = value;
+      if (name === "phone") {
+        newValue =
+          newValue[0] === "+"
+            ? "+" + newValue.slice(1).replace(/[^\d]/g, "").slice(0, 10)
+            : newValue.replace(/[^\d]/g, "").slice(0, 10);
+      }
+      setFormData((prev) => ({ ...prev, [name]: newValue }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    },
+    []
+  );
 
-  // Handler for file input (profile picture)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setFormData({ ...formData, profilePicture: file });
-      // Create and set the preview URL for the selected file
+      setFormData((prev) => ({ ...prev, profilePicture: file }));
       setPreviewImage(URL.createObjectURL(file));
     }
   };
 
-  // Handle submit by converting our state into FormData
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "profilePicture") return;
+    if (!value || value.trim() === "") return;
+    const error = getValidationError(
+      name as Exclude<keyof RegisterFormData, "profilePicture">,
+      value
+    );
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+  
+
+  const validateFormData = (): boolean => {
+    let isValid = true;
+    const newErrors: { [key in keyof RegisterFormData]?: string } = {};
+
+    (Object.keys(fieldValidation) as (keyof RegisterFormData)[]).forEach((field) => {
+      if (field === "profilePicture") return;
+      const value = formData[field] as string;
+      const error = getValidationError(field, value);
+      if (error) {
+        newErrors[field] = error;
+        isValid = false;
+      }
+    });
+  
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async () => {
+    if (!validateFormData()) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
     setIsLoading(true);
     const payload = new FormData();
     payload.append("fullName", formData.fullName);
@@ -129,13 +193,22 @@ const Register = () => {
             Register with your details
           </Typography>
 
-          {/* Profile picture upload input */}
           <PreviewContainer>
             {previewImage ? (
-              <PreviewImage src={previewImage} alt="Profile preview" onClick={handleIconClick} style={{ cursor: 'pointer' }} />
+              <PreviewImage
+                src={previewImage}
+                alt="Profile preview"
+                onClick={handleIconClick}
+                style={{ cursor: "pointer" }}
+              />
             ) : (
               <AccountCircleIcon
-                style={{ fontSize: "50px", color: "var(--theme-color-dark)", marginBottom: "8px", cursor: 'pointer' }}
+                style={{
+                  fontSize: "50px",
+                  color: "var(--theme-color-dark)",
+                  marginBottom: "8px",
+                  cursor: "pointer",
+                }}
                 onClick={handleIconClick}
               />
             )}
@@ -144,11 +217,10 @@ const Register = () => {
               accept="image/*"
               onChange={handleFileChange}
               ref={fileInputRef}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
           </PreviewContainer>
 
-          {/* Render other text fields */}
           {formFields.map(({ name, label, type }) => (
             <StyledTextField
               key={name}
@@ -158,6 +230,9 @@ const Register = () => {
               variant="outlined"
               value={formData[name]}
               onChange={handleChange}
+              onBlur={handleBlur}
+              error={!!errors[name]}
+              helperText={errors[name] || ""}
             />
           ))}
 

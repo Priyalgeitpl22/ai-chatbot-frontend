@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Typography } from '@mui/material';
 import { Facebook, Linkedin } from 'lucide-react';
-import { 
-  PageContainer, 
-  LoginCard, 
-  IllustrationSection, 
-  FormSection, 
-  StyledTextField, 
-  StyledButton, 
-  SocialButtonsContainer, 
-  SocialButton, 
-  ForgotPasswordLink 
+import {
+  PageContainer,
+  LoginCard,
+  IllustrationSection,
+  FormSection,
+  StyledTextField,
+  StyledButton,
+  SocialButtonsContainer,
+  SocialButton,
+  ForgotPasswordLink
 } from './login.styled';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,20 +20,90 @@ import Loader from '../../components/Loader';
 import Cookies from "js-cookie";
 import { getUserDetails } from '../../redux/slice/userSlice';
 import toast, { Toaster } from "react-hot-toast";
+import fieldValidation from '../../validations/FieldValidation';
+
+const getValidationError = (
+  field: 'email' | 'password',
+  value: string
+): string => {
+  const rules = fieldValidation[field];
+  if (!rules) return "";
+  if (rules.required && (!value || value.trim() === "")) {
+    return rules.required.message;
+  }
+  if (typeof value === "string") {
+    if (rules.minLength && value.length < rules.minLength.value) {
+      return rules.minLength.message;
+    }
+    if (rules.pattern) {
+      const patternRegex = new RegExp(rules.pattern.value);
+      if (!patternRegex.test(value)) {
+        return rules.pattern.message;
+      }
+    }
+  }
+  return "";
+};
 
 function Login() {
-  // Local state for controlled inputs.
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // A flag to trigger the login effect.
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loginSubmitted, setLoginSubmitted] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  // Retrieve login-related state from Redux.
   const { loading } = useSelector((state: RootState) => state.user);
+
+  const validateFields = () => {
+    const validationErrors: { email?: string; password?: string } = {};
+
+    // Validate Email using getValidationError.
+    validationErrors.email = getValidationError('email', email);
+    // Validate Password using getValidationError.
+    validationErrors.password = getValidationError('password', password);
+
+    // Remove empty errors.
+    Object.keys(validationErrors).forEach((key) => {
+      if (!validationErrors[key as keyof typeof validationErrors]) {
+        delete validationErrors[key as keyof typeof validationErrors];
+      }
+    });
+
+    return validationErrors;
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = getValidationError(name as 'email' | 'password', value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (errors.email) {
+      setErrors((prev) => ({ ...prev, email: undefined }));
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (errors.password) {
+      setErrors((prev) => ({ ...prev, password: undefined }));
+    }
+  };
+
+  const handleSignIn = () => {
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
+    setLoginSubmitted(true);
+  };
 
   useEffect(() => {
     if (loginSubmitted) {
@@ -57,11 +127,7 @@ function Login() {
         }
       })();
     }
-  }, [loginSubmitted, dispatch, navigate]);
-
-  const handleSignIn = () => {
-    setLoginSubmitted(true);
-  };
+  }, [loginSubmitted, dispatch, navigate, email, password]);
 
   return (
     <PageContainer>
@@ -88,7 +154,10 @@ function Login() {
             variant="outlined" 
             type="email" 
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
+            onBlur={handleBlur}
+            error={!!errors.email}
+            helperText={errors.email}
           />
           <StyledTextField 
             fullWidth 
@@ -96,7 +165,10 @@ function Login() {
             variant="outlined" 
             type="password" 
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
+            onBlur={handleBlur}
+            error={!!errors.password}
+            helperText={errors.password}
           />
           
           <RouterLink 
