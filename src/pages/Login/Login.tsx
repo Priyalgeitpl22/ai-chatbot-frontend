@@ -21,6 +21,7 @@ import Cookies from "js-cookie";
 import { getUserDetails } from '../../redux/slice/userSlice';
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from '../../validations/FieldValidation';
+import PasswordInput from "../../utils/PasswordInput";
 
 const getValidationError = (
   field: 'email' | 'password',
@@ -149,15 +150,13 @@ function Login() {
             error={!!errors.email}
             helperText={errors.email}
           />
-          <StyledTextField 
-            fullWidth 
-            label="Password" 
-            variant="outlined" 
-            type="password" 
+          
+          <PasswordInput 
+            label="Password"
             value={password}
             onChange={handlePasswordChange}
             error={!!errors.password}
-            helperText={errors.password}
+            helperText={errors.password || ""}
           />
           
           <RouterLink 

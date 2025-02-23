@@ -7,13 +7,13 @@ import {
   AuthCard,
   IllustrationSection,
   FormSection,
-  StyledTextField,
   StyledButton,
 } from "../../components/ActivateAccount/activateAccount.styled";
 import { resetPassword } from "../../redux/slice/authSlice";
 import { AppDispatch, RootState } from "../../redux/store/store";
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from "../../validations/FieldValidation";
+import PasswordInput from "../../utils/PasswordInput";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -98,15 +98,12 @@ const ResetPassword = () => {
             Your identity has been verified. Set your new password.
           </Typography>
 
-          <StyledTextField
+          <PasswordInput
             label="New Password"
-            variant="outlined"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
             error={!!error}
-            helperText={error}
+            helperText={error || ""}
           />
 
           <StyledButton fullWidth onClick={handleSubmitPassword} disabled={loading}>

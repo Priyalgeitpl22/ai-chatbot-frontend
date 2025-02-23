@@ -21,6 +21,7 @@ import {
 import Loader from "../../components/Loader"; 
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from "../../validations/FieldValidation"; 
+import PasswordInput from "../../utils/PasswordInput";
 
 interface RegisterFormData {
   profilePicture: File | null;
@@ -40,8 +41,9 @@ const formFields: { name: keyof Omit<RegisterFormData, "profilePicture">; label:
   { name: "domain", label: "Domain", type: "text" },
   { name: "country", label: "Country", type: "text" },
   { name: "phone", label: "Phone Number", type: "tel" },
-  { name: "password", label: "Password", type: "text" },
+  { name: "password", label: "Password", type: "text" }, // type can be ignored for PasswordInput
 ];
+
 const getValidationError = (
   field: Exclude<keyof RegisterFormData, "profilePicture">,
   value: string
@@ -208,19 +210,34 @@ const Register = () => {
             />
           </PreviewContainer>
 
-          {formFields.map(({ name, label, type }) => (
-            <StyledTextField
-              key={name}
-              name={name}
-              label={label}
-              type={type}
-              variant="outlined"
-              value={formData[name]}
-              onChange={handleChange}
-              error={!!errors[name]}
-              helperText={errors[name] || ""}
-            />
-          ))}
+          {formFields.map(({ name, label, type }) => {
+            if (name === "password") {
+              return (
+                <PasswordInput
+                  key={name}
+                  name={name}
+                  label={label}
+                  value={formData[name]}
+                  onChange={handleChange}
+                  error={!!errors[name]}
+                  helperText={errors[name] || ""}
+                />
+              );
+            }
+            return (
+              <StyledTextField
+                key={name}
+                name={name}
+                label={label}
+                type={type}
+                variant="outlined"
+                value={formData[name]}
+                onChange={handleChange}
+                error={!!errors[name]}
+                helperText={errors[name] || ""}
+              />
+            );
+          })}
 
           <StyledButton variant="contained" fullWidth onClick={handleSubmit}>
             REGISTER

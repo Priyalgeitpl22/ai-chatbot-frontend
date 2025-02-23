@@ -7,7 +7,6 @@ import {
   AuthCard,
   IllustrationSection,
   FormSection,
-  StyledTextField,
   StyledButton,
 } from "./activateAccount.styled";
 import { AppDispatch } from "../../redux/store/store";
@@ -15,6 +14,7 @@ import { activateAccount } from "../../redux/slice/authSlice";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader";
 import fieldValidation from "../../validations/FieldValidation";
+import PasswordInput from "../../utils/PasswordInput"; 
 
 const ActivateAccount = () => {
   const [password, setPassword] = useState("");
@@ -102,10 +102,8 @@ const ActivateAccount = () => {
             Enter your new password to activate your account.
           </Typography>
 
-          <StyledTextField
+          <PasswordInput
             label="New Password"
-            variant="outlined"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             error={!!error}
