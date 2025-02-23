@@ -13,16 +13,18 @@ import {
 import { resetPassword } from "../../redux/slice/authSlice";
 import { AppDispatch, RootState } from "../../redux/store/store";
 import toast, { Toaster } from "react-hot-toast";
+import fieldValidation from "../../validations/FieldValidation";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { loading, error, success } = useSelector((state: RootState) => state.auth);
+  const { loading, success } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const searchToken = searchParams.get("token");
@@ -42,7 +44,28 @@ const ResetPassword = () => {
     }
   }, [success, navigate]);
 
+  const validatePassword = (password: string) => {
+    const rules = fieldValidation.password;
+    if (rules.required && !password) {
+      return rules.required.message;
+    }
+    if (rules.minLength && password.length < rules.minLength.value) {
+      return rules.minLength.message;
+    }
+    if (rules.pattern && !new RegExp(rules.pattern.value).test(password)) {
+      return rules.pattern.message;
+    }
+    return null;
+  };
+
   const handleSubmitPassword = async () => {
+    const validationError = validatePassword(password);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
+
     if (!password || !token || !email) {
       return;
     }
@@ -75,8 +98,6 @@ const ResetPassword = () => {
             Your identity has been verified. Set your new password.
           </Typography>
 
-          {error && <Typography color="error">{error}</Typography>}
-
           <StyledTextField
             label="New Password"
             variant="outlined"
@@ -84,6 +105,8 @@ const ResetPassword = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
+            error={!!error}
+            helperText={error}
           />
 
           <StyledButton fullWidth onClick={handleSubmitPassword} disabled={loading}>

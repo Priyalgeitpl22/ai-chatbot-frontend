@@ -10,9 +10,24 @@ import {
 } from "./forgot_password.styled";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { forgetPassword } from "../../redux/slice/authSlice"; // Import Redux action
+import { forgetPassword } from "../../redux/slice/authSlice"; 
 import { AppDispatch } from "../../redux/store/store";
 import toast, { Toaster } from "react-hot-toast";
+import fieldValidation from "../../validations/FieldValidation";
+
+const getEmailValidationError = (email: string): string => {
+  if (!email.trim()) {
+    return fieldValidation.email.required?.message || "Email is required";
+  }
+  if (fieldValidation.email.pattern) {
+    const emailRegex = new RegExp(fieldValidation.email.pattern.value);
+    if (!emailRegex.test(email)) {
+      return fieldValidation.email.pattern.message;
+    }
+  }
+  return "";
+};
+
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -22,10 +37,11 @@ const ForgotPassword = () => {
 
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (!email.trim()) {
-      setError("Email is required");
-      toast.error("Email is required");
+
+    const validationError = getEmailValidationError(email);
+    if (validationError) {
+      setError(validationError);
+      toast.error(validationError);
       return;
     }
     setError("");
@@ -65,7 +81,10 @@ const ForgotPassword = () => {
               variant="outlined"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
               error={!!error}
               helperText={error}
               fullWidth
@@ -87,7 +106,7 @@ const ForgotPassword = () => {
           </Typography>
         </FormSection>
       </AuthCard>
-      <Toaster/>
+      <Toaster />
     </PageContainer>
   );
 };

@@ -60,12 +60,9 @@ function Login() {
   const validateFields = () => {
     const validationErrors: { email?: string; password?: string } = {};
 
-    // Validate Email using getValidationError.
     validationErrors.email = getValidationError('email', email);
-    // Validate Password using getValidationError.
     validationErrors.password = getValidationError('password', password);
 
-    // Remove empty errors.
     Object.keys(validationErrors).forEach((key) => {
       if (!validationErrors[key as keyof typeof validationErrors]) {
         delete validationErrors[key as keyof typeof validationErrors];
@@ -73,12 +70,6 @@ function Login() {
     });
 
     return validationErrors;
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const error = getValidationError(name as 'email' | 'password', value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,7 +146,6 @@ function Login() {
             type="email" 
             value={email}
             onChange={handleEmailChange}
-            onBlur={handleBlur}
             error={!!errors.email}
             helperText={errors.email}
           />
@@ -166,7 +156,6 @@ function Login() {
             type="password" 
             value={password}
             onChange={handlePasswordChange}
-            onBlur={handleBlur}
             error={!!errors.password}
             helperText={errors.password}
           />

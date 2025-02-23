@@ -38,6 +38,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../../../styles/layout.styled";
 import Loader from "../../../Loader";
+import fieldValidation from "../../../../validations/FieldValidation";
 
 interface ScheduleSlot {
   day: string;
@@ -89,15 +90,37 @@ const defaultAgent: Agent = {
 
 const steps = ["Personal Details", "Schedule"];
 
+const getAgentValidationError = (
+  field: "fullName" | "email" | "phone",
+  value: string
+): string => {
+  const rules = fieldValidation[field];
+  if (!value || value.trim() === "") {
+    return rules?.required?.message || `${field} is required`;
+  }
+  if (rules?.minLength && value.length < rules.minLength.value) {
+    return rules.minLength.message;
+  }
+  if (rules?.pattern) {
+    const patternRegex = new RegExp(rules.pattern.value);
+    if (!patternRegex.test(value)) {
+      return rules.pattern.message;
+    }
+  }
+  return "";
+};
+
 const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent }) => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [formData, setFormData] = useState<Agent>(defaultAgent);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ fullName?: string; email?: string; phone?: string }>({});
 
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -108,7 +131,6 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
 
   useEffect(() => {
     if (!open) return;
-
     if (agent) {
       const timeZoneValue = agent.schedule.timeZone || defaultAgent.schedule.timeZone;
       const convertedSchedule = {
@@ -116,7 +138,6 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
         schedule: agent.schedule.schedule.map((slot) => {
           let startVal: string | Dayjs | undefined;
           let endVal: string | Dayjs | undefined;
-
           if (slot.startTime) {
             startVal = slot.startTime;
             endVal = slot.endTime;
@@ -124,21 +145,18 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             startVal = slot.hours[0].startTime;
             endVal = slot.hours[0].endTime;
           }
-
           let parsedStart = dayjs(startVal, ["h:mmA", "h:mm A", "HH:mm"], true);
           if (!parsedStart.isValid() && dayjs.isDayjs(startVal)) {
             parsedStart = startVal as Dayjs;
           } else if (!parsedStart.isValid()) {
             parsedStart = defaultStartTime;
           }
-
           let parsedEnd = dayjs(endVal, ["h:mmA", "HH:mm"]);
           if (!parsedEnd.isValid() && dayjs.isDayjs(endVal)) {
             parsedEnd = endVal as Dayjs;
           } else if (!parsedEnd.isValid()) {
             parsedEnd = defaultEndTime;
           }
-
           return {
             day: slot.day,
             hours: [
@@ -150,10 +168,9 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
           };
         }),
       };
-
       setFormData({
         ...agent,
-        profilePicture: null, 
+        profilePicture: null,
         schedule: convertedSchedule,
       });
       setSelectedFile(null);
@@ -168,6 +185,9 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "fullName" || name === "email" || name === "phone") {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
@@ -264,10 +284,39 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
     });
   };
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
+  // Validate personal details fields ("fullName", "email", "phone")
+  const validateAgentDetails = (): boolean => {
+    let valid = true;
+    const newErrors: { fullName?: string; email?: string; phone?: string } = {};
+    const fullNameError = getAgentValidationError("fullName", formData.fullName);
+    if (fullNameError) {
+      newErrors.fullName = fullNameError;
+      valid = false;
+    }
+    const emailError = getAgentValidationError("email", formData.email);
+    if (emailError) {
+      newErrors.email = emailError;
+      valid = false;
+    }
+    const phoneError = getAgentValidationError("phone", formData.phone || "");
+    if (phoneError) {
+      newErrors.phone = phoneError;
+      valid = false;
+    }
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleNext = () => {
+    if (!validateAgentDetails()) {
+      return;
+    }
+    setActiveStep((prev) => prev + 1);
+  };
+
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  const handleSave = async() => {
+  const handleSave = async () => {
     setLoading(true);
     const payload = {
       email: formData.email,
@@ -290,34 +339,6 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
         })),
       },
     };
-    console.log(agent,"agent")
-
-    // if (agent) {
-    //   dispatch(updateAgent({ agentId: agent.id ?? "", data: payload }) as any)
-    //     .unwrap()
-    //     .then(() => {
-    //       toast.success("Agent updated successfully");
-    //       onSave(payload);
-    //     })
-    //     .catch((error: any) => {
-    //       console.error("Error updating agent:", error);
-    //       toast.error("Failed to update agent");
-    //     });
-    // } else {
-    //   dispatch(createAgent(payload) as any)
-    //     .unwrap()
-    //     .then(() => {
-    //       toast.success("Agent created successfully");
-    //       onSave(payload);
-    //     })
-    //     .catch((error: any) => {
-    //       console.error("Error creating agent:", error);
-    //       toast.error("Failed to create agent");
-    //     });
-    // }
-    // setFormData(defaultAgent);
-    // setActiveStep(0);
-    // onClose();
 
     try {
       if (agent) {
@@ -361,8 +382,10 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             transition={{ duration: 0.3 }}
           >
             <AvatarWrapper>
-            <Avatar src={previewUrl || (typeof agent?.profilePicture === "string" ? agent.profilePicture : "")} alt={formData.fullName} />
-
+              <Avatar
+                src={previewUrl || (typeof agent?.profilePicture === "string" ? agent.profilePicture : "")}
+                alt={formData.fullName}
+              />
               <IconButton component="label">
                 <input
                   type="file"
@@ -381,14 +404,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 onChange={handleInputChange}
                 fullWidth
                 variant="outlined"
+                error={!!errors.fullName}
+                helperText={errors.fullName}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "var(--theme-color)",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "var(--theme-color)",
-                    },
+                    "&:hover fieldset": { borderColor: "var(--theme-color)" },
+                    "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
                 }}
               />
@@ -399,14 +420,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 onChange={handleInputChange}
                 fullWidth
                 variant="outlined"
+                error={!!errors.email}
+                helperText={errors.email}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "var(--theme-color)",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "var(--theme-color)",
-                    },
+                    "&:hover fieldset": { borderColor: "var(--theme-color)" },
+                    "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
                 }}
               />
@@ -417,14 +436,12 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 onChange={handleInputChange}
                 fullWidth
                 variant="outlined"
+                error={!!errors.phone}
+                helperText={errors.phone}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "var(--theme-color)",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "var(--theme-color)",
-                    },
+                    "&:hover fieldset": { borderColor: "var(--theme-color)" },
+                    "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
                 }}
               />
@@ -436,12 +453,8 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                   value={formData.role}
                   onChange={handleSelectChange}
                   sx={{
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "var(--theme-color)",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "var(--theme-color)",
-                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                   }}
                 >
                   <MenuItem value="Admin">Admin</MenuItem>
@@ -466,12 +479,8 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 value={formData.schedule.timeZone}
                 onChange={handleSelectChange}
                 sx={{
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "var(--theme-color)",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "var(--theme-color)",
-                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                 }}
               >
                 <MenuItem value="UTC -05:00 Eastern Time">UTC -05:00 Eastern Time</MenuItem>
@@ -479,86 +488,71 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
               </Select>
             </FormControl>
             <AvailabilityContainer>
-              <Typography variant="h6" sx={{ color: "#1e293b", display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{ color: "#1e293b", display: "flex", alignItems: "center", gap: 1 }}
+              >
                 <Schedule /> Availability
               </Typography>
-              {formData.schedule.schedule.map((slot, index) => {
-                return (
-                  <motion.div
-                    key={index}
-                    className="availability-row"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={{ padding: "10px 10px" }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
+              {formData.schedule.schedule.map((slot, index) => (
+                <motion.div
+                  key={index}
+                  className="availability-row"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ padding: "10px 10px" }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Select
+                    value={slot.day}
+                    onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
+                    variant="outlined"
+                    sx={{
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
+                    }}
                   >
-                    <Select
-                      value={slot.day}
-                      onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
-                      variant="outlined"
+                    <MenuItem value="WeekEnds">WeekEnds</MenuItem>
+                    <MenuItem value="WeekDays">WeekDays</MenuItem>
+                    <MenuItem value="Monday">Monday</MenuItem>
+                    <MenuItem value="Tuesday">Tuesday</MenuItem>
+                    <MenuItem value="Wednesday">Wednesday</MenuItem>
+                    <MenuItem value="Thursday">Thursday</MenuItem>
+                    <MenuItem value="Friday">Friday</MenuItem>
+                    <MenuItem value="Saturday">Saturday</MenuItem>
+                    <MenuItem value="Sunday">Sunday</MenuItem>
+                  </Select>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TimePicker
+                      label="Start Time"
+                      value={slot.hours[0].startTime}
+                      onChange={(newValue) => handleHoursChange(index, 0, "startTime", newValue)}
+                      ampm
                       sx={{
-                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                          borderColor: "var(--theme-color)",
-                        },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                          borderColor: "var(--theme-color)",
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": { borderColor: "var(--theme-color)" },
+                          "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                         },
                       }}
-                    >
-                      <MenuItem value="WeekEnds">WeekEnds</MenuItem>
-                      <MenuItem value="WeekDays">WeekDays</MenuItem>
-                      <MenuItem value="Monday">Monday</MenuItem>
-                      <MenuItem value="Tuesday">Tuesday</MenuItem>
-                      <MenuItem value="Wednesday">Wednesday</MenuItem>
-                      <MenuItem value="Thursday">Thursday</MenuItem>
-                      <MenuItem value="Friday">Friday</MenuItem>
-                      <MenuItem value="Saturday">Saturday</MenuItem>
-                      <MenuItem value="Sunday">Sunday</MenuItem>
-                    </Select>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <TimePicker
-                        label="Start Time"
-                        value={slot.hours[0].startTime}
-                        onChange={(newValue) =>
-                          handleHoursChange(index, 0, "startTime", newValue)
-                        }
-                        ampm
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "&:hover fieldset": {
-                              borderColor: "var(--theme-color)",
-                            },
-                            "&.Mui-focused fieldset": {
-                              borderColor: "var(--theme-color)",
-                            },
-                          },
-                        }}
-                      />
-                      <TimePicker
-                        label="End Time"
-                        value={slot.hours[0].endTime}
-                        onChange={(newValue) =>
-                          handleHoursChange(index, 0, "endTime", newValue)
-                        }
-                        ampm
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "&:hover fieldset": {
-                              borderColor: "var(--theme-color)",
-                            },
-                            "&.Mui-focused fieldset": {
-                              borderColor: "var(--theme-color)",
-                            },
-                          },
-                        }}
-                      />
-                    </LocalizationProvider>
-                    <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
-                      <Delete />
-                    </IconButton>
-                  </motion.div>
-                );
-              })}
+                    />
+                    <TimePicker
+                      label="End Time"
+                      value={slot.hours[0].endTime}
+                      onChange={(newValue) => handleHoursChange(index, 0, "endTime", newValue)}
+                      ampm
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": { borderColor: "var(--theme-color)" },
+                          "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                  <IconButton onClick={() => handleDeleteSchedule(index)} size="small">
+                    <Delete />
+                  </IconButton>
+                </motion.div>
+              ))}
               <Button
                 onClick={handleAddSchedule}
                 style={{
@@ -581,10 +575,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
           <>
             <Button
               onClick={handleBack}
-              style={{
-                border: "1px solid var(--theme-color)",
-                background: "#fff",
-              }}
+              style={{ border: "1px solid var(--theme-color)", background: "#fff" }}
             >
               Back
             </Button>

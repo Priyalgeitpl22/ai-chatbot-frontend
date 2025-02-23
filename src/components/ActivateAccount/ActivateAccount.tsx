@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
-import { useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   PageContainer,
   AuthCard,
@@ -12,18 +12,19 @@ import {
 } from "./activateAccount.styled";
 import { AppDispatch } from "../../redux/store/store";
 import { activateAccount } from "../../redux/slice/authSlice";
-import toast, {Toaster} from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader";
+import fieldValidation from "../../validations/FieldValidation";
 
 const ActivateAccount = () => {
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState<boolean>(false);
-
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -37,17 +38,38 @@ const ActivateAccount = () => {
     }
   }, [searchParams, navigate]);
 
+  const validatePassword = (password: string): string | null => {
+    const rules = fieldValidation.password;
 
-  const handleSubmitPassword = async() => {
+    if (rules.required && !password) {
+      return rules.required.message;
+    }
+    if (rules.minLength && password.length < rules.minLength.value) {
+      return rules.minLength.message;
+    }
+    if (rules.pattern && !new RegExp(rules.pattern.value).test(password)) {
+      return rules.pattern.message;
+    }
+    return null;
+  };
+
+  const handleSubmitPassword = async () => {
+    const validationError = validatePassword(password);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError("");
+
     if (!password || !token || !email) {
       return;
     }
-    
+
     const payload = {
-      token, 
+      token,
       password,
-      email
-    }
+      email,
+    };
     try {
       setLoading(true);
       const response = await dispatch(activateAccount(payload)).unwrap();
@@ -86,6 +108,8 @@ const ActivateAccount = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={!!error}
+            helperText={error}
           />
 
           <StyledButton fullWidth onClick={handleSubmitPassword}>

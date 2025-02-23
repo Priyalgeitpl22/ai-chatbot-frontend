@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { Typography } from "@mui/material";
 import { Facebook, Linkedin } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -42,25 +42,24 @@ const formFields: { name: keyof Omit<RegisterFormData, "profilePicture">; label:
   { name: "phone", label: "Phone Number", type: "tel" },
   { name: "password", label: "Password", type: "text" },
 ];
-
 const getValidationError = (
   field: Exclude<keyof RegisterFormData, "profilePicture">,
   value: string
 ): string => {
   const rules = fieldValidation[field];
-  if (!rules) return "";
-  if (rules.required && (!value || value.trim() === "")) {
-    return rules.required.message;
+  // Check if blank
+  if (!value || value.trim() === "") {
+    return rules?.required?.message || `${field} is required`;
   }
-  if (typeof value === "string") {
-    if (rules.minLength && value.length < rules.minLength.value) {
-      return rules.minLength.message;
-    }
-    if (rules.pattern) {
-      const patternRegex = new RegExp(rules.pattern.value);
-      if (!patternRegex.test(value)) {
-        return rules.pattern.message;
-      }
+  // Check minimum length if defined
+  if (rules?.minLength && value.length < rules.minLength.value) {
+    return rules.minLength.message;
+  }
+  // Check pattern if defined
+  if (rules?.pattern) {
+    const patternRegex = new RegExp(rules.pattern.value);
+    if (!patternRegex.test(value)) {
+      return rules.pattern.message;
     }
   }
   return "";
@@ -82,10 +81,12 @@ const Register = () => {
     password: "",
   });
 
+  // Error messages for each field
   const [errors, setErrors] = useState<{ [key in keyof RegisterFormData]?: string }>({});
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Update field value and clear its error
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -110,18 +111,7 @@ const Register = () => {
     }
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name === "profilePicture") return;
-    if (!value || value.trim() === "") return;
-    const error = getValidationError(
-      name as Exclude<keyof RegisterFormData, "profilePicture">,
-      value
-    );
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-  
-
+  // Validate all fields based on the config
   const validateFormData = (): boolean => {
     let isValid = true;
     const newErrors: { [key in keyof RegisterFormData]?: string } = {};
@@ -142,7 +132,6 @@ const Register = () => {
 
   const handleSubmit = async () => {
     if (!validateFormData()) {
-      toast.error("Please fix the errors in the form.");
       return;
     }
     setIsLoading(true);
@@ -158,12 +147,10 @@ const Register = () => {
       payload.append("profilePicture", formData.profilePicture);
     }
     try {
-      const result = await dispatch(registerUser(payload)).unwrap();
-      console.log("Registration successful:", result);
+      await dispatch(registerUser(payload)).unwrap();
       toast.success("Registration successful!");
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
-      console.error("Registration failed:", err);
       toast.error("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -230,7 +217,6 @@ const Register = () => {
               variant="outlined"
               value={formData[name]}
               onChange={handleChange}
-              onBlur={handleBlur}
               error={!!errors[name]}
               helperText={errors[name] || ""}
             />
