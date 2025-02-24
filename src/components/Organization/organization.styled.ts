@@ -21,7 +21,6 @@ export const FormTitle = styled(Typography)({
 
 export const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
-    borderRadius: '12px',
     background: '#ffffff',
     transition: 'all 0.3s ease',
     '&:hover': {

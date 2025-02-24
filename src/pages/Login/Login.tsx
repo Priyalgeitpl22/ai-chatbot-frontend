@@ -149,6 +149,7 @@ function Login() {
             onChange={handleEmailChange}
             error={!!errors.email}
             helperText={errors.email}
+            autoComplete='nope'
           />
           
           <PasswordInput 
@@ -156,6 +157,7 @@ function Login() {
             value={password}
             onChange={handlePasswordChange}
             error={!!errors.password}
+            autoComplete='new-password'
             helperText={errors.password || ""}
           />
           

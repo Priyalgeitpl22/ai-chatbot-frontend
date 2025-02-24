@@ -221,6 +221,7 @@ const Register = () => {
                   onChange={handleChange}
                   error={!!errors[name]}
                   helperText={errors[name] || ""}
+                  autoComplete="new-password"
                 />
               );
             }
@@ -235,6 +236,7 @@ const Register = () => {
                 onChange={handleChange}
                 error={!!errors[name]}
                 helperText={errors[name] || ""}
+                autoComplete="nope"
               />
             );
           })}

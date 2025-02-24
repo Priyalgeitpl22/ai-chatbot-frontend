@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Box, Tab, Tabs } from "@mui/material";
+import { motion } from "framer-motion";
 import { MuiColorInput } from "mui-color-input";
 
 export const SettingsContainer = styled.div`
@@ -44,8 +45,8 @@ export const ColorOption = styled.button<{ color: string; isSelected: boolean }>
 export const CustomMuiColorInput = styled(MuiColorInput)({
   width: "130px",
   "& .MuiInputBase-input.MuiOutlinedInput-input": {
-      padding: '10px', 
-    },
+    padding: '10px',
+  },
   "& .MuiInputBase-input": {
     color: "#000",
   },
@@ -101,7 +102,7 @@ export const ColorCheckBox = styled.input`
   }
   `;
 
-  export const SaveButton = styled.button`
+export const SaveButton = styled.button`
   font-weight: semibold;
   width:100px;
   padding: 8px 12px;
@@ -166,7 +167,6 @@ export const CustomTab = styled(Tab)`
 
 export const ContentContainer = styled(Box)`
   width: 100%;
-  height: 100%;
   display: flex;
   border-radius: 8px;
   overflow: auto;
@@ -174,5 +174,13 @@ export const ContentContainer = styled(Box)`
   background: white;
   position: relative;
   flex-direction: column;
-  // background: var(--white-fade-gradient);
+`;
+
+export const ScrollableDiv = styled(motion.div)`
+border: 1px solid #e0e0e0;
+width: 50%;
+height: 500px;
+border-radius: 8px;
+padding: 1rem;
+overflow-y: auto;
 `;

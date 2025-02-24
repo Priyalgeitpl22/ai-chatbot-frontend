@@ -8,6 +8,7 @@ interface PasswordInputProps {
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  autoComplete?: string;
   error?: boolean;
   helperText?: string;
 }
@@ -49,6 +50,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       type={showPassword ? "text" : "password"}
       value={value}
       onChange={onChange}
+      autoComplete="new-password"
       error={error}
       helperText={helperText}
       InputProps={{
