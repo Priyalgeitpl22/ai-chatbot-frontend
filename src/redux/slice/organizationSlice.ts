@@ -16,6 +16,13 @@ interface Organization {
   domain?: string;
   industry?: string;
   description?: string;
+  emailConfig: {
+    host: string;
+    port: string;
+    secure: string;
+    user: string;
+    pass: string;
+  };
 }
 
 interface OrganizationState {

@@ -11,6 +11,7 @@ interface PasswordInputProps {
   autoComplete?: string;
   error?: boolean;
   helperText?: string;
+  readOnly?: boolean; // Added readOnly prop
 }
 
 const StyledTextField = styled(TextField)`
@@ -37,6 +38,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   onChange,
   error,
   helperText,
+  readOnly = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -54,6 +56,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       error={error}
       helperText={helperText}
       InputProps={{
+        readOnly: readOnly,
         endAdornment: (
           <InputAdornment position="end">
             <IconButton onClick={togglePasswordVisibility} edge="end">
