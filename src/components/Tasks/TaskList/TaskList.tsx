@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ListItemAvatar, Avatar, ListItemText, Box, Typography, Chip } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -15,6 +15,7 @@ import { AppDispatch } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
 import { getAllTasks, Task } from '../../../redux/slice/taskSlice';
 import { Priority } from '../../../enums';
+import FilterComponent from '../Filters/FilterComponent';
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -32,6 +33,7 @@ const MotionTaskListItem = motion(TaskListItem);
 const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId }) => {
   const { socket } = useSocket();
   const dispatch = useDispatch<AppDispatch>();
+  const [activeFilter, setActiveFilter] = useState<string>('filter');
 
   useEffect(() => {
     if (!socket) return;
@@ -55,6 +57,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
       case Priority.MEDIUM:
         return "warning";
       case Priority.LOW:
+        return "info";
       default:
         return "success";
     }
@@ -63,10 +66,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
   return (
     <TaskListContainer>
       <TaskListHeader>
-        <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 500, color:'#333333' }}>
           Tasks  
         </Typography>
       </TaskListHeader>
+      <FilterComponent activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
       <Box sx={{ overflowY: 'auto', flex: 1 }}>
         {tasks && tasks.length > 0 ? (
           <AnimatePresence>

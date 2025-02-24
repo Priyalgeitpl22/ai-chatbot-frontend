@@ -1,7 +1,6 @@
 import { ListItem, Box } from '@mui/material';
 import { styled } from '@mui/system';
 
-// Main container for task list
 export const TaskListContainer = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -11,7 +10,6 @@ export const TaskListContainer = styled(Box)`
   border-right: 1px solid #ddd;
 `;
 
-// Header styling
 export const TaskListHeader = styled(Box)`
   padding: 16px;
   background: var(--theme-color, #1976d2);
@@ -21,7 +19,6 @@ export const TaskListHeader = styled(Box)`
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-// Wrapper for task list
 export const TaskListWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -29,7 +26,6 @@ export const TaskListWrapper = styled(Box)`
   gap: 8px;
 `;
 
-// Individual task item
 export const TaskListItem = styled(ListItem)<{ active: boolean }>`
   display: flex;
   align-items: center;
@@ -45,21 +41,20 @@ export const TaskListItem = styled(ListItem)<{ active: boolean }>`
   }
 `;
 
-// Timestamp styling
 export const TimeStamp = styled(Box)`
   font-size: 0.75rem;
   color: #888;
   margin-left: auto;
 `;
 
-// Task preview styling
 export const TaskPreview = styled(Box)`
   font-size: 0.85rem;
   color: #666;
   font-weight: 500;
   white-space: nowrap;
-  // overflow: hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+  width: 25ch;
 `;
 
