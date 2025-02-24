@@ -4,6 +4,8 @@ import Cookies from "js-cookie";
 
 export interface Task {
     id: string;
+    name: string;
+    email: string;
     userId: string;
     orgId: string;
     threadId: string;

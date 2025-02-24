@@ -57,5 +57,9 @@ export const TaskPreview = styled(Box)`
   font-size: 0.85rem;
   color: #666;
   font-weight: 500;
+  white-space: nowrap;
+  // overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 `;
 

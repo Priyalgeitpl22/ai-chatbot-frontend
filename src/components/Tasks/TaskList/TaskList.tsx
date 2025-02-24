@@ -84,6 +84,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                     animate="visible"
                     transition={{ delay: index * 0.1 }}
                     whileTap={{ scale: 0.98 }}
+                    sx={{ cursor: 'pointer', gap: '3px', padding: '10px', borderRadius: '5px' }}
                   >
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: 'var(--theme-color)', width: 32, height: 32 }}>
@@ -91,14 +92,15 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={task.query || "Untitled Task"}
+                      primary={task.name}
                       secondary={
                         <TaskPreview>
-                          Assigned To: {task.assignedTo || "Unassigned"}
+                          {task.query}
                         </TaskPreview>
                       }
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem' }}
                     />
+                    <Box sx={{ display: 'flex',flexDirection: 'column-reverse',width: '100%', alignItems: 'flex-end', gap: '5px', height: '100%' }}>
                     <Chip
                       label={task.priority}
                       color={getPriorityColor(task.priority)}
@@ -106,6 +108,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                       sx={{ fontSize: "0.75rem", fontWeight: 500, marginRight: '5px', borderRadius: '5px' }}
                     />
                     <TimeStamp>{formatTimestamp(task.createdAt)}</TimeStamp>
+                    </Box>
                   </MotionTaskListItem>
                 );
               })}
