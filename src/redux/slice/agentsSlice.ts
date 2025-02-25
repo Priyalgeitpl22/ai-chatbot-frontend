@@ -11,6 +11,7 @@ export interface ScheduleSlot {
 
 interface AgentState {
   data: Agent[] | null;
+  message: string;
   loading: boolean;
   error: string | null;
 }
@@ -88,6 +89,7 @@ export const updateAgent = createAsyncThunk<
 
 const initialState: AgentState = {
   data: null,
+  message: '',
   loading: false,
   error: null,
 };

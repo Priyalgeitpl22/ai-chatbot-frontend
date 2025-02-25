@@ -25,6 +25,17 @@ import { SocketProvider } from "./context/SocketContext";
 import { Toaster } from "react-hot-toast";
 import Tasks from "./components/Tasks/Tasks";
 
+const publicRoutes = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-otp",
+  "/confirmation",
+  "/change-password",
+  "/activate-account",
+];
+
 const AuthGuard = ({ children }: { children: JSX.Element }) => {
   const token = Cookies.get("access_token");
   return token ? children : <Navigate to="/login" replace />;
@@ -35,22 +46,19 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = Cookies.get("access_token");
-
+    const token = Cookies.get("access_token");
+    if (!publicRoutes.includes(location.pathname)) {
       if (!token) {
         navigate("/login");
       } else {
-        try {
-          await dispatch(getUserDetails(token)).unwrap();
-        } catch (error) {
-          console.error("Failed to fetch user details:", error);
-          navigate("/login");
-        }
+        dispatch(getUserDetails(token))
+          .unwrap()
+          .catch((error) => {
+            console.error("Failed to fetch user details:", error);
+            navigate("/login");
+          });
       }
-    };
-
-    fetchUser();
+    }
   }, [dispatch]);
 
   return (

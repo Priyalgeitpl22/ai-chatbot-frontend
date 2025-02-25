@@ -14,6 +14,7 @@ import { forgetPassword } from "../../redux/slice/authSlice";
 import { AppDispatch } from "../../redux/store/store";
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from "../../validations/FieldValidation";
+import Loader from "../../components/Loader";
 
 const getEmailValidationError = (email: string): string => {
   if (!email.trim()) {
@@ -30,10 +31,11 @@ const getEmailValidationError = (email: string): string => {
 
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,21 +47,26 @@ const ForgotPassword = () => {
       return;
     }
     setError("");
+    setLoading(true);
     try {
       const response = await dispatch(forgetPassword({ email })).unwrap();
       if (response.code === 200) {
-        toast.success("Reset link sent successfully!");
+        toast.success(response.message);
         navigate('/confirmation');
       }
     } catch (err) {
       console.error("Error sending reset link:", err);
-      setError("Failed to send reset link. Please try again.");
-      toast.error("Failed to send reset link. Please try again.");
+      const errorMessage =
+      err instanceof Error ? err.message : "User not found.";
+      toast.error(errorMessage);
+    }finally{
+      setLoading(false); 
     }
   };
 
   return (
     <PageContainer>
+       {loading && <Loader />}
       <AuthCard>
         <IllustrationSection>
           <img

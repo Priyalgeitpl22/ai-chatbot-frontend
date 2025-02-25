@@ -85,11 +85,11 @@ const ChangePassword: React.FC = () => {
           newPassword,
         })
       ).unwrap();
-      toast.success("Password changed successfully!");
+      toast.success("Password updated successfully!");
       navigate("/");
       window.location.reload();
     } catch (error) {
-      toast.error("Error changing password. Please try again.");
+      toast.error(error as string);
     } finally {
       setLoading(false);
     }

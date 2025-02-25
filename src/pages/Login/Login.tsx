@@ -101,19 +101,18 @@ function Login() {
     if (loginSubmitted) {
       (async () => {
         try {
-          await dispatch(loginUser({ email, password })).unwrap();
-
+          await dispatch(loginUser({ email, password })).unwrap().then((res)=>{
+            toast.success(res as string);
+          });
           const token = Cookies.get("access_token");
           if (token) {
             await dispatch(getUserDetails(token)).unwrap();
           }
-
-          toast.success("Logged in successfully!");
           navigate('/');
           window.location.reload();
         } catch (err) {
           console.error('Login failed:', err);
-          toast.error("Login failed. Please try again.");
+          toast.error(err as string);
         } finally {
           setLoginSubmitted(false);
         }

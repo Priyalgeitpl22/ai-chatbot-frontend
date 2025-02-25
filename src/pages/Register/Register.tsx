@@ -41,7 +41,7 @@ const formFields: { name: keyof Omit<RegisterFormData, "profilePicture">; label:
   { name: "domain", label: "Domain", type: "text" },
   { name: "country", label: "Country", type: "text" },
   { name: "phone", label: "Phone Number", type: "tel" },
-  { name: "password", label: "Password", type: "text" }, // type can be ignored for PasswordInput
+  { name: "password", label: "Password", type: "text" }, 
 ];
 
 const getValidationError = (
@@ -149,11 +149,12 @@ const Register = () => {
       payload.append("profilePicture", formData.profilePicture);
     }
     try {
-      await dispatch(registerUser(payload)).unwrap();
-      toast.success("Registration successful!");
+      await dispatch(registerUser(payload)).unwrap().then((res)=>{
+        toast.success(res as string);
+      });
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
-      toast.error("Registration failed. Please try again.");
+      toast.error(err as string);
     } finally {
       setIsLoading(false);
     }

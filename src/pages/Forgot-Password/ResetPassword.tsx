@@ -14,6 +14,7 @@ import { AppDispatch, RootState } from "../../redux/store/store";
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from "../../validations/FieldValidation";
 import PasswordInput from "../../utils/PasswordInput";
+import Loader from "../../components/Loader";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -71,17 +72,19 @@ const ResetPassword = () => {
     }
 
     try {
-      await dispatch(resetPassword({ token, password, email })).unwrap();
-      toast.success("Password reset successful!");
-      navigate("/login");
-    } catch (err) {
-      console.error("Error resetting password:", err);
-      toast.error("Error resetting password. Please try again.");
+    await dispatch(resetPassword({ token, password, email })).unwrap().then((result) => {
+        toast.success(result.message);
+        navigate("/login");  
+    });
+      
+    } catch (err: any) {      
+      toast.error(err.message);
     }
   };
 
   return (
     <PageContainer>
+      {loading && <Loader />}
       <AuthCard>
         <IllustrationSection>
           <img
@@ -106,8 +109,8 @@ const ResetPassword = () => {
             helperText={error || ""}
           />
 
-          <StyledButton fullWidth onClick={handleSubmitPassword} disabled={loading}>
-            {loading ? "Resetting password..." : "Reset Password"}
+          <StyledButton fullWidth onClick={handleSubmitPassword} >
+            Reset Password
           </StyledButton>
         </FormSection>
       </AuthCard>
