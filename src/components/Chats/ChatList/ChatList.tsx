@@ -7,14 +7,13 @@ import {
   ThreadList,
   TimeStamp,
   MessagePreview,
-  SearchBar,
 } from './chatList.styled';
 import { useSocket } from '../../../context/SocketContext';
 import { useDispatch } from 'react-redux';
 import { getAllThreads, Thread } from '../../../redux/slice/threadSlice';
 import { AppDispatch } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
-import { Search } from 'lucide-react';
+import SearchComponent from '../../SearchBar/SearchComponent';
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -51,10 +50,7 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
 
   return (
     <ChatListContainer>
-      <SearchBar>
-        <Search size={20} color="#64748b" />
-        <input placeholder="Search conversations..." />
-      </SearchBar>
+      <SearchComponent />
       <Divider />
       <Box sx={{ overflowY: 'auto', flex: 1 }}>
         {threads && threads.length > 0 ? (

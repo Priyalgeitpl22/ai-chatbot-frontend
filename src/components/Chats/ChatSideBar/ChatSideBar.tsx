@@ -23,27 +23,25 @@ interface ChatSideBarProps {
 
 const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const threads = useSelector((state: RootState) => state.thread);
+  const threadsState = useSelector((state: RootState) => state.thread);
   const [threadCounts, setThreadCounts] = useState<Record<string, number>>({});
 
+  // Fetch threads on mount.
   useEffect(() => {
-    const fetchThreads = async () => {
-      const response = await dispatch(getAllThreads()).unwrap();
-
-      if (response) {
-        const groupedCounts = response.reduce(
-          (acc: Record<string, number>, thread: { type: string }) => {
-            acc[thread.type] = (acc[thread.type] || 0) + 1;
-            return acc;
-          },
-          {}
-        );
-        setThreadCounts(groupedCounts);
-      }
-    };
-
-    fetchThreads();
+    dispatch(getAllThreads());
   }, [dispatch]);
+
+  // Recalculate counts whenever threadsState.threads changes.
+  useEffect(() => {
+    const groupedCounts = threadsState.threads.reduce(
+      (acc: Record<string, number>, thread: { type: string }) => {
+        acc[thread.type] = (acc[thread.type] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+    setThreadCounts(groupedCounts);
+  }, [threadsState.threads]);
 
   const menuItems: MenuItem[] = [
     { text: "Unassigned", icon: <Users size={20} />, count: threadCounts["unassigned"] || 0, threadType: "unassigned" },
@@ -54,46 +52,32 @@ const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
   ];
 
   return (
-    <>
-      {(threads && threads.threads?.length > 0) ? (
-        <SidebarContainer>
-          <Box sx={{ padding: "10px" , borderRadius: '8px'}} display="flex" alignItems="center" flexDirection={"column"}>
-            <Typography variant="h6" sx={{ fontFamily: "cursive", fontWeight: 600 }}>
-              Inbox
-            </Typography>
-          </Box>
-          <Divider />
-          <ChatList>
-            {menuItems.map((item) => {
-              const isActive = selectedType === item.threadType;
-              return (
-                <MotionSidebarItem
-                  key={item.text}
-                  active={isActive}
-                  onClick={() => onSelectType(item.threadType)}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                  {typeof item.count === "number" && <Count variant="body2">{item.count}</Count>}
-                </MotionSidebarItem>
-              );
-            })}
-          </ChatList>
-        </SidebarContainer>
-      ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        >
-          <Typography variant="body1">No chats available</Typography>
-        </Box>
-      )}
-    </>
+    <SidebarContainer>
+      <Box sx={{ padding: "10px", borderRadius: "8px" }} display="flex" alignItems="center" flexDirection="column">
+        <Typography variant="h6" sx={{ fontFamily: "cursive", fontWeight: 600 }}>
+          Inbox
+        </Typography>
+      </Box>
+      <Divider />
+      <ChatList>
+        {menuItems.map((item) => {
+          const hasThreads = threadsState.threads && threadsState.threads.length > 0;
+          const isActive = hasThreads ? selectedType === item.threadType : false;
+          return (
+            <MotionSidebarItem
+              key={item.text}
+              active={isActive}
+              onClick={() => onSelectType(item.threadType)}
+              whileTap={{ scale: 0.98 }}
+            >
+              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+              {typeof item.count === "number" && <Count variant="body2">{item.count}</Count>}
+            </MotionSidebarItem>
+          );
+        })}
+      </ChatList>
+    </SidebarContainer>
   );
 };
 

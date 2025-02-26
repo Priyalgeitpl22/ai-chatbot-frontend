@@ -18,86 +18,73 @@ export default function Chats() {
   const { socket } = useSocket();
 
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
-  const [selectedThreadType, setSelectedThreadType] = useState<string>(
-    ThreadType.UNASSIGNED
-  );
-  const [messages, setMessages] = useState<any[]>([]);
-  const [lastEvent, setLastEvent] = useState<string | null>(null);
+  const [selectedThreadType, setSelectedThreadType] = useState<string>(ThreadType.UNASSIGNED);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch threads on mount.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch(getAllThreads());
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    dispatch(getAllThreads()).finally(() => setIsLoading(false));
   }, [dispatch]);
 
+  // If the current selection is no longer valid (e.g., after a search), clear it.
+  useEffect(() => {
+    if (selectedThreadId && !threads.find((thread) => thread.id === selectedThreadId)) {
+      setSelectedThreadId(null);
+    }
+  }, [threads, selectedThreadId]);
+
+  // Optionally auto-select the first thread when available.
   useEffect(() => {
     if (threads.length > 0 && !selectedThreadId) {
       setSelectedThreadId(threads[0].id);
     }
   }, [threads, selectedThreadId]);
 
+  // (Optional) Socket handling for real-time events.
   useEffect(() => {
     if (!socket) return;
-
     const handleAnyEvent = (eventName: string, ...args: any[]) => {
       console.log(`📡 Event received: ${eventName}`, args);
-      setLastEvent(eventName);
-      if (eventName === "receiveMessage") {
-        setMessages((prevMessages) => [...prevMessages, args[0]]);
-      }
+      // Add any additional logic as needed.
     };
-
     socket.onAny(handleAnyEvent);
-
     return () => {
       socket.offAny(handleAnyEvent);
     };
   }, [socket]);
 
-  if (isLoading) {
-    return <Loader />;
-  }
+  if (isLoading) return <Loader />;
 
   return (
-    <>
-      {threads.length > 0 ? (
-        <ChatContainer>
-          <ChatSideBar
-            selectedType={selectedThreadType}
-            onSelectType={setSelectedThreadType}
-          />
-          <ChatList
-            threads={threads.filter(
-              (thread) => thread.type === selectedThreadType
-            )}
-            onSelectThread={(newThreadId: string) =>
-              setSelectedThreadId(newThreadId)
-            }
-            type={selectedThreadType}
-            selectedThreadId={selectedThreadId}
-          />
-          <ChatArea
-            onSelectThread={(newThreadId: string) =>
-              setSelectedThreadId(newThreadId)
-            }
-            selectedThreadId={selectedThreadId}
-          />
-        </ChatContainer>
+    <ChatContainer>
+      <ChatSideBar 
+        selectedType={selectedThreadType} 
+        onSelectType={setSelectedThreadType} 
+      />
+      <ChatList
+        // Pass threads filtered by the selected type.
+        threads={threads.filter((thread) => thread.type === selectedThreadType)}
+        onSelectThread={setSelectedThreadId}
+        type={selectedThreadType}
+        selectedThreadId={selectedThreadId}
+      />
+      {selectedThreadId ? (
+        <ChatArea
+          selectedThreadId={selectedThreadId}
+          onSelectThread={setSelectedThreadId}
+        />
       ) : (
         <PlaceholderContainer>
-        <img
-          src="https://img.freepik.com/free-vector/cartoon-style-robot-vectorart_78370-4103.jpg"
-          alt="No conversation selected"
-          width="300"
-        />
-        <Typography sx={{ color: "#000000" }}>
-          No chats available.
-        </Typography>
-      </PlaceholderContainer>
+          <img
+            src="https://img.freepik.com/free-vector/cartoon-style-robot-vectorart_78370-4103.jpg"
+            alt="No conversation selected"
+            width="300"
+          />
+          <Typography sx={{ color: "#000000" }}>
+            Select a thread to view messages.
+          </Typography>
+        </PlaceholderContainer>
       )}
-    </>
+    </ChatContainer>
   );
 }
