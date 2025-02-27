@@ -22,6 +22,8 @@ interface Organization {
     secure: string;
     user: string;
     pass: string;
+    proxy?: string;
+    name?: string;
   };
 }
 
@@ -71,6 +73,25 @@ export const updateOrganization = createAsyncThunk<
   }
 });
 
+export const verifyEmail = createAsyncThunk<
+{ message: string },
+{ orgId: string; data: Organization },
+{ rejectValue: string }
+>("organization/verifyEmail", async ({ orgId, data }, { rejectWithValue }) => {
+  try {
+    const response = await api.post(`/org/verify-email/?orgId=${orgId}`, data, {
+      headers: { Authorization: `Bearer ${token}`}
+    });
+    return response.data;
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong";
+    if (error instanceof AxiosError) {
+      errorMessage = (error.response?.data as string) || errorMessage;
+    }
+    return rejectWithValue(errorMessage);
+  }
+});
+
 const initialState: OrganizationState = {
   data: null,
   loading: false,
@@ -94,7 +115,19 @@ const organizationSlice = createSlice({
       .addCase(fetchOrganization.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
-      });
+      })
+      .addCase(verifyEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(verifyEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+      ;
   },
 });
 

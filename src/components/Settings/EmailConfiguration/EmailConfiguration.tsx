@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import { TextField, Typography, Paper, IconButton } from "@mui/material";
+import { useEffect, useState, useCallback } from "react";
+import { Typography, IconButton, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import styled from "@emotion/styled";
 import { EmailConfigData } from "../Configuration/Configuration";
 import { Button } from "../../../styles/layout.styled";
 import PasswordInput from "../../../utils/PasswordInput";
@@ -9,38 +8,9 @@ import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from "../../../validations/FieldValidation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
-import { fetchOrganization, updateOrganization } from "../../../redux/slice/organizationSlice";
+import { fetchOrganization, updateOrganization, verifyEmail } from "../../../redux/slice/organizationSlice";
 import Loader from "../../Loader";
-
-const FormContainer = styled(Paper)`
-  padding: 2rem;
-  min-width: 400px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-radius: 8px;
-`;
-
-const HeaderContainer = styled("div")`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const StyledTextField = styled(TextField)`
-  margin-bottom: 10px;
-  .MuiOutlinedInput-root {
-    border-radius: 10px;
-    transition: all 0.3s ease-in-out;
-  }
-  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-    border: 1px solid #ddd;
-  }
-  .MuiOutlinedInput-input {
-    padding: 12px 10px !important; 
-  }
-`;
+import { FormContainer, HeaderContainer, StyledTextField } from "./emailConfig.styled";
 
 interface EmailConfigurationProps {
   onSubmit: (data: EmailConfigData) => void;
@@ -58,13 +28,18 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
     user: "",
     pass: "",
   });
-
-  const [errors, setErrors] = useState<{ user: string; pass: string }>({
-    user: "",
-    pass: "",
-  });
-
+  const [isVerified, setIsVerified] = useState(false);
   const [isEditable, setIsEditable] = useState(true);
+  const [errors, setErrors] = useState<{ user: string }>({ user: "" });
+
+  // Helper to build the configuration object
+  const getConfig = useCallback(() => ({
+    host: formData.host,
+    port: formData.port,
+    secure: formData.secure,
+    user: formData.user,
+    pass: formData.pass,
+  }), [formData]);
 
   useEffect(() => {
     if (data) {
@@ -76,6 +51,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
         pass: data.emailConfig.pass,
       });
       setIsEditable(false);
+      setIsVerified(false);
     }
   }, [data?.emailConfig]);
 
@@ -85,145 +61,128 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
     }
   }, [user, dispatch]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let newErrors = { user: "", pass: "" };
-
+  const validateFields = useCallback(() => {
+    let errorMsg = "";
     if (!formData.user) {
-      newErrors.user =
-        fieldValidation.email.required?.message || "Email is required";
+      errorMsg = fieldValidation.email.required?.message || "Email is required";
     } else {
-      const emailPattern = new RegExp(
-        fieldValidation.email.pattern?.value ||
-          "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
-      );
-      if (!emailPattern.test(formData.user)) {
-        newErrors.user =
-          fieldValidation.email.pattern?.message || "Invalid email format";
+      const pattern = new RegExp(fieldValidation.email.pattern?.value || "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+      if (!pattern.test(formData.user)) {
+        errorMsg = fieldValidation.email.pattern?.message || "Invalid email format";
       }
     }
+    setErrors({ user: errorMsg });
+    return !errorMsg;
+  }, [formData.user]);
 
-    if (!formData.pass) {
-      newErrors.pass =
-        fieldValidation.password.required?.message || "Password is required";
-    } else if (
-      formData.pass.length < (fieldValidation.password.minLength?.value || 6)
-    ) {
-      newErrors.pass =
-        fieldValidation.password.minLength?.message || "Password too short";
-    } else {
-      const passwordPattern = new RegExp(
-        fieldValidation.password.pattern?.value ||
-          "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\da-zA-Z]).+$"
-      );
-      if (!passwordPattern.test(formData.pass)) {
-        newErrors.pass =
-          fieldValidation.password.pattern?.message ||
-          "Password does not meet criteria";
-      }
-    }
-
-    setErrors(newErrors);
-    if (newErrors.user || newErrors.pass) {
-      return;
-    }
-
-    const config = {
-      host: formData.host,
-      port: formData.port,
-      secure: formData.secure,
-      user: formData.user,
-      pass: formData.pass,
-    };
-
+  const handleVerify = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateFields()) return;
     if (user) {
-      const response = await dispatch(
-        updateOrganization({ orgId: user.orgId, data: { emailConfig: config } })
-      );
+      const config = getConfig();
+      const response = await dispatch(verifyEmail({ orgId: user.orgId, data: { emailConfig: config } }));
+      if (response.meta.requestStatus === "fulfilled") {
+        toast.success("Email configuration verified successfully");
+        setIsVerified(true);
+      } else {
+        toast.error("Error verifying email configuration");
+      }
+    }
+  }, [dispatch, getConfig, user, validateFields]);
+
+  const handleSave = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (user) {
+      const config = getConfig();
+      const response = await dispatch(updateOrganization({ orgId: user.orgId, data: { emailConfig: config } }));
       if (response.meta.requestStatus === "fulfilled") {
         toast.success("Email configuration updated successfully");
+        setIsEditable(false);
+        setIsVerified(false);
+      } else {
+        toast.error("Error updating email configuration");
       }
     }
     onSubmit(formData);
-    setIsEditable(false);
-  };
+  }, [dispatch, getConfig, user, onSubmit, formData]);
 
-  if (loading) {
-    return <Loader />;
-  }
-
+  if (loading) return <Loader />;
 
   return (
     <>
-      <FormContainer elevation={3} onSubmit={handleSubmit}>
+      <FormContainer elevation={3}>
         <HeaderContainer>
           <Typography variant="h6">Email Configuration</Typography>
-          {/* When the form is read-only, show the edit icon */}
           {!isEditable && (
-            <IconButton onClick={() => setIsEditable(true)}>
+            <IconButton onClick={() => { setIsEditable(true); setIsVerified(false); }}>
               <EditIcon />
             </IconButton>
           )}
         </HeaderContainer>
-        <StyledTextField
-          label="SMTP Host"
-          name="host"
-          value={formData.host}
-          onChange={handleChange}
-          fullWidth
-          InputProps={{ readOnly: !isEditable }}
-        />
-        <StyledTextField
-          label="Port"
-          name="port"
-          type="number"
-          value={formData.port}
-          onChange={handleChange}
-          fullWidth
-          InputProps={{ readOnly: !isEditable }}
-        />
-        <StyledTextField
-          label="Secure (true/false)"
-          name="secure"
-          value={formData.secure}
-          onChange={handleChange}
-          fullWidth
-          InputProps={{ readOnly: !isEditable }}
-        />
-        <StyledTextField
-          label="Email User"
-          name="user"
-          value={formData.user}
-          onChange={handleChange}
-          autoComplete="nope"
-          fullWidth
-          required
-          error={!!errors.user}
-          helperText={errors.user}
-          InputProps={{ readOnly: !isEditable }}
-        />
-        <PasswordInput
-          label="Email Password"
-          name="pass"
-          value={formData.pass}
-          onChange={handleChange}
-          error={!!errors.pass}
-          helperText={errors.pass}
-          autoComplete="new-password"
-          readOnly={!isEditable}
-        />
-        {/* Show Save button only when in edit mode */}
-        {isEditable && (
-          <Button type="submit" onClick={handleSubmit}>
-            Save
-          </Button>
-        )}
+        <form>
+          <StyledTextField
+            label="SMTP Host"
+            name="host"
+            value={formData.host}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{ readOnly: !isEditable }}
+          />
+          <StyledTextField
+            label="Port"
+            name="port"
+            type="number"
+            value={formData.port}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{ readOnly: !isEditable }}
+          />
+          <StyledTextField
+            label="Secure (true/false)"
+            name="secure"
+            value={formData.secure}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{ readOnly: !isEditable }}
+          />
+          <StyledTextField
+            label="Email User"
+            name="user"
+            value={formData.user}
+            onChange={handleChange}
+            autoComplete="nope"
+            fullWidth
+            required
+            error={!!errors.user}
+            helperText={errors.user}
+            InputProps={{ readOnly: !isEditable }}
+          />
+          <PasswordInput
+            label="Email Password"
+            name="pass"
+            required
+            fullWidth
+            value={formData.pass}
+            onChange={handleChange}
+            autoComplete="new-password"
+            readOnly={!isEditable}
+          />
+          <Box display="flex" justifyContent="space-between" mt={2}>
+            {isEditable && (
+              isVerified ? (
+                <Button type="button" onClick={handleSave}>Save</Button>
+              ) : (
+                <Button type="button" onClick={handleVerify}>Verify</Button>
+              )
+            )}
+          </Box>
+        </form>
       </FormContainer>
       <Toaster />
     </>

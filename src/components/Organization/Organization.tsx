@@ -166,7 +166,13 @@ const OrganizationForm: React.FC = () => {
     setLoading(true);
     setTimeout(async () => {
       const response = await dispatch(
-        updateOrganization({ orgId: user.orgId, data: { ...values, aiOrgId: user.aiOrgId } })
+        updateOrganization({ orgId: user.orgId, data: { ...values, aiOrgId: user.aiOrgId, emailConfig: data?.emailConfig || {
+          host: "",
+          port: "",
+          secure: "",
+          user: "",
+          pass: ""
+        } } })
       );
       setLoading(false);
       if (updateOrganization.fulfilled.match(response)) {

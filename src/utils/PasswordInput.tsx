@@ -11,7 +11,9 @@ interface PasswordInputProps {
   autoComplete?: string;
   error?: boolean;
   helperText?: string;
-  readOnly?: boolean; // Added readOnly prop
+  required?: boolean;
+  readOnly?: boolean; 
+  fullWidth?: boolean;
 }
 
 const StyledTextField = styled(TextField)`
@@ -55,6 +57,8 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       autoComplete="new-password"
       error={error}
       helperText={helperText}
+      required
+      fullWidth
       InputProps={{
         readOnly: readOnly,
         endAdornment: (
