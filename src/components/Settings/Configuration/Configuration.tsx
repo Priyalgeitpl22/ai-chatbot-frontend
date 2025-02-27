@@ -50,6 +50,7 @@ const Configuration = () => {
     position: "bottom-right",
     allowEmojis: false,
     allowFileUpload: false,
+    allowNameEmail: false,
     availability: true,
   });
   const [activeTab, setActiveTab] = useState("configure");
@@ -160,6 +161,20 @@ const Configuration = () => {
                   <FormControlLabel value="bottom-left" control={<Radio />} label="Bottom-Left" />
                   <FormControlLabel value="bottom-right" control={<Radio />} label="Bottom-Right" />
                 </RadioGroup>
+              </FormControl>
+            </Section>
+
+            <Section style={{ marginTop: '1.2rem' }}>
+              <FormControl>
+              <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={settings.allowNameEmail}
+                      onChange={(e) => handleChange("allowNameEmail", e.target.checked)}
+                    />
+                  }
+                  label="Allow bot to ask name and email"
+                />
               </FormControl>
             </Section>
 
