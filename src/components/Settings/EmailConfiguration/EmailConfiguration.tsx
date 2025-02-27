@@ -19,7 +19,7 @@ interface EmailConfigurationProps {
 const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
-  const { data, loading } = useSelector((state: RootState) => state.organization);
+  const { data } = useSelector((state: RootState) => state.organization);
 
   const [formData, setFormData] = useState<EmailConfigData>({
     host: "smtp.gmail.com",
@@ -31,8 +31,8 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
   const [isVerified, setIsVerified] = useState(false);
   const [isEditable, setIsEditable] = useState(true);
   const [errors, setErrors] = useState<{ user: string }>({ user: "" });
+  const [showLoader, setShowLoader] = useState<boolean>(false);
 
-  // Helper to build the configuration object
   const getConfig = useCallback(() => ({
     host: formData.host,
     port: formData.port,
@@ -85,8 +85,10 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
     e.preventDefault();
     if (!validateFields()) return;
     if (user) {
+      setShowLoader(true);
       const config = getConfig();
       const response = await dispatch(verifyEmail({ orgId: user.orgId, data: { emailConfig: config } }));
+      setShowLoader(false);
       if (response.meta.requestStatus === "fulfilled") {
         toast.success("Email configuration verified successfully");
         setIsVerified(true);
@@ -99,8 +101,10 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
   const handleSave = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
+      setShowLoader(true);
       const config = getConfig();
       const response = await dispatch(updateOrganization({ orgId: user.orgId, data: { emailConfig: config } }));
+      setShowLoader(false);
       if (response.meta.requestStatus === "fulfilled") {
         toast.success("Email configuration updated successfully");
         setIsEditable(false);
@@ -112,7 +116,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
     onSubmit(formData);
   }, [dispatch, getConfig, user, onSubmit, formData]);
 
-  if (loading) return <Loader />;
+  if (showLoader) return <Loader />;
 
   return (
     <>
