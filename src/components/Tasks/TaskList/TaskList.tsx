@@ -66,7 +66,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
   return (
     <TaskListContainer>
       <TaskListHeader>
-        <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 500, color:'#333333' }}>
+        <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 500, color:'#35495c' }}>
           Tasks  
         </Typography>
       </TaskListHeader>
@@ -92,7 +92,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                   >
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: 'var(--theme-color)', width: 32, height: 32 }}>
-                        {task.status[0]?.toUpperCase() || "?"}
+                        {task.name[0]?.toUpperCase() || "?"}
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText

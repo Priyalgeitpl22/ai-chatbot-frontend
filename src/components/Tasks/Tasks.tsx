@@ -6,6 +6,7 @@ import { TaskContainer } from "./tasks.styled";
 import { getAllTasks } from "../../redux/slice/taskSlice";
 import { CircularProgress, Box, Typography } from "@mui/material";
 import ChatArea from "../Chats/ChatArea/ChatArea";
+import AssignedDropDown from "./AssignedDropDown/AssignedDropDown";
 
 export default function Tasks() {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,10 +19,10 @@ export default function Tasks() {
   const { tasks, loading, error } = useSelector((state: RootState) => state.task);
 
   const handleSelectTask = (taskId: string) => {
-    setSelectedTaskId(taskId); // Set selected task ID
+    setSelectedTaskId(taskId); 
   };
 
-  const selectedTask = tasks.find((task) => task.id === selectedTaskId); // Find the selected task
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId); 
 
   return (
     <TaskContainer>
@@ -40,7 +41,12 @@ export default function Tasks() {
           />
           
           {selectedTask && (
-            <ChatArea onClose={() => setSelectedTaskId(null)} selectedThreadId={selectedTask.threadId} />
+            <ChatArea onClose={() => setSelectedTaskId(null)} selectedThreadId={selectedTask.threadId} assignedDropdown={
+              <AssignedDropDown
+                taskId={selectedTask.id}
+                assignedTo={selectedTask.assignedTo} 
+              />
+            }/>
           )}
         </>
       ) : (

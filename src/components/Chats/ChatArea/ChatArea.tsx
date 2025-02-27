@@ -8,7 +8,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Send, X } from "lucide-react";  // Import the X icon for the close button
-import { motion } from "framer-motion";
+import {  motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getChats, addchat } from "../../../redux/slice/chatSlice";
@@ -38,7 +38,8 @@ interface ChatData {
 interface ChatAreaProps {
   selectedThreadId: string | null;
   onSelectThread?: (type: string) => void;
-  onClose?: () => void; 
+  onClose?: () => void;
+  assignedDropdown?: React.ReactNode;
 }
 
 const motionVariants = {
@@ -46,7 +47,7 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function ChatArea({ selectedThreadId, onClose }: ChatAreaProps) {
+export default function ChatArea({ selectedThreadId, onClose, assignedDropdown }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
@@ -189,7 +190,12 @@ export default function ChatArea({ selectedThreadId, onClose }: ChatAreaProps) {
               </Avatar>
               <Typography variant="subtitle1">Unknown Visitor</Typography>
             </Box>
-            {/* Close button on the right */}
+            {assignedDropdown &&
+            <Box mr={2} style={{ fontSize: "0.8rem", color: "#35495c", display:'flex', alignItems:'center', gap:'10px' }}>
+              <Typography> Assigned to: </Typography>
+              <Typography>{assignedDropdown}</Typography>
+            </Box>
+            }
             <IconButton onClick={onClose} sx={{ padding: 0 }}>
               <X size={24} />
             </IconButton>
@@ -235,7 +241,7 @@ export default function ChatArea({ selectedThreadId, onClose }: ChatAreaProps) {
                     </motion.div>
                   );
                 })}
-                <div ref={messagesEndRef} /> {/* Add this at the bottom */}
+                <div ref={messagesEndRef} />
               </>
             ) : (
               <Typography>No messages yet.</Typography>
