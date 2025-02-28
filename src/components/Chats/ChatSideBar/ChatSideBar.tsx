@@ -1,9 +1,8 @@
 import { ListItemText, ListItemIcon, Typography, Box, Divider } from "@mui/material";
 import { MessageCircle, Users, Bot, UserCheck, MessageSquare } from "lucide-react";
 import { SidebarContainer, Count, ChatList, SidebarItem } from "./chatSidebar.styled";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllThreads } from "../../../redux/slice/threadSlice";
-import { AppDispatch, RootState } from "../../../redux/store/store";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store/store";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -22,16 +21,9 @@ interface ChatSideBarProps {
 }
 
 const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
-  const dispatch = useDispatch<AppDispatch>();
   const threadsState = useSelector((state: RootState) => state.thread);
   const [threadCounts, setThreadCounts] = useState<Record<string, number>>({});
 
-  // Fetch threads on mount.
-  useEffect(() => {
-    dispatch(getAllThreads());
-  }, [dispatch]);
-
-  // Recalculate counts whenever threadsState.threads changes.
   useEffect(() => {
     const groupedCounts = threadsState.threads.reduce(
       (acc: Record<string, number>, thread: { type: string }) => {

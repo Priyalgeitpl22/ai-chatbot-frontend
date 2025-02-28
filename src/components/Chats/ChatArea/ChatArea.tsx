@@ -26,6 +26,7 @@ import {
 } from "./chatArea.styled";
 import { ChatListHeader, TimeStamp } from "../ChatList/chatList.styled";
 import { formatTimestamp } from "../../../utils/utils";
+import { Thread } from "../../../redux/slice/threadSlice";
 
 interface ChatData {
   id: string;
@@ -40,6 +41,7 @@ interface ChatAreaProps {
   onSelectThread?: (type: string) => void;
   onClose?: () => void;
   assignedDropdown?: React.ReactNode;
+  threads: Thread[];
 }
 
 const motionVariants = {
@@ -47,7 +49,7 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function ChatArea({ selectedThreadId, onClose, assignedDropdown }: ChatAreaProps) {
+export default function ChatArea({ selectedThreadId,threads, onClose, assignedDropdown }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
@@ -158,6 +160,8 @@ export default function ChatArea({ selectedThreadId, onClose, assignedDropdown }
     setInputMessage("");
   }, [socket, selectedThreadId, inputMessage, dispatch]);
 
+  const threadInfo = threads.find(thread => thread.id === selectedThreadId);
+
   return (
     <ChatContainer>
       {!selectedThreadId ? (
@@ -186,9 +190,11 @@ export default function ChatArea({ selectedThreadId, onClose, assignedDropdown }
           <ChatHeader>
             <Box display="flex" alignItems="center" gap={2} sx={{ flexGrow: 1 }}>
               <Avatar style={{ backgroundColor: "var(--theme-color)" }}>
-                U
+                {threadInfo?.name?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
-              <Typography variant="subtitle1">Unknown Visitor</Typography>
+              <Typography variant="subtitle1">
+                {((threadInfo?.name ?? 'Unkown Visitor').charAt(0).toUpperCase() + (threadInfo?.name ?? '').slice(1))}
+                </Typography>
             </Box>
             {assignedDropdown &&
             <Box mr={2} style={{ fontSize: "0.8rem", color: "#35495c", display:'flex', alignItems:'center', gap:'10px' }}>
@@ -215,7 +221,7 @@ export default function ChatArea({ selectedThreadId, onClose, assignedDropdown }
             ) : chats.length > 0 ? (
               <>
                 {chats.map((chat) => {
-                  const isBot = chat.sender === "Bot";
+                  const isBot = chat.sender === "ChatBot";
                   return (
                     <motion.div
                       key={chat.id}

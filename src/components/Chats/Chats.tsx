@@ -21,31 +21,26 @@ export default function Chats() {
   const [selectedThreadType, setSelectedThreadType] = useState<string>(ThreadType.UNASSIGNED);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch threads on mount.
   useEffect(() => {
     dispatch(getAllThreads()).finally(() => setIsLoading(false));
   }, [dispatch]);
 
-  // If the current selection is no longer valid (e.g., after a search), clear it.
   useEffect(() => {
     if (selectedThreadId && !threads.find((thread) => thread.id === selectedThreadId)) {
       setSelectedThreadId(null);
     }
   }, [threads, selectedThreadId]);
 
-  // Optionally auto-select the first thread when available.
   useEffect(() => {
     if (threads.length > 0 && !selectedThreadId) {
       setSelectedThreadId(threads[0].id);
     }
   }, [threads, selectedThreadId]);
 
-  // (Optional) Socket handling for real-time events.
   useEffect(() => {
     if (!socket) return;
     const handleAnyEvent = (eventName: string, ...args: any[]) => {
       console.log(`📡 Event received: ${eventName}`, args);
-      // Add any additional logic as needed.
     };
     socket.onAny(handleAnyEvent);
     return () => {
@@ -62,7 +57,6 @@ export default function Chats() {
         onSelectType={setSelectedThreadType} 
       />
       <ChatList
-        // Pass threads filtered by the selected type.
         threads={threads.filter((thread) => thread.type === selectedThreadType)}
         onSelectThread={setSelectedThreadId}
         type={selectedThreadType}
@@ -72,6 +66,7 @@ export default function Chats() {
         <ChatArea
           selectedThreadId={selectedThreadId}
           onSelectThread={setSelectedThreadId}
+          threads={threads.filter((thread) => thread.type === selectedThreadType)}
         />
       ) : (
         <PlaceholderContainer>

@@ -21,7 +21,13 @@ export const ChatMessages = styled(Box)({
   flex: 1,
   overflowY: 'auto',
   padding: '20px',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+  msOverflowStyle: 'none',
+  scrollbarWidth: 'none',
 });
+
 
 export const ReassignmentNote = styled(Typography)({
   color: '#757575',

@@ -6,9 +6,15 @@ import { ThreadType } from "../../enums";
 export interface Thread {
   id: string;
   user: string;
+  aiOrgId: number;
+  url: string;
+  ip: string;
+  name: string;
+  email: string;
   type: ThreadType;
   createdAt: string;
 }
+
 
 interface ThreadState {
   threads: Thread[];

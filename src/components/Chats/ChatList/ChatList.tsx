@@ -10,7 +10,7 @@ import {
 } from './chatList.styled';
 import { useSocket } from '../../../context/SocketContext';
 import { useDispatch } from 'react-redux';
-import { getAllThreads, Thread } from '../../../redux/slice/threadSlice';
+import { Thread } from '../../../redux/slice/threadSlice';
 import { AppDispatch } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
 import SearchComponent from '../../SearchBar/SearchComponent';
@@ -38,7 +38,6 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
 
     const handleChatStarted = (data: { threadId: string }) => {
       console.log("New thread started with ID:", data.threadId);
-      dispatch(getAllThreads());
       onSelectThread(data.threadId);
     };
 
@@ -52,7 +51,13 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
     <ChatListContainer>
       <SearchComponent />
       <Divider />
-      <Box sx={{ overflowY: 'auto', flex: 1 }}>
+      <Box sx={{ overflowY: 'auto', flex: 1,
+       '&::-webkit-scrollbar': {
+        display: 'none',
+      },
+      'msOverflowStyle': 'none',
+      'scrollbarWidth': 'none',
+       }}>
         {threads && threads.length > 0 ? (
           <AnimatePresence>
             <ThreadList>
@@ -72,12 +77,12 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                   >
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: 'var(--theme-color)', width: 32, height: 32 }}>
-                        {thread.type[0]?.toUpperCase() || "?"}
+                        {thread.name[0]?.toUpperCase() || "U"}
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary="Unknown Visitor"
-                      secondary={<MessagePreview>Click to view messages</MessagePreview>}
+                      primary={((thread?.name ?? 'Unkown Visitor').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1))}
+                      secondary={<MessagePreview>{thread.email || "Click to start a conversation"}</MessagePreview>}
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem' }}
                     />
                     <TimeStamp>{formatTimestamp(thread.createdAt)}</TimeStamp>
