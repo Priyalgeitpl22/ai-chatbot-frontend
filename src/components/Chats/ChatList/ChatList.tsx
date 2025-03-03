@@ -81,7 +81,7 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={((thread?.name ?? 'Unkown Visitor').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1))}
+                      primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unkown Visitor'}
                       secondary={<MessagePreview>{thread.email || "Click to start a conversation"}</MessagePreview>}
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem' }}
                     />

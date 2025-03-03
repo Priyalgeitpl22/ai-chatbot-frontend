@@ -10,8 +10,8 @@ import {
   TaskPreview,
 } from './taskList.styled';
 import { useSocket } from '../../../context/SocketContext';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../redux/store/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
 import { getAllTasks, Task } from '../../../redux/slice/taskSlice';
 import { Priority } from '../../../enums';
@@ -34,6 +34,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
   const { socket } = useSocket();
   const dispatch = useDispatch<AppDispatch>();
   const [activeFilter, setActiveFilter] = useState<string>('filter');
+
+  const { user } = useSelector((state: RootState) => state.user); 
 
   useEffect(() => {
     if (!socket) return;
@@ -63,6 +65,17 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
     }
   };
 
+  // Filter tasks based on the active filter
+  const filteredTasks = tasks.filter(task => {
+    if (activeFilter === 'unassigned') {
+      return task.assignedTo === null;
+    }
+    if (activeFilter === 'assigned') {
+      return task.assignedTo && task.assignedTo === user?.id;
+    }
+    return true;
+  });
+
   return (
     <TaskListContainer>
       <TaskListHeader>
@@ -72,10 +85,10 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
       </TaskListHeader>
       <FilterComponent activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
       <Box sx={{ overflowY: 'auto', flex: 1 }}>
-        {tasks && tasks.length > 0 ? (
-          <AnimatePresence>
-            <TaskListWrapper>
-              {tasks.map((task, index) => {
+        <AnimatePresence>
+          <TaskListWrapper>
+            {filteredTasks && filteredTasks.length > 0 ? (
+              filteredTasks.map((task, index) => {
                 const isActive = task.id === selectedTaskId; 
 
                 return (
@@ -104,32 +117,35 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                       }
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem' }}
                     />
-                    <Box sx={{ display: 'flex',flexDirection: 'column-reverse',width: '100%', alignItems: 'flex-end', gap: '5px', height: '100%' }}>
-                    <Chip
-                      label={task.priority}
-                      color={getPriorityColor(task.priority)}
-                      size="small"
-                      sx={{ fontSize: "0.75rem", fontWeight: 500, marginRight: '5px', borderRadius: '5px' }}
-                    />
-                    <TimeStamp>{formatTimestamp(task.createdAt)}</TimeStamp>
+                    <Box sx={{ display: 'flex', flexDirection: 'column-reverse', width: '100%', alignItems: 'flex-end', gap: '5px', height: '100%' }}>
+                      <Chip
+                        label={task.priority}
+                        color={getPriorityColor(task.priority)}
+                        size="small"
+                        sx={{ fontSize: "0.75rem", fontWeight: 500, marginRight: '5px', borderRadius: '5px' }}
+                      />
+                      <TimeStamp>{formatTimestamp(task.createdAt)}</TimeStamp>
                     </Box>
                   </MotionTaskListItem>
                 );
-              })}
-            </TaskListWrapper>
-          </AnimatePresence>
-        ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <Typography variant="body1">No tasks available</Typography>
-          </Box>
-        )}
+              })
+            ) : (
+              <MotionTaskListItem
+                key="empty"
+                variants={listItemVariants}
+                initial="hidden"
+                animate="visible"
+                sx={{ cursor: 'default', justifyContent: 'center', padding: '10px' }}
+              >
+                <Typography variant="body1">
+                  {activeFilter === 'assigned'
+                    ? 'No Task is assigned to you'
+                    : 'No tasks available'}
+                </Typography>
+              </MotionTaskListItem>
+            )}
+          </TaskListWrapper>
+        </AnimatePresence>
       </Box>
     </TaskListContainer>
   );

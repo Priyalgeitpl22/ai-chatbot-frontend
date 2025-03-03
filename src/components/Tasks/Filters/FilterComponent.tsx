@@ -16,7 +16,6 @@ interface FilterItem {
 const FilterComponent: React.FC<FilterComponentProps> = ({ activeFilter, setActiveFilter }) => {
   const filters: FilterItem[] = [
     { type: 'filter', label: 'Filter', alwaysActive: true },
-    { type: 'new', label: 'New' },
     { type: 'unassigned', label: 'Unassigned' },
     { type: 'assigned', label: 'Assigned' },
   ];

@@ -8,7 +8,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Send, X } from "lucide-react";  // Import the X icon for the close button
-import {  motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getChats, addchat } from "../../../redux/slice/chatSlice";
@@ -41,7 +41,7 @@ interface ChatAreaProps {
   onSelectThread?: (type: string) => void;
   onClose?: () => void;
   assignedDropdown?: React.ReactNode;
-  threads: Thread[];
+  threads?: Thread[];
 }
 
 const motionVariants = {
@@ -49,7 +49,7 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function ChatArea({ selectedThreadId,threads, onClose, assignedDropdown }: ChatAreaProps) {
+export default function ChatArea({ selectedThreadId, threads=[], onClose, assignedDropdown }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
@@ -160,7 +160,7 @@ export default function ChatArea({ selectedThreadId,threads, onClose, assignedDr
     setInputMessage("");
   }, [socket, selectedThreadId, inputMessage, dispatch]);
 
-  const threadInfo = threads.find(thread => thread.id === selectedThreadId);
+  const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
 
   return (
     <ChatContainer>
@@ -193,14 +193,14 @@ export default function ChatArea({ selectedThreadId,threads, onClose, assignedDr
                 {threadInfo?.name?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
               <Typography variant="subtitle1">
-                {((threadInfo?.name ?? 'Unkown Visitor').charAt(0).toUpperCase() + (threadInfo?.name ?? '').slice(1))}
-                </Typography>
+                {((threadInfo?.name ?? '').charAt(0).toUpperCase() + (threadInfo?.name ?? '').slice(1)) || 'Unkown Visitor'}
+              </Typography>
             </Box>
             {assignedDropdown &&
-            <Box mr={2} style={{ fontSize: "0.8rem", color: "#35495c", display:'flex', alignItems:'center', gap:'10px' }}>
-              <Typography> Assigned to: </Typography>
-              <Typography>{assignedDropdown}</Typography>
-            </Box>
+              <Box mr={2} style={{ fontSize: "0.8rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Typography> Assigned to: </Typography>
+                <Typography>{assignedDropdown}</Typography>
+              </Box>
             }
             <IconButton onClick={onClose} sx={{ padding: 0 }}>
               <X size={24} />
@@ -221,7 +221,7 @@ export default function ChatArea({ selectedThreadId,threads, onClose, assignedDr
             ) : chats.length > 0 ? (
               <>
                 {chats.map((chat) => {
-                  const isBot = chat.sender === "ChatBot";
+                  const isBot = chat.sender === "Bot";
                   return (
                     <motion.div
                       key={chat.id}

@@ -25,7 +25,6 @@ function ChatBot({ settings }: any) {
   return (
     <Box sx={{
       display: 'flex',
-      alignItems: 'center',
       justifyContent: 'center',
     }}>
       {isOpen ? (

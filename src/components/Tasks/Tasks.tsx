@@ -7,13 +7,18 @@ import { getAllTasks } from "../../redux/slice/taskSlice";
 import { CircularProgress, Box, Typography } from "@mui/material";
 import ChatArea from "../Chats/ChatArea/ChatArea";
 import AssignedDropDown from "./AssignedDropDown/AssignedDropDown";
+import { fetchAgents } from "../../redux/slice/agentsSlice";
 
 export default function Tasks() {
   const dispatch = useDispatch<AppDispatch>();
+  const {user} = useSelector((state: RootState) => state.user);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(getAllTasks());
+    if(user){
+      dispatch(getAllTasks());
+      dispatch(fetchAgents(user?.orgId))
+    }
   }, [dispatch]);
 
   const { tasks, loading, error } = useSelector((state: RootState) => state.task);
