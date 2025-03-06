@@ -1,5 +1,5 @@
 import React from "react";
-import { CardContent, Typography } from "@mui/material";
+import { CardContent } from "@mui/material";
 import { Grid } from "@mui/material";
 import { AnalyticsCard, CardHeader, AnalyticsValue, ContentContainer } from "./home.styled"; // Assuming you are importing styled components
 

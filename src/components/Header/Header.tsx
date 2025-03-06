@@ -43,6 +43,7 @@ const Header = () => {
   );
 
   useEffect(() => {
+    console.log("onlineUsers", onlineUsers);
     const token = Cookies.get("access_token");
     if (!user && token) {
       dispatch(getUserDetails(token)).catch(() => navigate("/login"));

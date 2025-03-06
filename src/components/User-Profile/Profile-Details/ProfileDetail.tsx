@@ -20,6 +20,7 @@ import Loader from "../../Loader";
 interface ProfileDetailProps {
   open: boolean;
   onClose: () => void;
+  userData: any
 }
 
 const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {

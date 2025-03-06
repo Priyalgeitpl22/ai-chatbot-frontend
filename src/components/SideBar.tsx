@@ -1,9 +1,5 @@
-import { useState } from "react";
 import {
   HomeIcon,
-  Settings,
-  ChevronDown,
-  ChevronUp,
   Sliders,
   Users,
   MessageSquare,
@@ -13,9 +9,6 @@ import {
 import {
   SidebarContainer,
   NavItem,
-  SubNavItem,
-  SubmenuWrapper,
-  SettingsWrapper,
 } from "../styles/layout.styled";
 import { useLocation } from "react-router-dom";
 
@@ -27,7 +20,6 @@ const sidebarAnimation = {
 
 const Sidebar = () => {
   const location = useLocation();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <SidebarContainer
