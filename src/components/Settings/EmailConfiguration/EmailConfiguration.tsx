@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from "../../../redux/store/store";
 import { fetchOrganization, updateOrganization, verifyEmail } from "../../../redux/slice/organizationSlice";
 import Loader from "../../Loader";
 import { FormContainer, HeaderContainer, StyledTextField } from "./emailConfig.styled";
+import { saveConfigurations } from "../../../redux/slice/chatSlice";
 
 interface EmailConfigurationProps {
   onSubmit: (data: EmailConfigData) => void;
@@ -42,7 +43,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
   }), [formData]);
 
   useEffect(() => {
-    if (data) {
+    if (data?.emailConfig) {
       setFormData({
         host: data.emailConfig.host,
         port: data.emailConfig.port,
@@ -104,6 +105,9 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
       setShowLoader(true);
       const config = getConfig();
       const response = await dispatch(updateOrganization({ orgId: user.orgId, data: { emailConfig: config } }));
+      await dispatch(
+        saveConfigurations({ orgId: user?.orgId, aiOrgId: user?.aiOrgId, emailConfig: config })
+      ).unwrap();
       setShowLoader(false);
       if (response.meta.requestStatus === "fulfilled") {
         toast.success("Email configuration updated successfully");
