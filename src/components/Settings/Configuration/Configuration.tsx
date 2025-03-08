@@ -33,6 +33,7 @@ import Loader from "../../Loader";
 import toast, {Toaster} from "react-hot-toast";
 import { Button } from "../../../styles/layout.styled";
 import EmailConfiguration from "../EmailConfiguration/EmailConfiguration";
+import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
 
 export interface EmailConfigData {
   host: string;
@@ -40,6 +41,13 @@ export interface EmailConfigData {
   secure: string;
   user: string;
   pass: string;
+}
+export interface AIchatBotSettingsData {
+  companyInfo: string;
+  serviceOrProductInfo: string;
+  contactDetails: string;
+  buzznexxAddress: string;
+  isAiEnabled: boolean;
 }
 
 const Configuration = () => {
@@ -109,21 +117,26 @@ const Configuration = () => {
     console.log("Email configuration submitted:", emailConfigData);
   };
 
+  const handleAIChatbotSettings = (aiChatBotSettingsData : AIchatBotSettingsData)=>{
+    console.log("Ai ChatBot Settings Data: ", aiChatBotSettingsData)
+  }
+
   return (
     <ContentContainer>
       <CustomTabs value={activeTab} onChange={handleTabChange}>
         <CustomTab label="Configure" value="configure" />
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
+        <CustomTab label="Ai Chatbot Setiings" value="ai chatbot settings" />
       </CustomTabs>
 
       {activeTab === "configure" && (
-        <SettingsContainer>
+        <SettingsContainer >
           <ScrollableDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{border:'1px solid #e0e0e0',height:'500px', borderRadius:'8px', padding:'1rem', overflowY:'auto'}}
+            style={{border:'1px solid #e0e0e0',width:'50%',height:'500px', borderRadius:'8px', padding:'1rem', overflowY:'auto'}}
           >
             <SectionTitle>Display</SectionTitle>
             <Section>
@@ -268,6 +281,19 @@ const Configuration = () => {
           >
             <Section style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
               <EmailConfiguration onSubmit={handleEmailConfigSubmit} />
+            </Section>
+          </motion.div>
+        </SettingsContainer>
+      )}
+      {activeTab === "ai chatbot settings" && (
+        <SettingsContainer >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Section style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
+              {user?.orgId && <AiChatBotSettings onSubmit={handleAIChatbotSettings} orgId={user?.orgId} />}
             </Section>
           </motion.div>
         </SettingsContainer>

@@ -86,20 +86,12 @@ export const StyledButton = styled(Button)`
   }
 `;
 
-export const SocialButtonsContainer = styled(Box)`
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-`;
 
-export const SocialButton = styled(IconButton)`
-  border: 1px solid #e0e0e0;
-  padding: 12px;
-  transition: all 0.3s ease-in-out;
+export const SocialButton = styled(Box)`
   
   &:hover {
-    background-color: #ffffff;
-    transform: scale(1.1);
+    background-color: var(--theme-color);
+    opacity: 0.9;
   }
 `;
 

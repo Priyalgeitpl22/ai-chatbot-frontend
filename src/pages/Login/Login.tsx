@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Typography } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { Facebook, Linkedin } from 'lucide-react';
 import {
   PageContainer,
@@ -22,6 +22,7 @@ import { getUserDetails } from '../../redux/slice/userSlice';
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from '../../validations/FieldValidation';
 import PasswordInput from "../../utils/PasswordInput";
+import { FcGoogle } from 'react-icons/fc';
 
 const getValidationError = (
   field: 'email' | 'password',
@@ -120,6 +121,10 @@ function Login() {
     }
   }, [loginSubmitted, dispatch, navigate, email, password]);
 
+  // const handleGoogleSignIn =()=>{
+  //   console.log("SignIn with Google");
+  // }
+
   return (
     <PageContainer>
       <LoginCard>
@@ -182,25 +187,19 @@ function Login() {
             </RouterLink>
           </Typography>
 
-          <Typography variant="body2" color="black" align="center" sx={{ my: 1 }}>
+          {/* <Typography variant="body2" color="black" align="center" sx={{ my: 1 }}>
             OR LOGIN WITH
           </Typography>
-
-          <SocialButtonsContainer>
-            <SocialButton>
-              <Facebook size={24} color="#4267B2" />
-            </SocialButton>
-            <SocialButton>
-              <img 
-                src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
-                alt="Google"
-                style={{ width: 24, height: 24 }}
-              />
-            </SocialButton>
-            <SocialButton>
-              <Linkedin size={24} color="#0077B5" />
-            </SocialButton>
-          </SocialButtonsContainer>
+          <SocialButton>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleGoogleSignIn}
+              startIcon={<FcGoogle />}
+            >
+              Sign in with Google
+            </Button>
+          </SocialButton> */}
         </FormSection>
       </LoginCard>
 

@@ -178,7 +178,7 @@ export const ContentContainer = styled(Box)`
 
 export const ScrollableDiv = styled(motion.div)`
 border: 1px solid #e0e0e0;
-width: 50%;
+width: 97%;
 height: 500px;
 border-radius: 8px;
 padding: 1rem;

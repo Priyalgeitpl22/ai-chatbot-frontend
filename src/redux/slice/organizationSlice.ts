@@ -2,6 +2,29 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
 import { AxiosError } from "axios";
 import Cookies from "js-cookie";
+import {AiSettings} from "../../components/Settings/AI-ChatBot-Settings/AiChatBotSettings";
+
+
+interface EmailConfig {
+  host: string;
+  port: string;
+  secure: string;
+  user: string;
+  pass: string;
+  proxy?: string;
+  name?: string;
+}
+
+interface AIChatBotSettings {
+  isAiEnabled: boolean;
+  companyInfo: string;
+  serviceOrProductInfo: string;
+  contactDetails: string;
+  buzznexxAddress: string;
+  googlePageUrl?: string;
+  linkedinPageUrl?: string;
+  facebookPageUrl?: string;
+}
 
 interface Organization {
   id?: string;
@@ -16,17 +39,9 @@ interface Organization {
   domain?: string;
   industry?: string;
   description?: string;
-  emailConfig: {
-    host: string;
-    port: string;
-    secure: string;
-    user: string;
-    pass: string;
-    proxy?: string;
-    name?: string;
-  };
+  emailConfig?: EmailConfig;
+  aiChatBotSettings?: AIChatBotSettings; 
 }
-
 interface OrganizationState {
   data: Organization | null;
   loading: boolean;
@@ -92,6 +107,44 @@ export const verifyEmail = createAsyncThunk<
   }
 });
 
+export const getAIChatbotSettingsData = createAsyncThunk<
+  { data: Organization },
+  string,
+  { rejectValue: string }
+>("organization/getAIChatbotSettingsData", async (orgId, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/org/settings/ai?orgId=${orgId}`, {
+      headers: { Authorization: `Bearer ${token}`}
+    });
+    return response.data;
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong";
+    if (error instanceof AxiosError) {
+      errorMessage = (error.response?.data as string) || errorMessage;
+    }
+    return rejectWithValue(errorMessage);
+  }
+});
+
+export const createAiChatBotSettings = createAsyncThunk<
+  { data: Organization },
+  { orgId: string; data: { aiChatBotSettings: AiSettings } },
+  { rejectValue: string }
+>("organization/createAiChatBotSettings", async ({ orgId, data }, { rejectWithValue }) => {
+  try {
+    const response = await api.post(`/org/settings/ai?orgId=${orgId}`, data, {
+      headers: { Authorization: `Bearer ${token}`}
+    });
+    return response.data;
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong";
+    if (error instanceof AxiosError) {
+      errorMessage = (error.response?.data as string) || errorMessage;
+    }
+    return rejectWithValue(errorMessage);
+  }
+});
+
 const initialState: OrganizationState = {
   data: null,
   loading: false,
@@ -124,6 +177,30 @@ const organizationSlice = createSlice({
         state.loading = false;
       })
       .addCase(verifyEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+      .addCase(getAIChatbotSettingsData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAIChatbotSettingsData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = { ...state.data, ...action.payload.data };
+      })
+      .addCase(getAIChatbotSettingsData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+      .addCase(createAiChatBotSettings.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createAiChatBotSettings.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = { ...state.data, ...action.payload.data };
+      })
+      .addCase(createAiChatBotSettings.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
       })

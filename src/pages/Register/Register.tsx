@@ -1,11 +1,22 @@
 import React, { useRef, useState, useCallback } from "react";
-import { Typography } from "@mui/material";
-import { Facebook, Linkedin } from "lucide-react";
+import {
+  Typography,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  FormHelperText,
+  SelectChangeEvent,
+  Button,
+} from "@mui/material";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../redux/slice/authSlice";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { AppDispatch } from "../../redux/store/store"; 
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import industriesData from "../../components/Organization/Industry.json";
+import { FcGoogle } from "react-icons/fc";
+
 import {
   PageContainer,
   RegisterCard,
@@ -13,7 +24,6 @@ import {
   FormSection,
   StyledTextField,
   StyledButton,
-  SocialButtonsContainer,
   SocialButton,
   PreviewContainer,
   PreviewImage,
@@ -38,6 +48,7 @@ const formFields: { name: keyof Omit<RegisterFormData, "profilePicture">; label:
   { name: "fullName", label: "Full Name", type: "text" },
   { name: "email", label: "Email Address", type: "email" },
   { name: "orgName", label: "Organization Name", type: "text" },
+  // Domain field will be rendered as a dropdown using industriesData
   { name: "domain", label: "Domain", type: "text" },
   { name: "country", label: "Country", type: "text" },
   { name: "phone", label: "Phone Number", type: "tel" },
@@ -49,15 +60,12 @@ const getValidationError = (
   value: string
 ): string => {
   const rules = fieldValidation[field];
-  // Check if blank
   if (!value || value.trim() === "") {
     return rules?.required?.message || `${field} is required`;
   }
-  // Check minimum length if defined
   if (rules?.minLength && value.length < rules.minLength.value) {
     return rules.minLength.message;
   }
-  // Check pattern if defined
   if (rules?.pattern) {
     const patternRegex = new RegExp(rules.pattern.value);
     if (!patternRegex.test(value)) {
@@ -83,12 +91,10 @@ const Register = () => {
     password: "",
   });
 
-  // Error messages for each field
   const [errors, setErrors] = useState<{ [key in keyof RegisterFormData]?: string }>({});
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Update field value and clear its error
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -105,6 +111,13 @@ const Register = () => {
     []
   );
 
+  // Separate handler for Select component
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -113,7 +126,6 @@ const Register = () => {
     }
   };
 
-  // Validate all fields based on the config
   const validateFormData = (): boolean => {
     let isValid = true;
     const newErrors: { [key in keyof RegisterFormData]?: string } = {};
@@ -133,9 +145,7 @@ const Register = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateFormData()) {
-      return;
-    }
+    if (!validateFormData()) return;
     setIsLoading(true);
     const payload = new FormData();
     payload.append("fullName", formData.fullName);
@@ -149,9 +159,11 @@ const Register = () => {
       payload.append("profilePicture", formData.profilePicture);
     }
     try {
-      await dispatch(registerUser(payload)).unwrap().then((res)=>{
-        toast.success(res as string);
-      });
+      await dispatch(registerUser(payload))
+        .unwrap()
+        .then((res) => {
+          toast.success(res as string);
+        });
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
       toast.error(err as string);
@@ -163,6 +175,10 @@ const Register = () => {
   const handleIconClick = () => {
     fileInputRef.current?.click();
   };
+
+  // const handleGoogleSignUp =()=>{
+  //   console.log("SignUp with Google")
+  // }
 
   return (
     <PageContainer>
@@ -212,6 +228,37 @@ const Register = () => {
           </PreviewContainer>
 
           {formFields.map(({ name, label, type }) => {
+            if (name === "domain") {
+              return (
+                <FormControl key={name} variant="outlined" fullWidth error={!!errors[name]} sx={{ mb: 2 }}>
+                  <InputLabel id="domain-label">{label}</InputLabel>
+                  <Select
+                    labelId="domain-label"
+                    id="domain"
+                    name="domain"
+                    value={formData.domain}
+                    onChange={handleSelectChange}
+                    label={label}
+                    sx={{
+                      borderRadius: '10px',
+                      "& .MuiOutlinedInput-input": {
+                        padding: `12px 10px !important`,
+                      }
+                    }}
+                  >
+                    <MenuItem value="">
+                      <em>Select Domain</em>
+                    </MenuItem>
+                    {industriesData.industries.map((industry, index) => (
+                      <MenuItem key={index} value={industry}>
+                        {industry}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors[name] && <FormHelperText>{errors[name]}</FormHelperText>}
+                </FormControl>
+              );
+            }
             if (name === "password") {
               return (
                 <PasswordInput
@@ -238,6 +285,7 @@ const Register = () => {
                 error={!!errors[name]}
                 helperText={errors[name] || ""}
                 autoComplete="nope"
+                sx={{ mb: 2 }}
               />
             );
           })}
@@ -252,26 +300,20 @@ const Register = () => {
               Login
             </RouterLink>
           </Typography>
-
+{/* 
           <Typography variant="body2" color="black" align="center">
             OR REGISTER WITH
-          </Typography>
-
-          <SocialButtonsContainer>
-            <SocialButton>
-              <Facebook size={20} color="#4267B2" />
-            </SocialButton>
-            <SocialButton>
-              <img
-                src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
-                alt="Google"
-                style={{ width: 20, height: 20 }}
-              />
-            </SocialButton>
-            <SocialButton>
-              <Linkedin size={20} color="#0077B5" />
-            </SocialButton>
-          </SocialButtonsContainer>
+          </Typography>           */}
+            {/* <SocialButton>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleGoogleSignUp}
+              startIcon={<FcGoogle />}
+            >
+              Sign up with Google
+            </Button>
+            </SocialButton> */}
         </FormSection>
       </RegisterCard>
 
