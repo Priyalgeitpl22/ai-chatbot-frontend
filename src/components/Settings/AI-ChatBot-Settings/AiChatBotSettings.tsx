@@ -151,13 +151,14 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ onSubmit, orgId }) =>
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    debugger
     e.preventDefault();
     for (let field of aiChatbotFields) {
       if (field.required && !aiSettings[field.key].trim()) {
         return;
       }
     }
-    if (isExisting) {
+    // if (isExisting) {
       dispatch(createAiChatBotSettings({ orgId, data: {aiChatBotSettings: aiSettings} }))
         .unwrap()
         .then(() => {
@@ -166,10 +167,10 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ onSubmit, orgId }) =>
         .catch((err) => {
           toast.error(err.message);
         });
-    } else {
-      onSubmit(aiSettings);
-      toast.success("AI Settings saved successfully!");
-    }
+    // } else {
+    //   onSubmit(aiSettings);
+    //   toast.success("AI Settings saved successfully!");
+    // }
   };
 
   return (
