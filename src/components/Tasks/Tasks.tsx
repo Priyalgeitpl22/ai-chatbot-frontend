@@ -46,10 +46,12 @@ export default function Tasks() {
           />
           
           {selectedTask && (
-            <ChatArea onClose={() => setSelectedTaskId(null)} selectedThreadId={selectedTask.threadId} assignedDropdown={
+            <ChatArea onClose={() => setSelectedTaskId(null)} selectedThreadId={selectedTask.threadId} 
+            tasks={tasks.filter((task) => task.id === selectedTaskId)} 
+            assignedDropdown={
               <AssignedDropDown
                 taskId={selectedTask.id}
-                assignedTo={selectedTask.assignedTo} 
+                assignedTo={selectedTask.assignedTo}
               />
             }/>
           )}

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Typography } from '@mui/material';
-import { Facebook, Linkedin } from 'lucide-react';
+import { Typography } from '@mui/material';
 import {
   PageContainer,
   LoginCard,
@@ -8,8 +7,6 @@ import {
   FormSection,
   StyledTextField,
   StyledButton,
-  SocialButtonsContainer,
-  SocialButton,
   ForgotPasswordLink
 } from './login.styled';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -22,7 +19,6 @@ import { getUserDetails } from '../../redux/slice/userSlice';
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from '../../validations/FieldValidation';
 import PasswordInput from "../../utils/PasswordInput";
-import { FcGoogle } from 'react-icons/fc';
 
 const getValidationError = (
   field: 'email' | 'password',
@@ -121,9 +117,6 @@ function Login() {
     }
   }, [loginSubmitted, dispatch, navigate, email, password]);
 
-  // const handleGoogleSignIn =()=>{
-  //   console.log("SignIn with Google");
-  // }
 
   return (
     <PageContainer>
@@ -186,20 +179,6 @@ function Login() {
               Register
             </RouterLink>
           </Typography>
-
-          {/* <Typography variant="body2" color="black" align="center" sx={{ my: 1 }}>
-            OR LOGIN WITH
-          </Typography>
-          <SocialButton>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={handleGoogleSignIn}
-              startIcon={<FcGoogle />}
-            >
-              Sign in with Google
-            </Button>
-          </SocialButton> */}
         </FormSection>
       </LoginCard>
 

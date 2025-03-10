@@ -50,7 +50,10 @@ export const registerUser = createAsyncThunk(
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/register", formData, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data", 
+        },
       });
       return response.data;
     } catch (error: any) {

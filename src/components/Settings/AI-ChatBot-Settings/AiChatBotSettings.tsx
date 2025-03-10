@@ -85,11 +85,10 @@ export const aiChatbotFields: {
 ];
 
 interface AiChatbotFormProps {
-  onSubmit: (data: AiSettings) => void;
   orgId: string; 
 }
 
-const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ onSubmit, orgId }) => {
+const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   const dispatch = useDispatch<AppDispatch>();
   const organizationState = useSelector((state: RootState) => state.organization);
 
@@ -107,11 +106,14 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ onSubmit, orgId }) =>
   const [isExisting, setIsExisting] = useState(false);
 
   useEffect(() => {
-    const storedSettings = localStorage.getItem("aiChatbotSettings");
-    if (storedSettings) {
-      setAiSettings(JSON.parse(storedSettings));
+    if (orgId) {
+      const storedSettings = localStorage.getItem(`aiChatbotSettings-${orgId}`);
+      if (storedSettings) {
+        setAiSettings(JSON.parse(storedSettings));
+      }
     }
-  }, []);
+  }, [orgId]);
+  
 
   useEffect(() => {
     if (orgId) {
@@ -137,8 +139,11 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ onSubmit, orgId }) =>
   }, [organizationState.data]);
 
   useEffect(() => {
-    localStorage.setItem("aiChatbotSettings", JSON.stringify(aiSettings));
-  }, [aiSettings]);
+    if (orgId) {
+      localStorage.setItem(`aiChatbotSettings-${orgId}`, JSON.stringify(aiSettings));
+    }
+  }, [orgId, aiSettings]);
+  
 
   const handleAiChange = (field: AiFieldKey, value: string) => {
     setAiSettings((prev) => ({ ...prev, [field]: value }));

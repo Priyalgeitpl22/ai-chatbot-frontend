@@ -14,6 +14,7 @@ export const ChangePasswordCard = styled(Card)`
   width: 80%;
   max-width: 800px;
   padding: 16px;
+  border: 1px solid #333;
   @media (max-width: 960px) {
     flex-direction: column;
   }
@@ -46,7 +47,7 @@ export const StyledButton = styled(Button)`
   text-transform: none;
   transition: all 0.3s ease-in-out;
   background: var(--theme-color);
-  color: white;
+  color: black;
   width: 100%;
 
   &:hover {

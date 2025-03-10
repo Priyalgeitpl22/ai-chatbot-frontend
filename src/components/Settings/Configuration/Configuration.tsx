@@ -104,9 +104,36 @@ const Configuration = () => {
     }
   };
 
+  // const copyToClipboard = () => {
+  //   navigator.clipboard.writeText(embedCode).then(() => toast.success("Code copied to clipboard"));
+  // };
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(embedCode).then(() => toast.success("Code copied to clipboard"));
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(embedCode)
+        .then(() => toast.success("Code copied to clipboard"))
+        .catch(err => {
+          console.error("Clipboard API error:", err);
+          toast.error("Failed to copy code");
+        });
+    } else {
+      // Fallback method for unsupported browsers or insecure context
+      const textarea = document.createElement('textarea');
+      textarea.value = embedCode;
+      textarea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge.
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        toast.success("Code copied to clipboard");
+      } catch (err) {
+        console.error("Fallback copy method error:", err);
+        toast.error("Failed to copy code");
+      }
+      document.body.removeChild(textarea);
+    }
   };
+  
 
   const handleTabChange = (_: any, newValue: SetStateAction<string>) => {
     setActiveTab(newValue);
@@ -117,9 +144,6 @@ const Configuration = () => {
     console.log("Email configuration submitted:", emailConfigData);
   };
 
-  const handleAIChatbotSettings = (aiChatBotSettingsData : AIchatBotSettingsData)=>{
-    console.log("Ai ChatBot Settings Data: ", aiChatBotSettingsData)
-  }
 
   return (
     <ContentContainer>
@@ -293,7 +317,7 @@ const Configuration = () => {
             transition={{ delay: 0.2 }}
           >
             <Section style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
-              {user?.orgId && <AiChatBotSettings onSubmit={handleAIChatbotSettings} orgId={user?.orgId} />}
+              {user?.orgId && <AiChatBotSettings  orgId={user?.orgId} />}
             </Section>
           </motion.div>
         </SettingsContainer>

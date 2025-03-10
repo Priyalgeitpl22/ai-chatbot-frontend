@@ -7,7 +7,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import { Send, X } from "lucide-react";  // Import the X icon for the close button
+import { Send, X } from "lucide-react";  
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
@@ -27,6 +27,7 @@ import {
 import { ChatListHeader, TimeStamp } from "../ChatList/chatList.styled";
 import { formatTimestamp } from "../../../utils/utils";
 import { Thread } from "../../../redux/slice/threadSlice";
+import { Task } from "../../../redux/slice/taskSlice";
 
 interface ChatData {
   id: string;
@@ -42,6 +43,7 @@ interface ChatAreaProps {
   onClose?: () => void;
   assignedDropdown?: React.ReactNode;
   threads?: Thread[];
+  tasks?: Task[];
 }
 
 const motionVariants = {
@@ -49,7 +51,7 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function ChatArea({ selectedThreadId, threads=[], onClose, assignedDropdown }: ChatAreaProps) {
+export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClose, assignedDropdown }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
@@ -161,6 +163,7 @@ export default function ChatArea({ selectedThreadId, threads=[], onClose, assign
   }, [socket, selectedThreadId, inputMessage, dispatch]);
 
   const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
+  const userInfo = threadInfo? threadInfo:tasks[0];
 
   return (
     <ChatContainer>
@@ -190,10 +193,10 @@ export default function ChatArea({ selectedThreadId, threads=[], onClose, assign
           <ChatHeader>
             <Box display="flex" alignItems="center" gap={2} sx={{ flexGrow: 1 }}>
               <Avatar style={{ backgroundColor: "var(--theme-color)" }}>
-                {threadInfo?.name?.charAt(0).toUpperCase() || 'U'}
+                {userInfo?.name?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
               <Typography variant="subtitle1">
-                {((threadInfo?.name ?? '').charAt(0).toUpperCase() + (threadInfo?.name ?? '').slice(1)) || 'Unkown Visitor'}
+                {(userInfo?.name.charAt(0).toUpperCase() + (userInfo?.name ?? '').slice(1)) || 'Unkown Visitor'}
               </Typography>
             </Box>
             {assignedDropdown &&

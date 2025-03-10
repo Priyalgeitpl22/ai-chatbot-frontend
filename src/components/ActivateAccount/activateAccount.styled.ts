@@ -11,7 +11,7 @@ export const PageContainer = styled(Box)`
 export const AuthCard = styled(Box)`
   background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid #333;
   width: 100%;
   max-width: 900px;
   display: flex;
@@ -68,7 +68,7 @@ export const StyledButton = styled(Button)`
   text-transform: none;
   transition: 0.3s ease-in-out;
   background: var(--theme-color);
-  color: white;
+  color: black;
 
   &:hover {
     background: var(--theme-color);

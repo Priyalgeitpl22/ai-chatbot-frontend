@@ -7,15 +7,14 @@ import {
   InputLabel,
   FormHelperText,
   SelectChangeEvent,
-  Button,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../redux/slice/authSlice";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { AppDispatch } from "../../redux/store/store"; 
+import { AppDispatch } from "../../redux/store/store";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import industriesData from "../../components/Organization/Industry.json";
-import { FcGoogle } from "react-icons/fc";
 
 import {
   PageContainer,
@@ -24,13 +23,12 @@ import {
   FormSection,
   StyledTextField,
   StyledButton,
-  SocialButton,
   PreviewContainer,
   PreviewImage,
 } from "./register.styled";
-import Loader from "../../components/Loader"; 
+import Loader from "../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
-import fieldValidation from "../../validations/FieldValidation"; 
+import fieldValidation from "../../validations/FieldValidation";
 import PasswordInput from "../../utils/PasswordInput";
 
 interface RegisterFormData {
@@ -44,15 +42,25 @@ interface RegisterFormData {
   password: string;
 }
 
-const formFields: { name: keyof Omit<RegisterFormData, "profilePicture">; label: string; type: string }[] = [
-  { name: "fullName", label: "Full Name", type: "text" },
-  { name: "email", label: "Email Address", type: "email" },
-  { name: "orgName", label: "Organization Name", type: "text" },
-  // Domain field will be rendered as a dropdown using industriesData
-  { name: "domain", label: "Domain", type: "text" },
-  { name: "country", label: "Country", type: "text" },
-  { name: "phone", label: "Phone Number", type: "tel" },
-  { name: "password", label: "Password", type: "text" }, 
+interface Field {
+  label: string;
+  key: keyof Omit<RegisterFormData, "profilePicture">;
+  type?: string;
+  xs: number;
+  sm: number;
+  multiline?: boolean;
+  rows?: number;
+}
+
+// Field definitions with grid props
+const fields: Field[] = [
+  { label: "Full Name", key: "fullName", xs: 12, sm: 6, type: "text" },
+  { label: "Email Address", key: "email", xs: 12, sm: 6, type: "email" },
+  { label: "Organization Name", key: "orgName", xs: 12, sm: 6, type: "text" },
+  { label: "Password", key: "password", xs: 12, sm: 6, type: "password" },
+  { label: "Country", key: "country", xs: 12, sm: 6, type: "text" },
+  { label: "Phone Number", key: "phone", xs: 12, sm: 6, type: "tel" },
+  { label: "Domain", key: "domain", xs: 12, sm: 12, type: "text" },
 ];
 
 const getValidationError = (
@@ -60,24 +68,21 @@ const getValidationError = (
   value: string
 ): string => {
   const rules = fieldValidation[field];
-  if (!value || value.trim() === "") {
+  if (!value.trim()) {
     return rules?.required?.message || `${field} is required`;
   }
   if (rules?.minLength && value.length < rules.minLength.value) {
     return rules.minLength.message;
   }
-  if (rules?.pattern) {
-    const patternRegex = new RegExp(rules.pattern.value);
-    if (!patternRegex.test(value)) {
-      return rules.pattern.message;
-    }
+  if (rules?.pattern && !new RegExp(rules.pattern.value).test(value)) {
+    return rules.pattern.message;
   }
   return "";
 };
 
 const Register = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -90,28 +95,22 @@ const Register = () => {
     phone: "",
     password: "",
   });
-
-  const [errors, setErrors] = useState<{ [key in keyof RegisterFormData]?: string }>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      let newValue = value;
-      if (name === "phone") {
-        newValue =
-          newValue[0] === "+"
-            ? "+" + newValue.slice(1).replace(/[^\d]/g, "").slice(0, 10)
-            : newValue.replace(/[^\d]/g, "").slice(0, 10);
-      }
-      setFormData((prev) => ({ ...prev, [name]: newValue }));
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    },
-    []
-  );
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newValue =
+      name === "phone"
+        ? value[0] === "+" 
+          ? "+" + value.slice(1).replace(/[^\d]/g, "").slice(0, 10)
+          : value.replace(/[^\d]/g, "").slice(0, 10)
+        : value;
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  }, []);
 
-  // Separate handler for Select component
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -119,7 +118,7 @@ const Register = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       const file = e.target.files[0];
       setFormData((prev) => ({ ...prev, profilePicture: file }));
       setPreviewImage(URL.createObjectURL(file));
@@ -128,8 +127,7 @@ const Register = () => {
 
   const validateFormData = (): boolean => {
     let isValid = true;
-    const newErrors: { [key in keyof RegisterFormData]?: string } = {};
-
+    const newErrors: Partial<Record<keyof RegisterFormData, string>> = {};
     (Object.keys(fieldValidation) as (keyof RegisterFormData)[]).forEach((field) => {
       if (field === "profilePicture") return;
       const value = formData[field] as string;
@@ -139,7 +137,6 @@ const Register = () => {
         isValid = false;
       }
     });
-  
     setErrors(newErrors);
     return isValid;
   };
@@ -148,37 +145,26 @@ const Register = () => {
     if (!validateFormData()) return;
     setIsLoading(true);
     const payload = new FormData();
-    payload.append("fullName", formData.fullName);
-    payload.append("email", formData.email);
-    payload.append("orgName", formData.orgName);
-    payload.append("domain", formData.domain);
-    payload.append("country", formData.country);
-    payload.append("phone", formData.phone);
-    payload.append("password", formData.password);
+    // Append all fields from formData except profilePicture first
+    (["fullName", "email", "orgName", "domain", "country", "phone", "password"] as const).forEach(
+      (field) => payload.append(field, formData[field])
+    );
     if (formData.profilePicture) {
       payload.append("profilePicture", formData.profilePicture);
     }
     try {
-      await dispatch(registerUser(payload))
-        .unwrap()
-        .then((res) => {
-          toast.success(res as string);
-        });
+      const res = await dispatch(registerUser(payload)).unwrap();
+      const message = typeof res === "string" ? res : res.message || "Registration successful!";
+      toast.success(message);
       navigate("/verify-otp", { state: { email: formData.email } });
-    } catch (err) {
-      toast.error(err as string);
+    } catch (err: any) {
+      toast.error(err.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleIconClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  // const handleGoogleSignUp =()=>{
-  //   console.log("SignUp with Google")
-  // }
+  const handleIconClick = () => fileInputRef.current?.click();
 
   return (
     <PageContainer>
@@ -227,68 +213,74 @@ const Register = () => {
             />
           </PreviewContainer>
 
-          {formFields.map(({ name, label, type }) => {
-            if (name === "domain") {
+          <Grid container spacing={2}>
+            {fields.map((field) => {
+              if (field.key === "domain") {
+                return (
+                  <Grid size={field.sm} key={field.key}>
+                    <FormControl variant="outlined" fullWidth error={!!errors.domain}>
+                      <InputLabel id="domain-label">{field.label}</InputLabel>
+                      <Select
+                        labelId="domain-label"
+                        id="domain"
+                        name="domain"
+                        value={formData.domain}
+                        onChange={handleSelectChange}
+                        label={field.label}
+                        sx={{
+                          borderRadius: "10px",
+                          "& .MuiOutlinedInput-input": { padding: "12px 10px !important" },
+                        }}
+                      >
+                        <MenuItem value="">
+                          <em>Select Domain</em>
+                        </MenuItem>
+                        {industriesData.industries.map((industry, index) => (
+                          <MenuItem key={index} value={industry}>
+                            {industry}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.domain && <FormHelperText>{errors.domain}</FormHelperText>}
+                    </FormControl>
+                  </Grid>
+                );
+              }
+              if (field.key === "password") {
+                return (
+                  <Grid size={field.sm} key={field.key}>
+                    <PasswordInput
+                      name="password"
+                      label={field.label}
+                      value={formData.password}
+                      onChange={handleChange}
+                      error={!!errors.password}
+                      helperText={errors.password || ""}
+                      autoComplete="new-password"
+                    />
+                  </Grid>
+                );
+              }
               return (
-                <FormControl key={name} variant="outlined" fullWidth error={!!errors[name]} sx={{ mb: 2 }}>
-                  <InputLabel id="domain-label">{label}</InputLabel>
-                  <Select
-                    labelId="domain-label"
-                    id="domain"
-                    name="domain"
-                    value={formData.domain}
-                    onChange={handleSelectChange}
-                    label={label}
-                    sx={{
-                      borderRadius: '10px',
-                      "& .MuiOutlinedInput-input": {
-                        padding: `12px 10px !important`,
-                      }
-                    }}
-                  >
-                    <MenuItem value="">
-                      <em>Select Domain</em>
-                    </MenuItem>
-                    {industriesData.industries.map((industry, index) => (
-                      <MenuItem key={index} value={industry}>
-                        {industry}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {errors[name] && <FormHelperText>{errors[name]}</FormHelperText>}
-                </FormControl>
+                <Grid size={field.sm} key={field.key}>
+                  <StyledTextField
+                    name={field.key}
+                    label={field.label}
+                    type={field.type || "text"}
+                    variant="outlined"
+                    value={formData[field.key]}
+                    onChange={handleChange}
+                    error={!!errors[field.key]}
+                    helperText={errors[field.key] || ""}
+                    autoComplete="nope"
+                    multiline={field.multiline}
+                    rows={field.rows}
+                    fullWidth
+                  />
+                </Grid>
               );
-            }
-            if (name === "password") {
-              return (
-                <PasswordInput
-                  key={name}
-                  name={name}
-                  label={label}
-                  value={formData[name]}
-                  onChange={handleChange}
-                  error={!!errors[name]}
-                  helperText={errors[name] || ""}
-                  autoComplete="new-password"
-                />
-              );
-            }
-            return (
-              <StyledTextField
-                key={name}
-                name={name}
-                label={label}
-                type={type}
-                variant="outlined"
-                value={formData[name]}
-                onChange={handleChange}
-                error={!!errors[name]}
-                helperText={errors[name] || ""}
-                autoComplete="nope"
-                sx={{ mb: 2 }}
-              />
-            );
-          })}
+            })}
+          </Grid>
 
           <StyledButton variant="contained" fullWidth onClick={handleSubmit}>
             REGISTER
@@ -296,24 +288,13 @@ const Register = () => {
 
           <Typography variant="body2" color="black" align="center" sx={{ my: 1 }}>
             Already have an account?{" "}
-            <RouterLink to="/login" style={{ textDecoration: "none", color: "var(--theme-color-dark)" }}>
+            <RouterLink
+              to="/login"
+              style={{ textDecoration: "none", color: "var(--theme-color-dark)" }}
+            >
               Login
             </RouterLink>
           </Typography>
-{/* 
-          <Typography variant="body2" color="black" align="center">
-            OR REGISTER WITH
-          </Typography>           */}
-            {/* <SocialButton>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={handleGoogleSignUp}
-              startIcon={<FcGoogle />}
-            >
-              Sign up with Google
-            </Button>
-            </SocialButton> */}
         </FormSection>
       </RegisterCard>
 

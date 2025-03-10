@@ -1,16 +1,17 @@
 import styled from '@emotion/styled';
-import { Box, Button, TextField, IconButton } from '@mui/material';
+import { Box, Button, TextField} from '@mui/material';
 
 export const PageContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100vh;
 `;
 
 export const RegisterCard = styled(Box)`
   background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid #333; 
   width: 100%;
   max-width: 900px;
   display: flex;
@@ -75,7 +76,8 @@ export const StyledButton = styled(Button)`
   text-transform: none;
   transition: all 0.3s ease-in-out;
   background: var(--theme-color);
-  color: white;
+  color: black;
+  margin-top: 20px;
 
   &:hover {
     background: var(--theme-color);
