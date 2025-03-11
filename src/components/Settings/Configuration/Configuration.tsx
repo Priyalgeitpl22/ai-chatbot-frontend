@@ -22,6 +22,7 @@ import {
   Checkbox,
   Box,
   IconButton,
+  TextField,
 } from "@mui/material";
 import { ContentCopy } from "@mui/icons-material";
 import ChatBot from "../../../components/ChatBot/ChatBot";
@@ -30,7 +31,7 @@ import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getScript, saveConfigurations } from "../../../redux/slice/chatSlice";
 import { ContentContainer } from "./configuration.styled";
 import Loader from "../../Loader";
-import toast, {Toaster} from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../../styles/layout.styled";
 import EmailConfiguration from "../EmailConfiguration/EmailConfiguration";
 import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
@@ -59,6 +60,8 @@ const Configuration = () => {
     allowEmojis: false,
     allowFileUpload: false,
     allowNameEmail: false,
+    allowCustomGreeting: false,
+    customGreetingMessage: "",
     availability: true,
   });
   const [activeTab, setActiveTab] = useState("configure");
@@ -75,7 +78,7 @@ const Configuration = () => {
   const fetchScript = async () => {
     try {
       const response = await dispatch(getScript()).unwrap();
-      if(response){
+      if (response) {
         toast.success("Script fetched successfully");
       }
       setEmbedCode(response);
@@ -85,28 +88,25 @@ const Configuration = () => {
       setEmbedCode("// Error loading script");
     }
   };
-  
+
   const handleSave = async () => {
     setLoading(true);
     try {
       await dispatch(
         saveConfigurations({ ...settings, orgId: user?.orgId, aiOrgId: user?.aiOrgId })
       ).unwrap();
-  
+
       await fetchScript();
       setTimeout(() => {
         setLoading(false);
         setActiveTab("tracking_code");
-      }, 1000); 
+      }, 1000);
     } catch (error) {
       console.error("Error saving settings:", error);
       setLoading(false);
     }
   };
 
-  // const copyToClipboard = () => {
-  //   navigator.clipboard.writeText(embedCode).then(() => toast.success("Code copied to clipboard"));
-  // };
   const copyToClipboard = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(embedCode)
@@ -116,10 +116,9 @@ const Configuration = () => {
           toast.error("Failed to copy code");
         });
     } else {
-      // Fallback method for unsupported browsers or insecure context
       const textarea = document.createElement('textarea');
       textarea.value = embedCode;
-      textarea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge.
+      textarea.style.position = 'fixed';
       document.body.appendChild(textarea);
       textarea.focus();
       textarea.select();
@@ -133,7 +132,7 @@ const Configuration = () => {
       document.body.removeChild(textarea);
     }
   };
-  
+
 
   const handleTabChange = (_: any, newValue: SetStateAction<string>) => {
     setActiveTab(newValue);
@@ -144,7 +143,7 @@ const Configuration = () => {
     console.log("Email configuration submitted:", emailConfigData);
   };
 
-
+console.log(settings,"Settings")
   return (
     <ContentContainer>
       <CustomTabs value={activeTab} onChange={handleTabChange}>
@@ -160,7 +159,7 @@ const Configuration = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{border:'1px solid #e0e0e0',width:'50%',height:'500px', borderRadius:'8px', padding:'1rem', overflowY:'auto'}}
+            style={{ border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
           >
             <SectionTitle>Display</SectionTitle>
             <Section>
@@ -200,21 +199,6 @@ const Configuration = () => {
                 </RadioGroup>
               </FormControl>
             </Section>
-
-            <Section style={{ marginTop: '1.2rem' }}>
-              <FormControl>
-              <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={settings.allowNameEmail}
-                      onChange={(e) => handleChange("allowNameEmail", e.target.checked)}
-                    />
-                  }
-                  label="Allow bot to ask name and email"
-                />
-              </FormControl>
-            </Section>
-
             {/* Additional settings */}
             <Section style={{ marginTop: '1rem' }}>
               <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
@@ -240,6 +224,37 @@ const Configuration = () => {
                   label="Allow File Upload"
                 />
               </FormControl>
+              <FormControl>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={settings.allowNameEmail}
+                      onChange={(e) => handleChange("allowNameEmail", e.target.checked)}
+                    />
+                  }
+                  label="Allow bot to ask name and email"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={settings.allowCustomGreeting}
+                      onChange={(e) => handleChange("allowCustomGreeting", e.target.checked)}
+                    />
+                  }
+                  label="Allow Custom Greeting Message"
+                />
+                {settings.allowCustomGreeting && (
+                  <TextField
+                    fullWidth
+                    label="Enter Custom Greeting"
+                    variant="outlined"
+                    size="small"
+                    value={settings.customGreetingMessage || ""}
+                    onChange={(e) => handleChange("customGreetingMessage", e.target.value)}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </FormControl>
             </Section>
 
             {/* New Chat Window Customization settings */}
@@ -258,9 +273,9 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-            <Button onClick={handleSave}>
-              Save
-            </Button>
+              <Button onClick={handleSave}>
+                Save
+              </Button>
             </Section>
           </ScrollableDiv>
           <ChatBot settings={settings} />
@@ -317,7 +332,7 @@ const Configuration = () => {
             transition={{ delay: 0.2 }}
           >
             <Section style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
-              {user?.orgId && <AiChatBotSettings  orgId={user?.orgId} />}
+              {user?.orgId && <AiChatBotSettings orgId={user?.orgId} />}
             </Section>
           </motion.div>
         </SettingsContainer>
