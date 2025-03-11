@@ -54,6 +54,10 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
       setNewProfilePicture(file);
       setPreview(URL.createObjectURL(file));
     }

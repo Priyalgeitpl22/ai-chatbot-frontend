@@ -120,6 +120,10 @@ const Register = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
       setFormData((prev) => ({ ...prev, profilePicture: file }));
       setPreviewImage(URL.createObjectURL(file));
     }

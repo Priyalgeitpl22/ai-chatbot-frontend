@@ -45,7 +45,6 @@ const UserProfileMenu: React.FC = () => {
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    localStorage.setItem("logout", Date.now().toString());
     handleMenuClose();
     navigate("/login");
   };

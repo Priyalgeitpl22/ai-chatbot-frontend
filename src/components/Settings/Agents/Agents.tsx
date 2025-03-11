@@ -208,7 +208,7 @@ const Agents: React.FC = () => {
                   </StyledTableCell>
                   <StyledTableCell>{agent.email}</StyledTableCell>
                   <StyledTableCell>
-                    {agent?.schedule?.schedule?.length > 0 ? (
+                    {agent?.schedule?.schedule?.length > 0 && (
                       <AvailabilityList>
                         {agent.schedule.schedule.map((slot, idx) => {
                           const start =
@@ -223,8 +223,6 @@ const Agents: React.FC = () => {
                           );
                         })}
                       </AvailabilityList>
-                    ) : (
-                      <div>offline</div>
                     )}
                   </StyledTableCell>
                   <StyledTableCell>{agent.role}</StyledTableCell>

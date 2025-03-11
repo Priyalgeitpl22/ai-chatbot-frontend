@@ -3,8 +3,8 @@ import { TextField, Switch, FormControlLabel, Button, Box } from "@mui/material"
 import Grid from "@mui/material/Grid2";
 import { FormContainer } from "./aiChatBotSettings.styled";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../redux/store/store"; 
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../../redux/store/store"; 
 import { getAIChatbotSettingsData, createAiChatBotSettings } from "../../../redux/slice/organizationSlice"; 
 
 export interface AiSettings {
@@ -90,7 +90,6 @@ interface AiChatbotFormProps {
 
 const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const organizationState = useSelector((state: RootState) => state.organization);
 
   const [aiSettings, setAiSettings] = useState<AiSettings>({
     isAiEnabled: false,
@@ -104,46 +103,35 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   });
 
   const [isExisting, setIsExisting] = useState(false);
-
-  useEffect(() => {
-    if (orgId) {
-      const storedSettings = localStorage.getItem(`aiChatbotSettings-${orgId}`);
-      if (storedSettings) {
-        setAiSettings(JSON.parse(storedSettings));
-      }
-    }
-  }, [orgId]);
+  const [loading, setLoading] = useState(false); 
   
-
   useEffect(() => {
     if (orgId) {
-      dispatch(getAIChatbotSettingsData(orgId));
+      setLoading(true);
+      dispatch(getAIChatbotSettingsData(orgId))
+        .unwrap()
+        .then((settings) => {
+          console.log(settings,"Settings");
+          if (settings?.data?.aiChatBotSettings?.isAiEnabled) {
+            setAiSettings({
+              isAiEnabled: settings?.data?.aiChatBotSettings?.isAiEnabled,
+              companyInfo: settings?.data?.aiChatBotSettings?.companyInfo,
+              serviceOrProductInfo: settings?.data?.aiChatBotSettings?.serviceOrProductInfo,
+              contactDetails: settings?.data?.aiChatBotSettings?.contactDetails,
+              buzznexxAddress: settings?.data?.aiChatBotSettings?.buzznexxAddress,
+              googlePageUrl: settings?.data?.aiChatBotSettings?.googlePageUrl || "",
+              linkedinPageUrl: settings?.data?.aiChatBotSettings?.linkedinPageUrl || "",
+              facebookPageUrl: settings?.data?.aiChatBotSettings?.facebookPageUrl || "",
+            });
+            setIsExisting(true);
+          }
+        })
+        .catch((err) => {
+          toast.error(err.message||"Failed to fetch AI chatbot settings");
+        })
+        .finally(() => setLoading(false));
     }
   }, [orgId, dispatch]);
-
-  useEffect(() => {
-    if (organizationState.data && organizationState.data.aiChatBotSettings) {
-      const settings = organizationState.data.aiChatBotSettings;
-      setAiSettings({
-        isAiEnabled: settings.isAiEnabled,
-        companyInfo: settings.companyInfo,
-        serviceOrProductInfo: settings.serviceOrProductInfo,
-        contactDetails: settings.contactDetails,
-        buzznexxAddress: settings.buzznexxAddress,
-        googlePageUrl: settings.googlePageUrl || "",
-        linkedinPageUrl: settings.linkedinPageUrl || "",
-        facebookPageUrl: settings.facebookPageUrl || "",
-      });
-      setIsExisting(true);
-    }
-  }, [organizationState.data]);
-
-  useEffect(() => {
-    if (orgId) {
-      localStorage.setItem(`aiChatbotSettings-${orgId}`, JSON.stringify(aiSettings));
-    }
-  }, [orgId, aiSettings]);
-  
 
   const handleAiChange = (field: AiFieldKey, value: string) => {
     setAiSettings((prev) => ({ ...prev, [field]: value }));
@@ -156,26 +144,23 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    debugger
     e.preventDefault();
     for (let field of aiChatbotFields) {
       if (field.required && !aiSettings[field.key].trim()) {
         return;
       }
     }
-    // if (isExisting) {
-      dispatch(createAiChatBotSettings({ orgId, data: {aiChatBotSettings: aiSettings} }))
-        .unwrap()
-        .then(() => {
-          toast.success("AI Settings updated successfully!");
-        })
-        .catch((err) => {
-          toast.error(err.message);
-        });
-    // } else {
-    //   onSubmit(aiSettings);
-    //   toast.success("AI Settings saved successfully!");
-    // }
+
+    setLoading(true);
+    dispatch(createAiChatBotSettings({ orgId, data: { aiChatBotSettings: aiSettings } }))
+      .unwrap()
+      .then(() => {
+        toast.success("AI Settings updated successfully!");
+      })
+      .catch((err) => {
+        toast.error(err.message || "Failed to update settings");
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -188,6 +173,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
               <Switch
                 checked={aiSettings.isAiEnabled}
                 onChange={handleToggleChange}
+                disabled={loading}
               />
             }
             label="Enable AI Chatbot"
@@ -202,7 +188,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                   value={aiSettings[field.key]}
                   onChange={(e) => handleAiChange(field.key, e.target.value)}
                   fullWidth
-                  disabled={!aiSettings.isAiEnabled}
+                  disabled={!aiSettings.isAiEnabled || loading}
                   multiline={field.multiline || false}
                   rows={field.rows || 1}
                   required={field.required}
@@ -218,9 +204,9 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                 }}
                 type="submit"
                 variant="contained"
-                disabled={!aiSettings.isAiEnabled}
+                disabled={!aiSettings.isAiEnabled || loading}
               >
-                {isExisting ? "Edit AI Settings" : "Save AI Settings"}
+                {loading ? "Saving..." : isExisting ? "Edit AI Settings" : "Save AI Settings"}
               </Button>
             </Grid>
           </Grid>

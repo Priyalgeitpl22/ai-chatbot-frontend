@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import NotificationComponent from "../Notification/NotificationComponent";
 import logo from "../../../public/logo3.png";
 import { HeaderOptions } from "../../pages/Home/home.styled";
+import toast, {Toaster} from "react-hot-toast";
 
 const Header = () => {
   const { user } = useSelector((state: RootState) => state.user);
@@ -38,8 +39,13 @@ const Header = () => {
           name: user.fullName,
         });
       }
+      if (online) {
+        toast.success("Agent Online");
+      } else {
+        toast.error("Agent Offline");
+      }
     },
-    [socket, user?.id, isOnline]
+    [socket, user?.id]
   );
 
   useEffect(() => {
@@ -60,7 +66,7 @@ const Header = () => {
     if (user.online) {
       socket.emit("agentOnline", {
         id: user.id,
-        online: isOnline,
+        online: user.online,
         name: user.fullName,
       });
     }
@@ -133,6 +139,7 @@ const Header = () => {
           </div>
         )}
       </HeaderOptions>
+      <Toaster />
     </HeaderContainer>
   );
 };
