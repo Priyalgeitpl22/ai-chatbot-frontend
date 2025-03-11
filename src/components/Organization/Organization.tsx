@@ -31,7 +31,6 @@ const fields: Field[] = [
   { label: 'Country', key: 'country', xs: 12, sm: 4 },
   { label: 'Company (Description)', key: 'description', xs: 12, sm: 12, multiline: true, rows: 4 },
   { label: 'Industry', key: 'industry', xs: 12, sm: 6 },
-  { label: 'Domain', key: 'domain', xs: 12, sm: 6 }
 ];
 
 interface OrganizationData {
@@ -44,7 +43,6 @@ interface OrganizationData {
   zip: number | null;
   description: string;
   industry: string;
-  domain: string;
 }
 
 const getOrgValidationError = (field: keyof OrganizationData, value: string): string => {
@@ -52,7 +50,7 @@ const getOrgValidationError = (field: keyof OrganizationData, value: string): st
     name: fieldValidation.orgName,
     phone: fieldValidation.phone,
     country: fieldValidation.country,
-    domain: fieldValidation.domain,
+    industry: fieldValidation.industry,
   };
 
   if (validationMapping[field]) {
@@ -98,7 +96,6 @@ const OrganizationForm: React.FC = () => {
     zip: null,
     description: '',
     industry: '',
-    domain: ''
   });
 
   const [errors, setErrors] = useState<{ [key in keyof OrganizationData]?: string }>({});
@@ -121,7 +118,6 @@ const OrganizationForm: React.FC = () => {
         zip: data.zip || null,
         description: data.description || '',
         industry: data.industry || '',
-        domain: data.domain || ''
       });
     }
   }, [data]);

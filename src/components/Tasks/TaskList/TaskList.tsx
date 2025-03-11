@@ -80,7 +80,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
     <TaskListContainer>
       <TaskListHeader>
         <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 500, color:'#35495c' }}>
-          Tasks  
+          Raised Tickets 
         </Typography>
       </TaskListHeader>
       <FilterComponent activeFilter={activeFilter} setActiveFilter={setActiveFilter} />

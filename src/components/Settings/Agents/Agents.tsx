@@ -87,9 +87,23 @@ const Agents: React.FC = () => {
 
   useEffect(() => {
     if (data) {
-      setAgents(data);
+      const updatedAgents = data.map((agent) => ({
+        ...agent,
+        schedule: agent.schedule || {
+          timeZone: "UTC -05:00 Eastern Time",
+          schedule: [
+            {
+              day: "Monday",
+              hours: [{ startTime: dayjs("09:00 AM", "hh:mm A"), endTime: dayjs("05:00 PM", "hh:mm A") }],
+            },
+          ],
+        },
+      }));
+  
+      setAgents(updatedAgents);
     }
   }, [data]);
+  
 
   useEffect(() => {
     setLoading(true);

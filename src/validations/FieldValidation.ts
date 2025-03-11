@@ -6,7 +6,7 @@ export interface FieldValidationRule {
   }
   
   export type FieldValidationConfig = {
-    [key in "fullName" | "email" | "orgName" | "domain" | "country" | "phone" | "password"]: FieldValidationRule;
+    [key in "fullName" | "email" | "orgName" | "industry" | "country" | "phone" | "password"]: FieldValidationRule;
   };
   
   const fieldValidation: FieldValidationConfig = {
@@ -21,8 +21,8 @@ export interface FieldValidationRule {
     orgName: {
       required: { message: "Organization Name is required" }
     },
-    domain: {
-      required: { message: "Domain is required" }
+    industry: {
+      required: { message: "industry is required" }
     },
     country: {
       required: { message: "Country is required" }

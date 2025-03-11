@@ -68,7 +68,7 @@ const Sidebar = () => {
           className={location.pathname === "/tasks" ? "active" : ""}
         >
           <LayoutList size={18} />
-          Tasks
+          Tickets
         </NavItem>
         {/* <SettingsWrapper>
           <div onClick={() => setIsSettingsOpen(!isSettingsOpen)}>

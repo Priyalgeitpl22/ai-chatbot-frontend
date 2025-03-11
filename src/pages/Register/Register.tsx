@@ -36,7 +36,7 @@ interface RegisterFormData {
   fullName: string;
   email: string;
   orgName: string;
-  domain: string;
+  industry: string;
   country: string;
   phone: string;
   password: string;
@@ -60,7 +60,7 @@ const fields: Field[] = [
   { label: "Password", key: "password", xs: 12, sm: 6, type: "password" },
   { label: "Country", key: "country", xs: 12, sm: 6, type: "text" },
   { label: "Phone Number", key: "phone", xs: 12, sm: 6, type: "tel" },
-  { label: "Domain", key: "domain", xs: 12, sm: 12, type: "text" },
+  { label: "Industry", key: "industry", xs: 12, sm: 12, type: "text" },
 ];
 
 const getValidationError = (
@@ -90,7 +90,7 @@ const Register = () => {
     fullName: "",
     email: "",
     orgName: "",
-    domain: "",
+    industry: "",
     country: "",
     phone: "",
     password: "",
@@ -146,7 +146,7 @@ const Register = () => {
     setIsLoading(true);
     const payload = new FormData();
     // Append all fields from formData except profilePicture first
-    (["fullName", "email", "orgName", "domain", "country", "phone", "password"] as const).forEach(
+    (["fullName", "email", "orgName", "industry", "country", "phone", "password"] as const).forEach(
       (field) => payload.append(field, formData[field])
     );
     if (formData.profilePicture) {
@@ -215,16 +215,16 @@ const Register = () => {
 
           <Grid container spacing={2}>
             {fields.map((field) => {
-              if (field.key === "domain") {
+              if (field.key === "industry") {
                 return (
                   <Grid size={field.sm} key={field.key}>
-                    <FormControl variant="outlined" fullWidth error={!!errors.domain}>
-                      <InputLabel id="domain-label">{field.label}</InputLabel>
+                    <FormControl variant="outlined" fullWidth error={!!errors.industry}>
+                      <InputLabel id="industry-label">{field.label}</InputLabel>
                       <Select
-                        labelId="domain-label"
-                        id="domain"
-                        name="domain"
-                        value={formData.domain}
+                        labelId="industry-label"
+                        id="industry"
+                        name="industry"
+                        value={formData.industry}
                         onChange={handleSelectChange}
                         label={field.label}
                         sx={{
@@ -241,7 +241,7 @@ const Register = () => {
                           </MenuItem>
                         ))}
                       </Select>
-                      {errors.domain && <FormHelperText>{errors.domain}</FormHelperText>}
+                      {errors.industry && <FormHelperText>{errors.industry}</FormHelperText>}
                     </FormControl>
                   </Grid>
                 );
