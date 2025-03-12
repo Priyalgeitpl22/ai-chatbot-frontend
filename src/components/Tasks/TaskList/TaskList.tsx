@@ -80,7 +80,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
     <TaskListContainer>
       <TaskListHeader>
         <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 500, color:'#35495c' }}>
-          Raised Tickets 
+          Tickets 
         </Typography>
       </TaskListHeader>
       <FilterComponent activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
@@ -94,7 +94,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                 return (
                   <MotionTaskListItem
                     key={task.id}
-                    active={isActive}
+                    data-active={isActive ? "true" : "false"}
                     onClick={() => onSelectTask(task.id)}
                     variants={listItemVariants}
                     initial="hidden"

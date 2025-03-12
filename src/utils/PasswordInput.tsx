@@ -61,10 +61,10 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       fullWidth
       InputProps={{
         readOnly: readOnly,
-        endAdornment: (
+        endAdornment: value.length > 0 &&(
           <InputAdornment position="end">
             <IconButton onClick={togglePasswordVisibility} edge="end">
-              {showPassword ? <VisibilityOff /> : <Visibility />}
+              {showPassword ? <Visibility />:<VisibilityOff />}
             </IconButton>
           </InputAdornment>
         ),

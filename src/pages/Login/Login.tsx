@@ -160,7 +160,7 @@ function Login() {
           
           <RouterLink 
             to="/forgot-password" 
-            style={{ textDecoration: 'none', marginBottom:'10px', color: 'var(--theme-color-dark)' }}
+            style={{ textDecoration: 'none', marginBottom:'10px', alignSelf: 'flex-end', color: 'var(--theme-color-dark)' }}
           >
             <ForgotPasswordLink>Forgot Password?</ForgotPasswordLink>
           </RouterLink>

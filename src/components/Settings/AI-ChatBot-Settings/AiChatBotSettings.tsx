@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Switch, FormControlLabel, Button, Box } from "@mui/material";
+import { TextField, Switch, FormControlLabel, Button, Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { FormContainer } from "./aiChatBotSettings.styled";
 import toast from "react-hot-toast";
@@ -102,8 +102,9 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
     facebookPageUrl: "",
   });
 
-  const [isExisting, setIsExisting] = useState(false);
-  const [loading, setLoading] = useState(false); 
+  const [isExisting, setIsExisting] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); 
+  const [companyInfoError, setCompanyInfoError] = useState<string>("");
   
   useEffect(() => {
     if (orgId) {
@@ -133,9 +134,17 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
     }
   }, [orgId, dispatch]);
 
+  const COMPANY_INFO_MAX_LENGTH = 500;
+
   const handleAiChange = (field: AiFieldKey, value: string) => {
     setAiSettings((prev) => ({ ...prev, [field]: value }));
+    if (field === "companyInfo" && value.length < 500) {
+      setCompanyInfoError("Company Information must be at least 500 characters long.");
+    } else {
+      setCompanyInfoError("");
+    }
   };
+
 
   const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.checked;
@@ -145,21 +154,15 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    for (let field of aiChatbotFields) {
-      if (field.required && !aiSettings[field.key].trim()) {
-        return;
-      }
+    if (aiSettings.companyInfo.length < 500) {
+      setCompanyInfoError("Company Information must be at least 500 characters long.");
+      return;
     }
-
     setLoading(true);
     dispatch(createAiChatBotSettings({ orgId, data: { aiChatBotSettings: aiSettings } }))
       .unwrap()
-      .then(() => {
-        toast.success("AI Settings updated successfully!");
-      })
-      .catch((err) => {
-        toast.error(err.message || "Failed to update settings");
-      })
+      .then(() => toast.success("AI Settings updated successfully!"))
+      .catch((err) => toast.error(err.message || "Failed to update settings"))
       .finally(() => setLoading(false));
   };
 
@@ -188,11 +191,22 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                   value={aiSettings[field.key]}
                   onChange={(e) => handleAiChange(field.key, e.target.value)}
                   fullWidth
-                  disabled={!aiSettings.isAiEnabled || loading}
                   multiline={field.multiline || false}
                   rows={field.rows || 1}
                   required={field.required}
+                  InputProps={{
+                    endAdornment: field.key === "companyInfo" && (
+                      <Typography
+                        variant="caption"
+                        sx={{ position: "absolute", bottom: 0, right: 10, color: "rgba(0, 0, 0, 0.6)", fontSize: "0.75rem" }}
+                      >
+                        {aiSettings.companyInfo.length} / {COMPANY_INFO_MAX_LENGTH}
+                      </Typography>
+                    ),
+                  }}
+                  error={field.key === "companyInfo" && Boolean(companyInfoError)}
                 />
+
               </Grid>
             ))}
             <Grid size={12}>

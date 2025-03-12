@@ -1,48 +1,99 @@
-import React from "react";
-import { CardContent } from "@mui/material";
-import { Grid } from "@mui/material";
-import { AnalyticsCard, CardHeader, AnalyticsValue, ContentContainer } from "./home.styled"; // Assuming you are importing styled components
+import React from 'react';
+import { Box } from '@mui/material';
+import { motion } from 'framer-motion';
+import  Grid from '@mui/material/Grid2';
+import { 
+  DashboardContainer, 
+  WelcomeSection, 
+  StatsCard, 
+  CardHeader, 
+  CardValue, 
+  ChartContainer 
+} from './home.styled';
+import { ChatTrafficChart } from './ChatTrafficChart';
+import { ChatChart } from './ChatChart';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store/store';
 
-// Sample data from the JSON object
-const data = {
-  totalConversations: {
-    value: 1323,
-    background: "#e0f7fa"
+interface StatData {
+  label: string;
+  value: string;
+  background: string;
+  trend?: string; 
+}
+
+const statsData: Record<string, StatData> = {
+  handledChats: {
+    label: 'HANDLED CHATS',
+    value: '12847',
+    trend: '+12.4%',
+    background: '#f3f6ff'
   },
-  activeThreads: {
-    value: 34,
-    background: "linear-gradient(45deg, #6e7f80, #b0c9c0)"
+  openChats: {
+    label: 'OPEN CHATS',
+    value: '3945',
+    trend: '+2.9%',
+    background: '#fff5f5'
   },
-  userMessages: {
-    value: 2456,
-    background: "#f4f4f9"
+  waitingChats: {
+    label: 'WAITING CHATS',
+    value: '234',
+    trend: '+0.2%',
+    background: '#fff8f0'
   },
-  totalAgents: {
-    value: 1974,
-    background: "#ffe0e0"
-  },
+  resolvedChats: {
+    label: 'RESOLVED CHATS',
+    value: '413',
+    trend: '+12.4%',
+    background: '#f0fff4'
+  }
 };
 
-const Dashboard: React.FC = () => {
+const Home: React.FC = () => {
+  const {user} = useSelector((state: RootState) => state.user);
   return (
-    <ContentContainer>
-      {/* <Typography variant="h4" gutterBottom>
-        Chatbot Analytics Dashboard
-      </Typography> */}
-      <Grid container spacing={2} direction="row" justifyContent="space-between" wrap="wrap">
-        {Object.entries(data).map(([key, { value, background }]) => (
-          <Grid item key={key}>
-            <AnalyticsCard background={background}>
-              <CardContent>
-                <CardHeader>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}</CardHeader>
-                <AnalyticsValue>{value}</AnalyticsValue>
-              </CardContent>
-            </AnalyticsCard>
+    <DashboardContainer>
+      <WelcomeSection>
+        <Box>
+          <h1>Hello {user?.fullName}, Welcome to your dashboard</h1>
+          <p>Dashboard supports you with data and information that can help you make decisions you may need to take.</p>
+        </Box>
+      </WelcomeSection>
+
+      <Grid container spacing={3}>
+        {Object.entries(statsData).map(([key, data]) => (
+          <Grid size={3} key={key}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <StatsCard background={data.background}>
+                <CardHeader>{data.label}</CardHeader>
+                <CardValue>
+                  {data.value}
+                  {data.trend && (
+                    <span className="trend">{data.trend}</span>
+                  )}
+                </CardValue>
+              </StatsCard>
+            </motion.div>
           </Grid>
         ))}
+
+        <Grid size={4}>
+          <ChartContainer>
+            <ChatChart />
+          </ChartContainer>
+        </Grid>
+        <Grid size={8}>
+          <ChartContainer>
+            <ChatTrafficChart />
+          </ChartContainer>
+        </Grid>
       </Grid>
-    </ContentContainer>
+    </DashboardContainer>
   );
 };
 
-export default Dashboard;
+export default Home;

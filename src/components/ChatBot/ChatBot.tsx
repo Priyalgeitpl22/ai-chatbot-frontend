@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Box, IconButton, Typography } from '@mui/material';
-import { Send, AttachFile, InsertEmoticon, Chat } from '@mui/icons-material';
-import { ChevronDown } from 'lucide-react';
+import { Send, AttachFile, InsertEmoticon } from '@mui/icons-material';
 import {
   ChatContainer,
   Header,
@@ -10,50 +9,38 @@ import {
   Message,
   InputContainer,
   StyledTextField,
-  OpenButton,
-  DropdownIconButton
 } from './chatBot.styled';
 
 function ChatBot({ settings }: any) {
   const [message, setMessage] = useState('');
-  const [isOpen, setIsOpen] = useState(true);
-
-  const handleMenuClick = () => {
-    setIsOpen(false);
-  };
 
   return (
     <Box sx={{
       display: 'flex',
       justifyContent: 'center',
     }}>
-      {isOpen ? (
         <ChatContainer>
           <Header bgcolor={settings.iconColor}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Logo src="https://img.freepik.com/premium-psd/robot-isolated-png-with-transparent-background_68880-68988.jpg" alt="Logo" />
               <Typography style={{ display: "flex", flexDirection:'column' }}>
-                <span>ChatBot</span>
-                <span style={{fontSize:'10px'}}>{settings?.availability ? "Online" : "Offline"}</span>
+                <span style={{fontFamily: `${settings.customFontFamily}`}}>ChatBot</span>
+                <span style={{fontSize:'10px',fontFamily: `${settings.customFontFamily}`}}>{settings?.availability ? "Online" : "Offline"}</span>
               </Typography>
             </div>
-            <DropdownIconButton onClick={handleMenuClick}>
-              <ChevronDown />
-            </DropdownIconButton>
           </Header>
-
           <ChatBody bgcolor={settings.chatWindowColor}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <Message style={{ backgroundColor: '#e9ecef' }} color={settings.fontColor}>
+              <Message style={{ backgroundColor: '#e9ecef',fontFamily: `${settings.customFontFamily}` }} color={settings.fontColor}>
                 Hello! How can I help you?
               </Message>
-              <span style={{ fontSize: '10px', color: '#6b7280', marginBlock: '0.5rem' }}>10:30 AM</span>
+              <span style={{ fontSize: '10px', color: '#6b7280', marginBlock: '0.5rem',fontFamily: `${settings.customFontFamily}` }}>10:30 AM</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <Message style={{ backgroundColor: settings.iconColor, color: '#fff' }}>
+              <Message style={{ backgroundColor: settings.iconColor, color: '#fff',fontFamily: `${settings.customFontFamily}` }}>
                 I need assistance with my order.
               </Message>
-              <span style={{ fontSize: '10px', color: '#6b7280', marginBlock: '0.5rem' }}>10:31 AM</span>
+              <span style={{ fontSize: '10px', color: '#6b7280', marginBlock: '0.5rem',fontFamily: `${settings.customFontFamily}` }}>10:31 AM</span>
             </div>
           </ChatBody>
 
@@ -91,11 +78,6 @@ function ChatBot({ settings }: any) {
             />
           </InputContainer>
         </ChatContainer>
-      ) : (
-        <OpenButton bgcolor={settings.iconColor} onClick={() => setIsOpen(true)}>
-          <Chat />
-        </OpenButton>
-      )}
     </Box>
   );
 }

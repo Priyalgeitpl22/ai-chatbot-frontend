@@ -23,6 +23,8 @@ import {
   Box,
   IconButton,
   TextField,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { ContentCopy } from "@mui/icons-material";
 import ChatBot from "../../../components/ChatBot/ChatBot";
@@ -35,6 +37,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../../styles/layout.styled";
 import EmailConfiguration from "../EmailConfiguration/EmailConfiguration";
 import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
+import CustomColorPicker from "./CustomColorPicker";
 
 export interface EmailConfigData {
   host: string;
@@ -63,13 +66,35 @@ const Configuration = () => {
     allowCustomGreeting: false,
     customGreetingMessage: "",
     availability: true,
+    allowFontFamily: false,
+    customFontFamily:'',
   });
   const [activeTab, setActiveTab] = useState("configure");
   const [embedCode, setEmbedCode] = useState("");
-  const colors = ["#45607c", "#c0dbf9", "#b15194", "#f8b771", "#546db9"];
+  const [customColor, setCustomColor] = useState("#446f45");
+  const colors = ["#45607c", "#c0dbf9", "#b15194", "#f8b771", "#546db9", "custom"];
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [fontFamily, setFontFamily] = useState("Arial");
+
+  const loadFont = (font: string) => {
+    const fontUrl = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
+    const link = document.createElement("link");
+    link.href = fontUrl;
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+  };
+  
+
+  // List of available font families
+  const fontFamilies = [
+    "Arial", "Verdana", "Tahoma", "Trebuchet MS", "Times New Roman", "Georgia",
+    "Garamond", "Courier New", "Brush Script MT", "Comic Sans MS", "Impact", 
+    "Palatino Linotype", "Segoe UI", "Lucida Sans Unicode", "Century Gothic",
+    "Franklin Gothic Medium", "Arial Black", "Cambria", "Consolas", "Helvetica"
+  ];
+  
 
   const handleChange = (field: string, value: string | boolean) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
@@ -143,7 +168,7 @@ const Configuration = () => {
     console.log("Email configuration submitted:", emailConfigData);
   };
 
-console.log(settings,"Settings")
+  console.log(settings, "Settings")
   return (
     <ContentContainer>
       <CustomTabs value={activeTab} onChange={handleTabChange}>
@@ -170,14 +195,42 @@ console.log(settings,"Settings")
                 Choose an accent color
               </Typography>
               <ColorGrid>
-                {colors.map((color) => (
-                  <ColorOption
-                    key={color}
-                    color={color}
-                    isSelected={settings.iconColor === color}
-                    onClick={() => handleChange("iconColor", color)}
-                  />
-                ))}
+                {colors.map((color) =>
+                  color === "custom" ? (
+                    <CustomColorPicker
+                      key="custom-color-picker"
+                      value={customColor}
+                      onChange={(color) => {
+                        setCustomColor(color);
+                        handleChange("iconColor", color);
+                      }}
+                      isSelected={settings.iconColor === customColor}
+                    />
+                    //   <input
+                    //   key="custom-color-picker"
+                    //   type="color"
+                    //   value={customColor}
+                    //   onChange={(e) => {
+                    //     setCustomColor(e.target.value);
+                    //     handleChange("iconColor", e.target.value);
+                    //   }}
+                    //   style={{
+                    //     width: "36px",
+                    //     height: "36px",
+                    //     border: settings.iconColor === customColor ? "2px solid #fff" : "transparent",
+                    //     outline: `3px solid ${customColor}`,
+                    //     cursor: "pointer",
+                    //   }}
+                    // />
+                  ) : (
+                    <ColorOption
+                      key={color}
+                      color={color}
+                      isSelected={settings.iconColor === color}
+                      onClick={() => handleChange("iconColor", color)}
+                    />
+                  )
+                )}
               </ColorGrid>
             </Section>
 
@@ -232,7 +285,7 @@ console.log(settings,"Settings")
                       onChange={(e) => handleChange("allowNameEmail", e.target.checked)}
                     />
                   }
-                  label="Allow bot to ask name and email"
+                  label="Allow Bot to ask name and email"
                 />
                 <FormControlLabel
                   control={
@@ -254,10 +307,39 @@ console.log(settings,"Settings")
                     sx={{ mt: 1 }}
                   />
                 )}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={settings.allowFontFamily}
+                      onChange={(e) => handleChange("allowFontFamily", e.target.checked)}
+                    />
+                  }
+                  label="Allow Custom Font-Family"
+                />
+                {settings.allowFontFamily && (
+                 <Select
+                 value={fontFamily}
+                 onChange={(e) => {
+                   const selectedFont = e.target.value;
+                   setFontFamily(selectedFont);
+                   handleChange("customFontFamily", selectedFont);
+                   loadFont(selectedFont);
+                 }}
+                 displayEmpty
+                 fullWidth
+                 sx={{ mt: 1 }}
+               >
+                 {fontFamilies.map((font) => (
+                   <MenuItem key={font} value={font} style={{ fontFamily: font }}>
+                     {font}
+                   </MenuItem>
+                 ))}
+               </Select>
+               
+                )}
               </FormControl>
             </Section>
 
-            {/* New Chat Window Customization settings */}
             <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
               <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Chat Window Color

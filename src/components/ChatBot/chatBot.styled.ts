@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Box, TextField, IconButton } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 
 export const ChatContainer = styled(Box)`
   width: 350px;
@@ -61,21 +61,6 @@ export const StyledTextField = styled(TextField)`
   &:hover .MuiOutlinedInput-notchedOutline {
     border: 1px solid #ddd;  // Remove border color on hover
   }
-
-
-`;
-
-export const OpenButton = styled(IconButton)<{ bgcolor: string }>`
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: ${({ bgcolor }) => bgcolor || "#343a40"};
-  color: white;
-  z-index: 10;
-  &:hover {
-    background-color: ${({ bgcolor }) =>
-      bgcolor ? `${bgcolor}aa` : "#5a6268"};
-  }
 `;
 
 export const EmojiPickerContainer = styled(Box)`
@@ -85,10 +70,4 @@ export const EmojiPickerContainer = styled(Box)`
   z-index: 10;
 `;
 
-export const DropdownIconButton = styled(IconButton)`
-  align-self: flex-end;
-  color: white;
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-`;
+

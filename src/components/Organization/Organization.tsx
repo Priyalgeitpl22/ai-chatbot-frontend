@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Box, MenuItem, Select, FormControl, InputLabel, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrganization, updateOrganization } from '../../redux/slice/organizationSlice';
@@ -55,15 +55,12 @@ const getOrgValidationError = (field: keyof OrganizationData, value: string): st
 
   if (validationMapping[field]) {
     const rules = validationMapping[field]!;
-    // If blank, return the required error.
     if (!value || value.trim() === "") {
       return rules.required?.message || `${field} is required`;
     }
-    // Check minimum length.
     if (rules.minLength && value.length < rules.minLength.value) {
       return rules.minLength.message;
     }
-    // Check pattern.
     if (rules.pattern) {
       const regex = new RegExp(rules.pattern.value);
       if (!regex.test(value)) {
@@ -139,14 +136,22 @@ const OrganizationForm: React.FC = () => {
     const newErrors: { [key in keyof OrganizationData]?: string } = {};
 
     (Object.keys(values) as (keyof OrganizationData)[]).forEach(field => {
-      if (field === "zip" || field === "description") return;
+      if (field === "zip") return; // Skip validation for zip
+
       const fieldValue = typeof values[field] === "number" ? String(values[field]) : values[field];
-      const error = getOrgValidationError(field, fieldValue);
-      if (error) {
-        newErrors[field] = error;
+
+      if (field === "description" && fieldValue.length < 500) {
+        newErrors[field] = "Description must be at least 500 characters long";
         isValid = false;
+      } else {
+        const error = getOrgValidationError(field, fieldValue);
+        if (error) {
+          newErrors[field] = error;
+          isValid = false;
+        }
       }
     });
+
     setErrors(newErrors);
     return isValid;
   };
@@ -162,13 +167,17 @@ const OrganizationForm: React.FC = () => {
     setLoading(true);
     setTimeout(async () => {
       const response = await dispatch(
-        updateOrganization({ orgId: user.orgId, data: { ...values, aiOrgId: user.aiOrgId, emailConfig: data?.emailConfig || {
-          host: "",
-          port: "",
-          secure: "",
-          user: "",
-          pass: ""
-        } } })
+        updateOrganization({
+          orgId: user.orgId, data: {
+            ...values, aiOrgId: user.aiOrgId, emailConfig: data?.emailConfig || {
+              host: "",
+              port: "",
+              secure: "",
+              user: "",
+              pass: ""
+            }
+          }
+        })
       );
       setLoading(false);
       if (updateOrganization.fulfilled.match(response)) {
@@ -190,7 +199,36 @@ const OrganizationForm: React.FC = () => {
         <Grid container spacing={3}>
           {fields.map((field, index) => (
             <Grid size={field.sm} key={index}>
-              {field.key === "industry" ? (
+              {field.key === "description" ? (
+                <StyledTextField
+                  fullWidth
+                  name="description"
+                  label="Company (Description)"
+                  variant="outlined"
+                  value={values.description}
+                  onChange={handleChange}
+                  error={!!errors.description}
+                  helperText={errors.description || ""}
+                  multiline
+                  rows={4}
+                  InputProps={{
+                    endAdornment: (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          position: "absolute",
+                          bottom: 0,
+                          right: 10,
+                          color: "rgba(0, 0, 0, 0.6)",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {values.description.length} / 500
+                      </Typography>
+                    ),
+                  }}
+                />
+              ) : field.key === "industry" ? (
                 <FormControl fullWidth sx={{ backgroundColor: 'white' }}>
                   <InputLabel>Industry</InputLabel>
                   <Select
@@ -203,9 +241,7 @@ const OrganizationForm: React.FC = () => {
                     }}
                   >
                     {industriesData.industries.map((industry: string, idx: number) => (
-                      <MenuItem key={idx} value={industry}>
-                        {industry}
-                      </MenuItem>
+                      <MenuItem key={idx} value={industry}>{industry}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
