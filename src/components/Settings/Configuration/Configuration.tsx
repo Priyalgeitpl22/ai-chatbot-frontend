@@ -1,4 +1,4 @@
-import { SetStateAction, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   SettingsContainer,
@@ -35,7 +35,7 @@ import { ContentCopy } from "@mui/icons-material";
 import ChatBot from "../../../components/ChatBot/ChatBot";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
-import { getScript, saveConfigurations } from "../../../redux/slice/chatSlice";
+import { getChatConfig, getScript, saveConfigurations } from "../../../redux/slice/chatSlice";
 import { ContentContainer } from "./configuration.styled";
 import Loader from "../../Loader";
 import toast, { Toaster } from "react-hot-toast";
@@ -103,7 +103,7 @@ const Configuration = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState<boolean>(false);
   const [fontFamily, setFontFamily] = useState("Arial");
-  const [logoPriviewURL, setLogoPriviewURL] = useState<string>('');
+  const [logoPriviewURL, setLogoPriviewURL] = useState<string>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadFont = (font: string) => {
@@ -113,6 +113,36 @@ const Configuration = () => {
     link.rel = "stylesheet";
     document.head.appendChild(link);
   };
+  useEffect(()=>{
+    if(user?.orgId)
+    {
+      dispatch(getChatConfig(user.orgId))
+      .unwrap()
+      .then((chatConfig)=>{
+        if(chatConfig)
+        {
+          setLogoPriviewURL(chatConfig.ChatBotLogoImage);
+          setSettings({
+            iconColor:chatConfig?.iconColor,
+            chatWindowColor: chatConfig?.chatWindowColor,
+            fontColor:chatConfig?.fontColor,
+            position:chatConfig?.position,
+            allowEmojis: chatConfig?.allowEmojis,
+            allowFileUpload: chatConfig?.allowFileUpload,
+            allowNameEmail: chatConfig?.allowNameEmail,
+            allowCustomGreeting: chatConfig?.allowCustomGreeting,
+            customGreetingMessage: chatConfig?.customGreetingMessage,
+            availability: chatConfig?.availability,
+            allowFontFamily: chatConfig?.allowFontFamily,
+            customFontFamily: chatConfig?.customFontFamily,
+            addChatBotName: chatConfig?.addChatBotName,
+            ChatBotLogoImage: chatConfig?.ChatBotLogoImage,
+          })
+        }
+      })
+      ;
+    }
+  },[user?.orgId]);
 
 
   const fontFamilies = [
@@ -207,7 +237,11 @@ const Configuration = () => {
       setLogoPriviewURL(imageUrl);
     }
   };
-  const handleIconClick = () => fileInputRef.current?.click();
+  const handleUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   console.log(settings, "Settings")
   return (
@@ -234,8 +268,6 @@ const Configuration = () => {
                   <PreviewImage
                     src={logoPriviewURL}
                     alt="Profile preview"
-                    onClick={handleIconClick}
-                    style={{ cursor: "pointer" }}
                   />
                 ) : (
                   <AccountCircleIcon
@@ -243,9 +275,7 @@ const Configuration = () => {
                       fontSize: "50px",
                       color: "var(--theme-color-dark)",
                       marginBottom: "8px",
-                      cursor: "pointer",
                     }}
-                    onClick={handleIconClick}
                   />
                 )}
                 <Box sx={{display:'flex', gap:'1em'}}>
@@ -257,11 +287,7 @@ const Configuration = () => {
                   ref={fileInputRef}
                   style={{ display: "none" }}
                 />
-                <label htmlFor="upload-logo">
-                  <UploadBtn>
-                  Upload Logo
-                  </UploadBtn>
-                </label>
+                <UploadBtn onClick={handleUploadClick}>Upload Logo</UploadBtn>
                 </Box>
               </PreviewContainer>
               <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
@@ -407,7 +433,7 @@ const Configuration = () => {
                 />
                 {settings.allowFontFamily && (
                   <Select
-                    value={fontFamily}
+                    value={settings.customFontFamily||fontFamily}
                     onChange={(e) => {
                       const selectedFont = e.target.value;
                       setFontFamily(selectedFont);
@@ -420,8 +446,8 @@ const Configuration = () => {
                     sx={{ mt: 1 }}
                   >
                     {fontFamilies.map((font) => (
-                      <MenuItem key={font} value={font} style={{ fontFamily: font }}>
-                        {font}
+                      <MenuItem key={font} value={settings.customFontFamily || font} style={{ fontFamily: font }}>
+                        {settings.customFontFamily||font}
                       </MenuItem>
                     ))}
                   </Select>

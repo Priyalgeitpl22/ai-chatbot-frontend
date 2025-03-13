@@ -13,6 +13,7 @@ interface Chat {
 
 interface chatState {
   chats: Chat[];
+  chatConfig: any;
   loading: boolean;
   error: string | null;
 }
@@ -21,6 +22,7 @@ const initialState: chatState = {
   chats: [],
   loading: false,
   error: null,
+  chatConfig:null
 };
 
 const token = Cookies.get("access_token");
@@ -35,6 +37,26 @@ export const getChats = createAsyncThunk(
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Failed to fetch chats");
+    }
+  }
+);
+
+export const getChatConfig = createAsyncThunk(
+  "chat/getChatConfig",
+  async (orgId: string, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("access_token");
+      if (!token) return rejectWithValue("No authentication token found");
+
+      const response = await api.get(`/chat/config?orgId=${orgId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data?.data || {};
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Failed to fetch chat configuration");
     }
   }
 );
@@ -106,6 +128,17 @@ const chatSlice = createSlice({
         state.chats = action.payload;
       })
       .addCase(getChats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getChatConfig.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getChatConfig.fulfilled, (state, action) => {
+        state.loading = false;
+        state.chatConfig = action.payload;
+      })
+      .addCase(getChatConfig.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
