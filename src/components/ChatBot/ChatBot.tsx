@@ -11,7 +11,7 @@ import {
   StyledTextField,
 } from './chatBot.styled';
 
-function ChatBot({ settings }: any) {
+function ChatBot({ settings,LogoImage }: any) {
   const [message, setMessage] = useState('');
 
   return (
@@ -22,9 +22,9 @@ function ChatBot({ settings }: any) {
         <ChatContainer>
           <Header bgcolor={settings.iconColor}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Logo src="https://img.freepik.com/premium-psd/robot-isolated-png-with-transparent-background_68880-68988.jpg" alt="Logo" />
+              <Logo src={LogoImage||"https://img.freepik.com/premium-psd/robot-isolated-png-with-transparent-background_68880-68988.jpg"} alt="Logo" />
               <Typography style={{ display: "flex", flexDirection:'column' }}>
-                <span style={{fontFamily: `${settings.customFontFamily}`}}>ChatBot</span>
+                <span style={{fontFamily: `${settings.customFontFamily}`}}>{settings.addChatBotName || 'ChatBot'}</span>
                 <span style={{fontSize:'10px',fontFamily: `${settings.customFontFamily}`}}>{settings?.availability ? "Online" : "Offline"}</span>
               </Typography>
             </div>

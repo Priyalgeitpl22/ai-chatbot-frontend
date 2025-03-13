@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { Box, Typography } from "@mui/material";
 
 interface CustomColorPickerProps {
     value: string;
@@ -42,10 +41,6 @@ const ColorPreview = styled.div<{ color: string }>`
 
 const CustomColorPicker: React.FC<CustomColorPickerProps> = ({ value, onChange, isSelected }) => {
     return (
-        <Box sx={{marginTop:'-25px', display:'flex', flexDirection:'column', alignItems:'center'}}>
-        <Typography>
-        ColorPicker
-        </Typography>
         <ColorPickerWrapper isSelected={isSelected} color={value}>
             <ColorPreview  color={value} />
             <HiddenInput
@@ -54,7 +49,6 @@ const CustomColorPicker: React.FC<CustomColorPickerProps> = ({ value, onChange, 
                 onChange={(e) => onChange(e.target.value)}
             />
         </ColorPickerWrapper>
-        </Box>
     );
 };
 

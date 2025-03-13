@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
 import Cookies from "js-cookie";
+import { ChatBotSettings } from "../../components/Settings/Configuration/Configuration";
 
 interface Chat {
   id: string;
@@ -46,7 +47,10 @@ export const getScript = createAsyncThunk(
       if (!token) return rejectWithValue("No authentication token found");
 
       const response = await api.get(`/chat/config/script`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data", 
+        },
       });
 
       console.log("API Response:", response.data);
@@ -61,13 +65,16 @@ export const getScript = createAsyncThunk(
 
 export const saveConfigurations = createAsyncThunk(
   "saveConfigurations",
-  async (settings: any, { rejectWithValue }) => {
+  async (settings: ChatBotSettings, { rejectWithValue }) => {
     try {
       const token = Cookies.get("access_token");
       if (!token) return rejectWithValue("No authentication token found");
 
       const response = await api.post(`/chat/config`, settings, { 
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data", 
+        },
       });
 
       console.log("API Response:", response.data);

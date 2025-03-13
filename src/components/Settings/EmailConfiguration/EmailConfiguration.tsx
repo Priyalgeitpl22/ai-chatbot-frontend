@@ -106,7 +106,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
       const config = getConfig();
       const response = await dispatch(updateOrganization({ orgId: user.orgId, data: { emailConfig: config } }));
       await dispatch(
-        saveConfigurations({ orgId: user?.orgId, aiOrgId: user?.aiOrgId, emailConfig: config })
+        saveConfigurations({ orgId: user?.orgId, aiOrgId: user?.aiOrgId, emailConfig: config } as any)
       ).unwrap();
       setShowLoader(false);
       if (response.meta.requestStatus === "fulfilled") {

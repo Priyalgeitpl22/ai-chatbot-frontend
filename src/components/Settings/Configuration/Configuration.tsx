@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   SettingsContainer,
@@ -12,6 +12,11 @@ import {
   CodeInput,
   CustomMuiColorInput,
   ScrollableDiv,
+  CustomColorPicker,
+  ColorPicker,
+  PreviewContainer,
+  PreviewImage,
+  UploadBtn,
 } from "./configuration.styled";
 import {
   FormControl,
@@ -37,7 +42,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../../styles/layout.styled";
 import EmailConfiguration from "../EmailConfiguration/EmailConfiguration";
 import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
-import CustomColorPicker from "./CustomColorPicker";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export interface EmailConfigData {
   host: string;
@@ -53,9 +58,28 @@ export interface AIchatBotSettingsData {
   buzznexxAddress: string;
   isAiEnabled: boolean;
 }
+export interface ChatBotSettings {
+  iconColor: string;
+  chatWindowColor: string;
+  fontColor: string;
+  position: "bottom-left" | "bottom-right";
+  allowEmojis: boolean;
+  allowFileUpload: boolean;
+  allowNameEmail: boolean;
+  allowCustomGreeting: boolean;
+  customGreetingMessage: string;
+  availability: boolean;
+  allowFontFamily: boolean;
+  customFontFamily: string;
+  addChatBotName: string;
+  ChatBotLogoImage: File | null;
+  orgId?: string;
+  aiOrgId?: string;
+}
+
 
 const Configuration = () => {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<ChatBotSettings>({
     iconColor: "#c0dbf9",
     chatWindowColor: "#ffffff",
     fontColor: "#333333",
@@ -67,7 +91,9 @@ const Configuration = () => {
     customGreetingMessage: "",
     availability: true,
     allowFontFamily: false,
-    customFontFamily:'',
+    customFontFamily: '',
+    addChatBotName: '',
+    ChatBotLogoImage: null,
   });
   const [activeTab, setActiveTab] = useState("configure");
   const [embedCode, setEmbedCode] = useState("");
@@ -77,6 +103,8 @@ const Configuration = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState<boolean>(false);
   const [fontFamily, setFontFamily] = useState("Arial");
+  const [logoPriviewURL, setLogoPriviewURL] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadFont = (font: string) => {
     const fontUrl = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
@@ -85,16 +113,15 @@ const Configuration = () => {
     link.rel = "stylesheet";
     document.head.appendChild(link);
   };
-  
 
-  // List of available font families
+
   const fontFamilies = [
     "Arial", "Verdana", "Tahoma", "Trebuchet MS", "Times New Roman", "Georgia",
-    "Garamond", "Courier New", "Brush Script MT", "Comic Sans MS", "Impact", 
+    "Garamond", "Courier New", "Brush Script MT", "Comic Sans MS", "Impact",
     "Palatino Linotype", "Segoe UI", "Lucida Sans Unicode", "Century Gothic",
     "Franklin Gothic Medium", "Arial Black", "Cambria", "Consolas", "Helvetica"
   ];
-  
+
 
   const handleChange = (field: string, value: string | boolean) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
@@ -168,6 +195,20 @@ const Configuration = () => {
     console.log("Email configuration submitted:", emailConfigData);
   };
 
+  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
+      setSettings((prev) => ({ ...prev, ChatBotLogoImage: file }));
+      const imageUrl = URL.createObjectURL(file);
+      setLogoPriviewURL(imageUrl);
+    }
+  };
+  const handleIconClick = () => fileInputRef.current?.click();
+
   console.log(settings, "Settings")
   return (
     <ContentContainer>
@@ -188,6 +229,55 @@ const Configuration = () => {
           >
             <SectionTitle>Display</SectionTitle>
             <Section>
+              <PreviewContainer style={{display:'flex', gap:'1em', alignItems:'center'}}>
+                {logoPriviewURL ? (
+                  <PreviewImage
+                    src={logoPriviewURL}
+                    alt="Profile preview"
+                    onClick={handleIconClick}
+                    style={{ cursor: "pointer" }}
+                  />
+                ) : (
+                  <AccountCircleIcon
+                    style={{
+                      fontSize: "50px",
+                      color: "var(--theme-color-dark)",
+                      marginBottom: "8px",
+                      cursor: "pointer",
+                    }}
+                    onClick={handleIconClick}
+                  />
+                )}
+                <Box sx={{display:'flex', gap:'1em'}}>
+                <input
+                  id="upload-logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                />
+                <label htmlFor="upload-logo">
+                  <UploadBtn>
+                  Upload Logo
+                  </UploadBtn>
+                </label>
+                </Box>
+              </PreviewContainer>
+              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+              Add your ChatBot name
+              </Typography>
+              <TextField
+                fullWidth
+                label="Enter Your Bot Name"
+                variant="outlined"
+                size="small"
+                value={settings.addChatBotName || ""}
+                onChange={(e) => handleChange("addChatBotName", e.target.value)}
+                sx={{width:'50%', mt:2 ,mb:2}}
+              />
+            </Section>
+            <Section>
               <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Color
               </Typography>
@@ -197,31 +287,7 @@ const Configuration = () => {
               <ColorGrid>
                 {colors.map((color) =>
                   color === "custom" ? (
-                    <CustomColorPicker
-                      key="custom-color-picker"
-                      value={customColor}
-                      onChange={(color) => {
-                        setCustomColor(color);
-                        handleChange("iconColor", color);
-                      }}
-                      isSelected={settings.iconColor === customColor}
-                    />
-                    //   <input
-                    //   key="custom-color-picker"
-                    //   type="color"
-                    //   value={customColor}
-                    //   onChange={(e) => {
-                    //     setCustomColor(e.target.value);
-                    //     handleChange("iconColor", e.target.value);
-                    //   }}
-                    //   style={{
-                    //     width: "36px",
-                    //     height: "36px",
-                    //     border: settings.iconColor === customColor ? "2px solid #fff" : "transparent",
-                    //     outline: `3px solid ${customColor}`,
-                    //     cursor: "pointer",
-                    //   }}
-                    // />
+                    null
                   ) : (
                     <ColorOption
                       key={color}
@@ -232,6 +298,24 @@ const Configuration = () => {
                   )
                 )}
               </ColorGrid>
+              {
+                colors.map((color) =>
+                  color === "custom" ? (
+                    <CustomColorPicker >
+                      <Typography sx={{ color: "#3e5164" }}>Custom Color Picker</Typography>
+                      <ColorPicker
+                        key="custom-color-picker"
+                        type="color"
+                        value={customColor}
+                        onChange={(e: any) => {
+                          setCustomColor(e.target.value);
+                          handleChange("iconColor", e.target.value);
+                        }}
+                      />
+                    </CustomColorPicker>
+                  ) : null
+                )
+              }
             </Section>
 
             <Section style={{ marginTop: '1.2rem' }}>
@@ -247,8 +331,8 @@ const Configuration = () => {
                   value={settings.position}
                   onChange={(e) => handleChange("position", e.target.value)}
                 >
-                  <FormControlLabel value="bottom-left" control={<Radio />} label="Bottom-Left" />
-                  <FormControlLabel value="bottom-right" control={<Radio />} label="Bottom-Right" />
+                  <FormControlLabel sx={{ color: "#3e5164" }} value="bottom-left" control={<Radio />} label="Bottom-Left" />
+                  <FormControlLabel sx={{ color: "#3e5164" }} value="bottom-right" control={<Radio />} label="Bottom-Right" />
                 </RadioGroup>
               </FormControl>
             </Section>
@@ -259,6 +343,7 @@ const Configuration = () => {
               </Typography>
               <FormControl sx={{ display: 'flex', flexDirection: 'row' }}>
                 <FormControlLabel
+                  sx={{ color: "#3e5164" }}
                   control={
                     <Checkbox
                       checked={settings.allowEmojis}
@@ -268,6 +353,7 @@ const Configuration = () => {
                   label="Allow Emoji"
                 />
                 <FormControlLabel
+                  sx={{ color: "#3e5164" }}
                   control={
                     <Checkbox
                       checked={settings.allowFileUpload}
@@ -279,6 +365,7 @@ const Configuration = () => {
               </FormControl>
               <FormControl>
                 <FormControlLabel
+                  sx={{ color: "#3e5164" }}
                   control={
                     <Checkbox
                       checked={settings.allowNameEmail}
@@ -288,6 +375,7 @@ const Configuration = () => {
                   label="Allow Bot to ask name and email"
                 />
                 <FormControlLabel
+                  sx={{ color: "#3e5164" }}
                   control={
                     <Checkbox
                       checked={settings.allowCustomGreeting}
@@ -308,6 +396,7 @@ const Configuration = () => {
                   />
                 )}
                 <FormControlLabel
+                  sx={{ color: "#3e5164" }}
                   control={
                     <Checkbox
                       checked={settings.allowFontFamily}
@@ -317,25 +406,26 @@ const Configuration = () => {
                   label="Allow Custom Font-Family"
                 />
                 {settings.allowFontFamily && (
-                 <Select
-                 value={fontFamily}
-                 onChange={(e) => {
-                   const selectedFont = e.target.value;
-                   setFontFamily(selectedFont);
-                   handleChange("customFontFamily", selectedFont);
-                   loadFont(selectedFont);
-                 }}
-                 displayEmpty
-                 fullWidth
-                 sx={{ mt: 1 }}
-               >
-                 {fontFamilies.map((font) => (
-                   <MenuItem key={font} value={font} style={{ fontFamily: font }}>
-                     {font}
-                   </MenuItem>
-                 ))}
-               </Select>
-               
+                  <Select
+                    value={fontFamily}
+                    onChange={(e) => {
+                      const selectedFont = e.target.value;
+                      setFontFamily(selectedFont);
+                      handleChange("customFontFamily", selectedFont);
+                      loadFont(selectedFont);
+                    }}
+                    displayEmpty
+                    size="small"
+                    fullWidth
+                    sx={{ mt: 1 }}
+                  >
+                    {fontFamilies.map((font) => (
+                      <MenuItem key={font} value={font} style={{ fontFamily: font }}>
+                        {font}
+                      </MenuItem>
+                    ))}
+                  </Select>
+
                 )}
               </FormControl>
             </Section>
@@ -360,7 +450,7 @@ const Configuration = () => {
               </Button>
             </Section>
           </ScrollableDiv>
-          <ChatBot settings={settings} />
+          <ChatBot settings={settings} LogoImage={logoPriviewURL} />
         </SettingsContainer>
       )}
 

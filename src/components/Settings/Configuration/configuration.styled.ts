@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, Button, Tab, Tabs } from "@mui/material";
 import { motion } from "framer-motion";
 import { MuiColorInput } from "mui-color-input";
 
@@ -184,3 +184,42 @@ border-radius: 8px;
 padding: 1rem;
 overflow-y: auto;
 `;
+
+export const CustomColorPicker = styled(Box)`
+  display:flex;
+  align-items:center;
+  gap:1em;
+  margin-top:15px;
+`;
+export const ColorPicker = styled.input<{ value: string }>`
+width:36px;
+height:36px;
+border: 2px solid #fff;
+outline: 3px solid ${(props) => props.value};
+cursor:pointer;
+`;
+
+export const PreviewContainer = styled(Box)`
+  margin-bottom: 10px;
+`;
+
+export const PreviewImage = styled('img')`
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--theme-color-dark);
+  margin-bottom: 8px;
+`;
+
+export const UploadBtn = styled(Button)`
+ width: 150px;
+ padding: 5px 10px;
+ box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+ border: 2px solid var(--theme-color);
+ border-radius:20px;
+  &:hover{
+  background-color: var(--theme-color);
+  color:#252525;
+  }
+`
