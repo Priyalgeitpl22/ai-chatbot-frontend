@@ -95,10 +95,10 @@ const ActivateAccount = () => {
         </IllustrationSection>
 
         <FormSection>
-          <Typography variant="h4" fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"Times New Roman"} fontWeight="bold" mb={1}>
             Activate Account
           </Typography>
-          <Typography variant="body1" color="black" mb={3}>
+          <Typography variant="body1" fontFamily={"Times New Roman"} color="black" mb={3}>
             Enter your new password to activate your account.
           </Typography>
 

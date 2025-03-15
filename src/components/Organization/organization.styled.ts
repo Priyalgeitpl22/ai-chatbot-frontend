@@ -9,7 +9,6 @@ export const FormContainer = styled(Box)(`
   border-radius: 8px;
   overflow: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  // background: var(--white-fade-gradient);
 `);
 
 export const FormTitle = styled(Typography)({
@@ -17,18 +16,20 @@ export const FormTitle = styled(Typography)({
   fontSize: '2rem',
   fontWeight: 700,
   color: '#333',
+  fontFamily: 'Times New Roman',
 });
 
 export const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     background: '#ffffff',
+    fontFamily: 'Times New Roman',
     transition: 'all 0.3s ease',
     '&:hover': {
       boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
     },
     '&.Mui-focused fieldset': {
       borderColor: '#ddd',
-      borderWidth: '2px'
+      borderWidth: '2px',
     }
   }
 });
@@ -43,6 +44,7 @@ export const StyledButton = styled(Button)({
   textTransform: 'none',
   boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  fontFamily: 'Times New Roman',
   '&:hover': {
     transform: 'scale(1.01)',
     boxShadow: '0 4px 8px rgba(0,0,0,0.3)'

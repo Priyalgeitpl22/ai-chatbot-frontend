@@ -45,6 +45,7 @@ export const TimeStamp = styled(Box)`
   font-size: 0.75rem;
   color: #888;
   margin-left: auto;
+  font-family: 'Times New Roman';
 `;
 
 export const TaskPreview = styled(Box)`
@@ -56,5 +57,6 @@ export const TaskPreview = styled(Box)`
   text-overflow: ellipsis;
   width: 100%;
   width: 25ch;
+  font-family: 'Times New Roman';
 `;
 

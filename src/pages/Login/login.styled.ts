@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Box, Button, TextField, IconButton } from '@mui/material';
+import { Box, Button, TextField} from '@mui/material';
 
 export const PageContainer = styled(Box)`
   display: flex;
@@ -41,11 +41,12 @@ export const FormSection = styled(Box)`
 
 export const StyledTextField = styled(TextField)`
   margin-bottom: 10px;
+  font-family:Times New Roman;
   
   .MuiOutlinedInput-root {
     border-radius: 10px;
-    // background: #eef2f7;
     transition: all 0.3s ease-in-out;
+    font-family:Times New Roman;
   }
 
 
@@ -54,6 +55,7 @@ export const StyledTextField = styled(TextField)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
+    font-family:Times New Roman;
   }
 `;
 
@@ -65,6 +67,8 @@ export const StyledButton = styled(Button)`
   transition: all 0.3s ease-in-out;
   background:  var(--theme-color);
   color: black;
+  font-family:Times New Roman;
+
 
   &:hover {
     background:  var(--theme-color);
@@ -72,6 +76,7 @@ export const StyledButton = styled(Button)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
+    font-family:Times New Roman;
   }
 `;
 
@@ -81,16 +86,6 @@ export const SocialButtonsContainer = styled(Box)`
   justify-content: center;
 `;
 
-export const SocialButton = styled(IconButton)`
-  border: 1px solid #e0e0e0;
-  padding: 12px;
-  transition: all 0.3s ease-in-out;
-  
-  &:hover {
-    background-color: #ffffff;
-    transform: scale(1.1);
-  }
-`;
 
 export const ForgotPasswordLink = styled.span`
   color: #0066cc;
@@ -99,22 +94,8 @@ export const ForgotPasswordLink = styled.span`
   margin-bottom: 24px;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
+  font-family:Times New Roman;
   
-  &:hover {
-    color: #004a99;
-    text-decoration: underline;
-  }
-`;
-
-export const SignupLink = styled.a`
-  color: #0066cc;
-  text-decoration: none;
-  font-size: 14px;
-  text-align: center;
-  margin-top: 16px;
-  cursor: pointer;
-  transition: color 0.3s ease-in-out;
-
   &:hover {
     color: #004a99;
     text-decoration: underline;

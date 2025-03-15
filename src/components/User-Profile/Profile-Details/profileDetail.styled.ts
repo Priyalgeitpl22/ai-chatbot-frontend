@@ -11,13 +11,14 @@ export const DialogHeader = styled(Box)(({ theme }) => ({
 
 export const StyledTitle = styled(Typography)(() => ({
   fontWeight: 600,
-  margin:0
+  margin:0,
+  fontFamily: 'Times New Roman',
 }));
 export const StyledEmail = styled(Typography)(() => ({
     fontWeight: 600,
-    fontFamily: 'sans-serif',
     fontSize:'14px',
     color:'#444444',
+    fontFamily: 'Times New Roman',
     margin:0
   }));
 

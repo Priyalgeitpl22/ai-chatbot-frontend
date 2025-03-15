@@ -79,7 +79,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
   return (
     <TaskListContainer>
       <TaskListHeader>
-        <Typography variant="h6" sx={{ fontFamily: 'cursive', fontWeight: 500, color:'#35495c' }}>
+        <Typography fontFamily={'Times New Roman'} variant="h6" sx={{fontWeight: 500, color:'#35495c' }}>
           Tickets 
         </Typography>
       </TaskListHeader>
@@ -115,7 +115,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                           {task.query}
                         </TaskPreview>
                       }
-                      primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem' }}
+                      primaryTypographyProps={{ variant: 'body1', fontFamily: 'Times New Roman', fontSize: '0.9rem' }}
                     />
                     <Box sx={{ display: 'flex', flexDirection: 'column-reverse', width: '100%', alignItems: 'flex-end', gap: '5px', height: '100%' }}>
                       <Chip

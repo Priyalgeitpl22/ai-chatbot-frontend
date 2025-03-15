@@ -83,9 +83,9 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                     <ListItemText
                       primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unkown Visitor'}
                       secondary={<MessagePreview>{thread.email || "Click to start a conversation"}</MessagePreview>}
-                      primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem' }}
+                      primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'Times New Roman' }}
                     />
-                    <TimeStamp>{formatTimestamp(thread.createdAt)}</TimeStamp>
+                    <TimeStamp fontFamily={'Times New Roman'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
                   </MotionChatListItem>
                 );
               })}
@@ -100,7 +100,7 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
               height: '100%',
             }}
           >
-            <Typography variant="body1">No threads available</Typography>
+            <Typography variant="body1" fontFamily={'Times New Roman'}>No threads available</Typography>
           </Box>
         )}
       </Box>

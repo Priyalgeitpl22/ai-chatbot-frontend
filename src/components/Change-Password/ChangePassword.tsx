@@ -106,10 +106,10 @@ const ChangePassword: React.FC = () => {
           />
         </IllustrationSection>
         <FormSection>
-          <Typography variant="h4" fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"Time New Roman"} fontWeight="bold" mb={1}>
             Change Password
           </Typography>
-          <Typography variant="body1" mb={3}>
+          <Typography variant="body1" fontFamily={"Time New Roman"} mb={3}>
             Please enter your current password and choose a new password.
           </Typography>
           <PasswordInput

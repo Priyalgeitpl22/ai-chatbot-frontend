@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Box, Button, Tab, Tabs } from "@mui/material";
+import { Box, Button, FormControlLabel, Tab, Tabs } from "@mui/material";
 import { motion } from "framer-motion";
 import { MuiColorInput } from "mui-color-input";
 
@@ -21,6 +21,7 @@ export const SectionTitle = styled.h2`
   font-weight: 600;
   color: #35495c;
   display: flex;
+  font-family: 'Times New Roman';
 `;
 
 export const ColorGrid = styled.div`
@@ -153,6 +154,7 @@ export const CustomTab = styled(Tab)`
   padding: 8px 16px;
   min-height: 40px;
   transition: all 0.3s ease-in-out;
+  font-family: 'Times New Roman';
 
   &.Mui-selected {
     color: #33475b; 
@@ -197,6 +199,7 @@ height:36px;
 border: 2px solid #fff;
 outline: 3px solid ${(props) => props.value};
 cursor:pointer;
+font-family: 'Times New Roman';
 `;
 
 export const PreviewContainer = styled(Box)`
@@ -218,8 +221,16 @@ export const UploadBtn = styled(Button)`
  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
  border: 2px solid var(--theme-color);
  border-radius:20px;
+ font-family: 'Times New Roman';
   &:hover{
   background-color: var(--theme-color);
   color:#252525;
   }
 `
+
+export const CustomFormControlLabel = styled(FormControlLabel)`
+  color: #3e5164;
+  .MuiTypography-root{
+    font-family: 'Times New Roman';
+  }
+`;

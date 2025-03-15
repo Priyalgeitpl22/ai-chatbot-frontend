@@ -120,7 +120,7 @@ const Header = () => {
               gap: "2px",
             }}
           >
-            <Typography variant="subtitle2" sx={{ fontSize: 10, color: '#696969' }}>
+            <Typography variant="subtitle2" fontFamily={'Times New Roman'} sx={{ fontSize: 10, color: '#696969' }}>
               {isOnline ? "Online" : "Offline"}
             </Typography>
             <StatusIndicator online={isOnline} />

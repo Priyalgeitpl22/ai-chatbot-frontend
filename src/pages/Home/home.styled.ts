@@ -12,6 +12,7 @@ export const WelcomeSection = styled(Box)`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
+  font-family: 'Times New Roman';
 
   h1 {
     font-size: 24px;

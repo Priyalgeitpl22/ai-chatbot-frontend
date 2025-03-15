@@ -49,6 +49,7 @@ export const StyledButton = styled(Button)`
   background: var(--theme-color);
   color: black;
   width: 100%;
+  font-family:Times New Roman;
 
   &:hover {
     background: var(--theme-color);

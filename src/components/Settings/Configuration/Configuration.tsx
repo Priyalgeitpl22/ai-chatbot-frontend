@@ -17,10 +17,10 @@ import {
   PreviewContainer,
   PreviewImage,
   UploadBtn,
+  CustomFormControlLabel,
 } from "./configuration.styled";
 import {
   FormControl,
-  FormControlLabel,
   RadioGroup,
   Radio,
   Typography,
@@ -113,36 +113,34 @@ const Configuration = () => {
     link.rel = "stylesheet";
     document.head.appendChild(link);
   };
-  useEffect(()=>{
-    if(user?.orgId)
-    {
+  useEffect(() => {
+    if (user?.orgId) {
       dispatch(getChatConfig(user.orgId))
-      .unwrap()
-      .then((chatConfig)=>{
-        if(chatConfig)
-        {
-          setLogoPriviewURL(chatConfig.ChatBotLogoImage);
-          setSettings({
-            iconColor:chatConfig?.iconColor,
-            chatWindowColor: chatConfig?.chatWindowColor,
-            fontColor:chatConfig?.fontColor,
-            position:chatConfig?.position,
-            allowEmojis: chatConfig?.allowEmojis,
-            allowFileUpload: chatConfig?.allowFileUpload,
-            allowNameEmail: chatConfig?.allowNameEmail,
-            allowCustomGreeting: chatConfig?.allowCustomGreeting,
-            customGreetingMessage: chatConfig?.customGreetingMessage,
-            availability: chatConfig?.availability,
-            allowFontFamily: chatConfig?.allowFontFamily,
-            customFontFamily: chatConfig?.customFontFamily,
-            addChatBotName: chatConfig?.addChatBotName,
-            ChatBotLogoImage: chatConfig?.ChatBotLogoImage,
-          })
-        }
-      })
-      ;
+        .unwrap()
+        .then((chatConfig) => {
+          if (chatConfig) {
+            setLogoPriviewURL(chatConfig.ChatBotLogoImage);
+            setSettings({
+              iconColor: chatConfig?.iconColor,
+              chatWindowColor: chatConfig?.chatWindowColor,
+              fontColor: chatConfig?.fontColor,
+              position: chatConfig?.position,
+              allowEmojis: chatConfig?.allowEmojis,
+              allowFileUpload: chatConfig?.allowFileUpload,
+              allowNameEmail: chatConfig?.allowNameEmail,
+              allowCustomGreeting: chatConfig?.allowCustomGreeting,
+              customGreetingMessage: chatConfig?.customGreetingMessage,
+              availability: chatConfig?.availability,
+              allowFontFamily: chatConfig?.allowFontFamily,
+              customFontFamily: chatConfig?.customFontFamily,
+              addChatBotName: chatConfig?.addChatBotName,
+              ChatBotLogoImage: chatConfig?.ChatBotLogoImage,
+            })
+          }
+        })
+        ;
     }
-  },[user?.orgId]);
+  }, [user?.orgId]);
 
 
   const fontFamilies = [
@@ -259,11 +257,11 @@ const Configuration = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{ border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
+            style={{ fontFamily: 'Times New Roman', border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
           >
             <SectionTitle>Display</SectionTitle>
             <Section>
-              <PreviewContainer style={{display:'flex', gap:'1em', alignItems:'center'}}>
+              <PreviewContainer style={{ display: 'flex', gap: '1em', alignItems: 'center' }}>
                 {logoPriviewURL ? (
                   <PreviewImage
                     src={logoPriviewURL}
@@ -278,20 +276,20 @@ const Configuration = () => {
                     }}
                   />
                 )}
-                <Box sx={{display:'flex', gap:'1em'}}>
-                <input
-                  id="upload-logo"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                />
-                <UploadBtn onClick={handleUploadClick}>Upload Logo</UploadBtn>
+                <Box sx={{ display: 'flex', gap: '1em' }}>
+                  <input
+                    id="upload-logo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                  />
+                  <UploadBtn onClick={handleUploadClick}>Upload Logo</UploadBtn>
                 </Box>
               </PreviewContainer>
-              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
-              Add your ChatBot name
+              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+                Add your ChatBot name
               </Typography>
               <TextField
                 fullWidth
@@ -300,14 +298,16 @@ const Configuration = () => {
                 size="small"
                 value={settings.addChatBotName || ""}
                 onChange={(e) => handleChange("addChatBotName", e.target.value)}
-                sx={{width:'50%', mt:2 ,mb:2}}
+                InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+                InputProps={{ style: { fontFamily: 'Times New Roman' } }}
+                sx={{ width: '50%', mt: 2, mb: 2 }}
               />
             </Section>
             <Section>
-              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Color
               </Typography>
-              <Typography sx={{ color: "#3e5164", mb: 2 }}>
+              <Typography fontFamily={'Times New Roman'} sx={{ color: "#3e5164", mb: 2 }}>
                 Choose an accent color
               </Typography>
               <ColorGrid>
@@ -328,7 +328,7 @@ const Configuration = () => {
                 colors.map((color) =>
                   color === "custom" ? (
                     <CustomColorPicker >
-                      <Typography sx={{ color: "#3e5164" }}>Custom Color Picker</Typography>
+                      <Typography fontFamily={'Times New Roman'} sx={{ color: "#3e5164" }}>Custom Color Picker</Typography>
                       <ColorPicker
                         key="custom-color-picker"
                         type="color"
@@ -345,10 +345,10 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ marginTop: '1.2rem' }}>
-              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
                 Chat widget placement
               </Typography>
-              <Typography sx={{ color: "#3e5164", fontSize: "14px", mb: 1 }}>
+              <Typography fontFamily={'Times New Roman'} sx={{ color: "#3e5164", fontSize: "14px", mb: 1 }}>
                 Choose where to display your chat widget.
               </Typography>
               <FormControl>
@@ -357,19 +357,18 @@ const Configuration = () => {
                   value={settings.position}
                   onChange={(e) => handleChange("position", e.target.value)}
                 >
-                  <FormControlLabel sx={{ color: "#3e5164" }} value="bottom-left" control={<Radio />} label="Bottom-Left" />
-                  <FormControlLabel sx={{ color: "#3e5164" }} value="bottom-right" control={<Radio />} label="Bottom-Right" />
+                  <CustomFormControlLabel value="bottom-left" control={<Radio />} label="Bottom-Left" />
+                  <CustomFormControlLabel value="bottom-right" control={<Radio />} label="Bottom-Right" />
                 </RadioGroup>
               </FormControl>
             </Section>
             {/* Additional settings */}
             <Section style={{ marginTop: '1rem' }}>
-              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Additional Settings
               </Typography>
               <FormControl sx={{ display: 'flex', flexDirection: 'row' }}>
-                <FormControlLabel
-                  sx={{ color: "#3e5164" }}
+                <CustomFormControlLabel
                   control={
                     <Checkbox
                       checked={settings.allowEmojis}
@@ -378,8 +377,7 @@ const Configuration = () => {
                   }
                   label="Allow Emoji"
                 />
-                <FormControlLabel
-                  sx={{ color: "#3e5164" }}
+                <CustomFormControlLabel
                   control={
                     <Checkbox
                       checked={settings.allowFileUpload}
@@ -390,18 +388,16 @@ const Configuration = () => {
                 />
               </FormControl>
               <FormControl>
-                <FormControlLabel
-                  sx={{ color: "#3e5164" }}
+                <CustomFormControlLabel
                   control={
                     <Checkbox
                       checked={settings.allowNameEmail}
                       onChange={(e) => handleChange("allowNameEmail", e.target.checked)}
                     />
                   }
-                  label="Allow Bot to ask name and email"
+                  label="Allow Bot to ask Name & Email"
                 />
-                <FormControlLabel
-                  sx={{ color: "#3e5164" }}
+                <CustomFormControlLabel
                   control={
                     <Checkbox
                       checked={settings.allowCustomGreeting}
@@ -419,10 +415,11 @@ const Configuration = () => {
                     value={settings.customGreetingMessage || ""}
                     onChange={(e) => handleChange("customGreetingMessage", e.target.value)}
                     sx={{ mt: 1 }}
+                    InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+                    inputProps={{ style: { fontFamily: 'Times New Roman' } }}
                   />
                 )}
-                <FormControlLabel
-                  sx={{ color: "#3e5164" }}
+                <CustomFormControlLabel
                   control={
                     <Checkbox
                       checked={settings.allowFontFamily}
@@ -433,7 +430,7 @@ const Configuration = () => {
                 />
                 {settings.allowFontFamily && (
                   <Select
-                    value={settings.customFontFamily||fontFamily}
+                    value={settings.customFontFamily || fontFamily}
                     onChange={(e) => {
                       const selectedFont = e.target.value;
                       setFontFamily(selectedFont);
@@ -443,11 +440,11 @@ const Configuration = () => {
                     displayEmpty
                     size="small"
                     fullWidth
-                    sx={{ mt: 1 }}
+                    sx={{ mt: 1,fontFamily: `${settings.customFontFamily}` || fontFamily }}
                   >
                     {fontFamilies.map((font) => (
-                      <MenuItem key={font} value={settings.customFontFamily || font} style={{ fontFamily: font }}>
-                        {settings.customFontFamily||font}
+                      <MenuItem key={font} value={font} style={{ fontFamily: font }}>
+                        {font}
                       </MenuItem>
                     ))}
                   </Select>
@@ -457,14 +454,14 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Chat Window Color
               </Typography>
               <CustomMuiColorInput format="hex" value={settings.chatWindowColor} onChange={(newValue: string) => handleChange("chatWindowColor", newValue)} />
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Typography variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Font Color
               </Typography>
               <CustomMuiColorInput format="hex" value={settings.fontColor} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
@@ -489,11 +486,11 @@ const Configuration = () => {
           >
             <Section>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <Typography variant="h6" fontSize={14} fontWeight={500} sx={{ color: "#35495c" }}>
+                <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={14} fontWeight={500} sx={{ color: "#35495c" }}>
                   Place the code before the end of the &lt;body&gt; tag.
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <Typography variant="h6" fontSize={14} fontWeight={600} sx={{ color: "#35495c" }}>
+                  <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={14} fontWeight={600} sx={{ color: "#35495c" }}>
                     Copy Code
                   </Typography>
                   <IconButton onClick={copyToClipboard}>

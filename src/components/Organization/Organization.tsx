@@ -191,7 +191,7 @@ const OrganizationForm: React.FC = () => {
   return (
     <FormContainer>
       {loading && <Loader />}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'Times New Roman', mb: 2 }}>
         <FormTitle>Organization Form</FormTitle>
         <Button type="submit" form="org-form">Update</Button>
       </Box>
@@ -211,6 +211,7 @@ const OrganizationForm: React.FC = () => {
                   helperText={errors.description || ""}
                   multiline
                   rows={4}
+                  InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
                   InputProps={{
                     endAdornment: (
                       <Typography
@@ -230,7 +231,7 @@ const OrganizationForm: React.FC = () => {
                 />
               ) : field.key === "industry" ? (
                 <FormControl fullWidth sx={{ backgroundColor: 'white' }}>
-                  <InputLabel>Industry</InputLabel>
+                  <InputLabel sx={{fontFamily: 'Times New Roman'}}>Industry</InputLabel>
                   <Select
                     name="industry"
                     value={values.industry}
@@ -241,7 +242,7 @@ const OrganizationForm: React.FC = () => {
                     }}
                   >
                     {industriesData.industries.map((industry: string, idx: number) => (
-                      <MenuItem key={idx} value={industry}>{industry}</MenuItem>
+                      <MenuItem sx={{ fontFamily: 'Times New Roman' }} key={idx} value={industry}>{industry}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -261,6 +262,7 @@ const OrganizationForm: React.FC = () => {
                   onChange={handleChange}
                   error={!!errors[field.key as keyof OrganizationData]}
                   helperText={errors[field.key as keyof OrganizationData] || ""}
+                  InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
                   {...(field.multiline ? { multiline: true, rows: field.rows } : {})}
                 />
               )}

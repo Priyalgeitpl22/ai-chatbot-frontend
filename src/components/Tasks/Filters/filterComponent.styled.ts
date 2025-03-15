@@ -33,6 +33,7 @@ export const FilterButton = styled.button<FilterButtonProps>`
   outline: none;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
   box-shadow:  1px 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Times New Roman';
   
   border: 2px solid ${({ active }) => (active ? '#8bc34a' : '#ddd')};
   background-color: ${({ active }) => (active ? '#8bc34a' : '#fff')};

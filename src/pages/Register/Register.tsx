@@ -182,10 +182,10 @@ const Register = () => {
         </IllustrationSection>
 
         <FormSection>
-          <Typography variant="h4" fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"Times New Roman"} fontWeight="bold" mb={1}>
             Create an Account
           </Typography>
-          <Typography variant="body1" color="black" mb={2}>
+          <Typography variant="body1" fontFamily={"Times New Roman"} color="black" mb={2}>
             Register with your details
           </Typography>
 
@@ -223,7 +223,7 @@ const Register = () => {
                 return (
                   <Grid size={field.sm} key={field.key}>
                     <FormControl variant="outlined" fullWidth error={!!errors.industry}>
-                      <InputLabel id="industry-label">{field.label}</InputLabel>
+                      <InputLabel sx={{ fontFamily: "Times New Roman" }} id="industry-label">{field.label}</InputLabel>
                       <Select
                         labelId="industry-label"
                         id="industry"
@@ -233,11 +233,11 @@ const Register = () => {
                         label={field.label}
                         sx={{
                           borderRadius: "10px",
-                          "& .MuiOutlinedInput-input": { padding: "12px 10px !important" },
+                          "& .MuiOutlinedInput-input": { padding: "12px 10px !important", fontFamily: "Times New Roman" },
                         }}
                       >
                         <MenuItem value="">
-                          <em>Select Domain</em>
+                          <em>Select Industry</em>
                         </MenuItem>
                         {industriesData.industries.map((industry, index) => (
                           <MenuItem key={index} value={industry}>
@@ -280,6 +280,7 @@ const Register = () => {
                     multiline={field.multiline}
                     rows={field.rows}
                     fullWidth
+                    InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
                   />
                 </Grid>
               );
@@ -290,7 +291,7 @@ const Register = () => {
             REGISTER
           </StyledButton>
 
-          <Typography variant="body2" color="black" align="center" sx={{ my: 1 }}>
+          <Typography variant="body2" color="black" fontFamily={"Times New Roman"} align="center" sx={{ my: 1 }}>
             Already have an account?{" "}
             <RouterLink
               to="/login"

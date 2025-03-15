@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Box, Chip, IconButton, TableCell, TableContainer, TableHead, Typography } from "@mui/material";
 
 export const AgentsContainer = styled.div`
-  width: 88%;
+  width: 90%;
   height: 98%;
   display: flex;
   border-radius: 8px;
@@ -28,6 +28,7 @@ export const SectionTitle = styled.h2`
     font-weight: 600;
     color: #35495c;
     display: flex;
+    font-family: "Times New Roman";
   `;
 
 export const StyledTableContainer = styled(TableContainer)`
@@ -69,10 +70,12 @@ export const StyledTableCell = styled(TableCell)`
   font-weight: 500;
   font-size: 16px;
   text-align: center;
+  font-family: 'Times New Roman';
   &.MuiTableCell-head {
     background-color: #F8F7FD;
     color: #424242;
     font-weight: 600;
+    font-family: 'Times New Roman';
   }
   .MuiSelect-root {
     &::before, &::after {
@@ -98,6 +101,7 @@ export const AvailabilityChip = styled(Chip)`
   font-weight: 500;
   padding: 4px 8px;
   height: auto;
+  font-family: 'Times New Roman';
 `;
 
 export const UserInfoContainer = styled(Box)`
@@ -109,6 +113,7 @@ export const UserInfoContainer = styled(Box)`
 export const UserName = styled(Typography)`
   font-weight: 500;
   color: #2D3748;
+  font-family: "Times New Roman";
 `;
 
 export const ActionButton = styled(IconButton)`

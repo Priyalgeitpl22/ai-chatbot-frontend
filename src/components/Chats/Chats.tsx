@@ -75,7 +75,7 @@ export default function Chats() {
             alt="No conversation selected"
             width="300"
           />
-          <Typography sx={{ color: "#000000" }}>
+          <Typography fontFamily={"Times New Roman"} sx={{ color: "#000000" }}>
             Select a thread to view messages.
           </Typography>
         </PlaceholderContainer>

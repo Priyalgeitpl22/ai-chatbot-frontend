@@ -128,7 +128,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
               onChange={handleFileChange}
             />
           </Box>
-          <StyledTitle variant="h6">{formData.name || "User"}</StyledTitle>
+          <StyledTitle  variant="h6">{formData.name || "User"}</StyledTitle>
           <StyledEmail>{formData.email}</StyledEmail>
         </Box>
       </DialogHeader>
@@ -142,6 +142,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
+            InputProps={{style: {fontFamily: 'Times New Roman'}}}
           />
         </FieldWrapper>
 
@@ -153,6 +154,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             name="email"
             value={formData.email}
             onChange={handleInputChange}
+            InputProps={{style: {fontFamily: 'Times New Roman'}}}
           />
         </FieldWrapper>
 
@@ -163,16 +165,17 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             fullWidth
             name="role"
             value={formData.role}
+            InputProps={{style: {fontFamily: 'Times New Roman'}}}
             disabled
           />
         </FieldWrapper>
       </DialogBody>
 
       <DialogFooter>
-        <Button variant="outlined" onClick={handleCancel} sx={{ mr: 1 }}>
+        <Button variant="outlined" onClick={handleCancel} sx={{ mr: 1, fontFamily:'Times New Roman' }}>
           Cancel
         </Button>
-        <Button variant="contained" sx={{ backgroundColor: `var(--theme-color)`, fontWeight: 600 }} onClick={handleSave}>
+        <Button variant="contained" sx={{ backgroundColor: `var(--theme-color)`, color:'#333333', fontWeight: 600,fontFamily:'Times New Roman' }} onClick={handleSave}>
           Save changes
         </Button>
       </DialogFooter>

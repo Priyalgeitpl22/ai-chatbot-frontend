@@ -15,6 +15,7 @@ export const ChatHeader = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  fontFamily: 'Times New Roman',
 });
 
 export const ChatMessages = styled(Box)({
@@ -26,6 +27,7 @@ export const ChatMessages = styled(Box)({
   },
   msOverflowStyle: 'none',
   scrollbarWidth: 'none',
+  fontFamily: 'Times New Roman',
 });
 
 
@@ -42,8 +44,10 @@ export const ReassignmentNote = styled(Typography)({
 export const ChatInputContainer = styled(Box)({
   padding: '16px',
   backgroundColor: '#fff',
+  fontFamily: 'Times New Roman',
   '& .MuiOutlinedInput-root': {
     borderRadius: '10px',
+    fontFamily: 'Times New Roman',
     padding: '10px',
     backgroundColor: '#f1f1f1',
     '& fieldset': {
@@ -81,7 +85,7 @@ export const BotMessage = styled(Box)({
   alignItems:'flex-end',
   gap: '8px',
   marginBottom: '24px',
-  
+  fontFamily: 'Times New Roman',
 });
 
 export const BotMessageBubble = styled(Box)({
@@ -91,6 +95,7 @@ export const BotMessageBubble = styled(Box)({
   borderRadius: '12px',
   wordWrap: 'break-word',
   maxWidth:'80%',
+  fontFamily: 'Times New Roman',
 });
 
 export const UserMessage = styled(Box)({
@@ -99,6 +104,7 @@ export const UserMessage = styled(Box)({
   justifyContent: 'flex-start',
   alignItems: 'flex-start',
   gap: '8px',
+  fontFamily: 'Times New Roman',
 });
 
 export const UserMessageBubble = styled(Box)({
@@ -108,4 +114,5 @@ export const UserMessageBubble = styled(Box)({
   borderRadius: '12px',
   maxWidth: '80%',
   wordWrap: 'break-word',
+  fontFamily: 'Times New Roman',
 });

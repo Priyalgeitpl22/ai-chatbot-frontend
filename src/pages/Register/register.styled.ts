@@ -55,6 +55,7 @@ export const PreviewImage = styled('img')`
 
 export const StyledTextField = styled(TextField)`
   margin-bottom: 10px;
+  font-family:Times New Roman;
   .MuiOutlinedInput-root {
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
@@ -66,6 +67,7 @@ export const StyledTextField = styled(TextField)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
+    font-family:Times New Roman;
   }
 `;
 
@@ -78,6 +80,7 @@ export const StyledButton = styled(Button)`
   background: var(--theme-color);
   color: black;
   margin-top: 20px;
+  font-family:Times New Roman;
 
   &:hover {
     background: var(--theme-color);
@@ -85,32 +88,12 @@ export const StyledButton = styled(Button)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
+    font-family:Times New Roman;
   }
 `;
 
-
-export const SocialButton = styled(Box)`
-  
-  &:hover {
-    background-color: var(--theme-color);
-    opacity: 0.9;
-  }
-`;
 
 export const LinkText = styled.a`
-  color: #0066cc;
-  text-decoration: none;
-  font-size: 14px;
-  text-align: center;
-  cursor: pointer;
-  transition: color 0.3s ease-in-out;
-
-  &:hover {
-    color: #004a99;
-    text-decoration: underline;
-  }
-`;
-export const SignupLink = styled.a`
   color: #0066cc;
   text-decoration: none;
   font-size: 14px;
