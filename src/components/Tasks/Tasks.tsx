@@ -19,7 +19,7 @@ export default function Tasks() {
       dispatch(getAllTasks());
       dispatch(fetchAgents(user?.orgId))
     }
-  }, [dispatch]);
+  }, [dispatch,user?.orgId]);
 
   const { tasks, loading, error } = useSelector((state: RootState) => state.task);
 
