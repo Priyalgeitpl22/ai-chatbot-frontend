@@ -14,6 +14,7 @@ interface PasswordInputProps {
   required?: boolean;
   readOnly?: boolean; 
   fullWidth?: boolean;
+  sx?: object;
 }
 
 const StyledTextField = styled(TextField)`
@@ -42,6 +43,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   error,
   helperText,
   readOnly = false,
+  sx,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -60,6 +62,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       helperText={helperText}
       required
       fullWidth
+      sx={sx}
       InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
       InputProps={{
         readOnly: readOnly,

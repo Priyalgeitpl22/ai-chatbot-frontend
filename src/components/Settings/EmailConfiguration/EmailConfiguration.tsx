@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Typography, IconButton, Box } from "@mui/material";
+import { IconButton, Box, Alert, InputAdornment, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { EmailConfigData } from "../Configuration/Configuration";
 import { Button } from "../../../styles/layout.styled";
@@ -10,8 +10,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { fetchOrganization, updateOrganization, verifyEmail } from "../../../redux/slice/organizationSlice";
 import Loader from "../../Loader";
-import { FormContainer, HeaderContainer, StyledTextField } from "./emailConfig.styled";
+import { FormContainer, FormTitle, HeaderContainer, StyledTextField } from "./emailConfig.styled";
 import { saveConfigurations } from "../../../redux/slice/chatSlice";
+import { Info } from "@mui/icons-material";
 
 interface EmailConfigurationProps {
   onSubmit: (data: EmailConfigData) => void;
@@ -23,9 +24,9 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
   const { data } = useSelector((state: RootState) => state.organization);
 
   const [formData, setFormData] = useState<EmailConfigData>({
-    host: "smtp.gmail.com",
-    port: "587",
-    secure: "false",
+    host: "",
+    port: "",
+    secure: "",
     user: "",
     pass: "",
   });
@@ -126,13 +127,17 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
     <>
       <FormContainer elevation={3}>
         <HeaderContainer>
-          <Typography variant="h6">Email Configuration</Typography>
+          <FormTitle>Email Configuration</FormTitle>
           {!isEditable && (
             <IconButton onClick={() => { setIsEditable(true); setIsVerified(false); }}>
               <EditIcon />
             </IconButton>
           )}
         </HeaderContainer>
+        <Alert severity="info" sx={{ fontFamily: 'Times New Roman' }}>
+          Configure your email settings to enable sending emails from your application.
+          Make sure to use secure credentials and enable "Less secure app access" if using Gmail.
+        </Alert>
         <form>
           <StyledTextField
             label="SMTP Host"
@@ -140,24 +145,43 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             value={formData.host}
             onChange={handleChange}
             fullWidth
-            InputProps={{ readOnly: !isEditable }}
+            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+            InputProps={{
+              readOnly: !isEditable,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title="The address of your email server">
+                    <Info color="action" />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <StyledTextField
             label="Port"
-            name="port"
-            type="number"
             value={formData.port}
             onChange={handleChange}
             fullWidth
-            InputProps={{ readOnly: !isEditable }}
+            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+            InputProps={{
+              readOnly: !isEditable,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title="Common ports: 587 (TLS) or 465 (SSL)">
+                    <Info color="action" />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <StyledTextField
-            label="Secure (true/false)"
+            label="Use Secure Connection (SSL/TLS)"
             name="secure"
             value={formData.secure}
             onChange={handleChange}
             fullWidth
             InputProps={{ readOnly: !isEditable }}
+            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
           />
           <StyledTextField
             label="Email User"
@@ -170,6 +194,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             error={!!errors.user}
             helperText={errors.user}
             InputProps={{ readOnly: !isEditable }}
+            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
           />
           <PasswordInput
             label="Email Password"
@@ -180,6 +205,14 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             onChange={handleChange}
             autoComplete="new-password"
             readOnly={!isEditable}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "5px",
+              },
+              "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                border: "2px solid var(--theme-color)",
+              },
+            }}
           />
           <Box display="flex" justifyContent="space-between" mt={2}>
             {isEditable && (

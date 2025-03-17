@@ -241,14 +241,13 @@ const Configuration = () => {
     }
   };
 
-  console.log(settings, "Settings")
   return (
     <ContentContainer>
       <CustomTabs value={activeTab} onChange={handleTabChange}>
         <CustomTab label="Configure" value="configure" />
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
-        <CustomTab label="Ai Chatbot Setiings" value="ai chatbot settings" />
+        <CustomTab label="Ai Chatbot Settings" value="ai chatbot settings" />
       </CustomTabs>
 
       {activeTab === "configure" && (

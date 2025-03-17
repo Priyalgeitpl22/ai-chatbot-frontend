@@ -10,6 +10,7 @@ import {
   InputContainer,
   StyledTextField,
 } from './chatBot.styled';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 function ChatBot({ settings,LogoImage }: any) {
   const [message, setMessage] = useState('');
@@ -22,7 +23,20 @@ function ChatBot({ settings,LogoImage }: any) {
         <ChatContainer>
           <Header bgcolor={settings.iconColor}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Logo src={LogoImage||"https://img.freepik.com/premium-psd/robot-isolated-png-with-transparent-background_68880-68988.jpg"} alt="Logo" />
+            {LogoImage ? (
+                  <Logo
+                    src={LogoImage}
+                    alt="Profile preview"
+                  />
+                ) : (
+                  <AccountCircleIcon
+                    style={{
+                      fontSize: "50px",
+                      color: "var(--theme-color-dark)",
+                      marginBottom: "8px",
+                    }}
+                  />
+                )}
               <Typography style={{ display: "flex", flexDirection:'column' }}>
                 <span style={{fontFamily: `${settings.customFontFamily}`}}>{settings.addChatBotName || 'ChatBot'}</span>
                 <span style={{fontSize:'10px',fontFamily: `${settings.customFontFamily}`}}>{settings?.availability ? "Online" : "Offline"}</span>
