@@ -80,6 +80,20 @@ export const activateAccount = createAsyncThunk(
   }
 );
 
+export const resendOtp = createAsyncThunk(
+  "auth/resendOtp",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/resend-otp", { email });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Network error"
+      );
+    }
+  }
+);
+
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async (otpData: OtpData, { rejectWithValue }) => {

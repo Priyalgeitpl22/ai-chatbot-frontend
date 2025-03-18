@@ -13,7 +13,7 @@ export const VerifyCard = styled(Box)`
   border-radius: 20px;
   border: 1px solid #333;
   width: 100%;
-  max-width: 800px;
+  max-width: 675px;
   display: flex;
   overflow: auto;
 `;
@@ -37,8 +37,9 @@ export const EmailSection = styled(Box)`
 
 export const OtpFieldsContainer = styled(Box)`
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  align-items: center;
+  gap:10px;
+  margin-bottom: 10px;
 `;
 
 export const OtpField = styled(TextField)`
@@ -77,10 +78,10 @@ export const StyledButton = styled(Button)`
 `;
 
 export const TimerText = styled(Typography)`
-  color: #f44336;
+  color:rgb(143, 143, 143);
   font-weight: bold;
   text-align: center;
-  margin-top: 10px;
+  font-size: 12px;
 `;
 
 export const IllustrationSection = styled(Box)`
@@ -102,3 +103,17 @@ export const FormSection = styled(Box)`
   flex-direction: column;
   justify-content: center;
 `;
+
+export const TimerBtnContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
+export const ResendBtn = styled(Button)`
+  color:rgb(31, 99, 183);
+  font-weight: bold;
+  text-transform: none;
+  font-size: 12px;
+  `;

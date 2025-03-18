@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Typography, Box } from "@mui/material";
+import { Typography} from "@mui/material";
 import {
   PageContainer,
   VerifyCard,
@@ -8,39 +8,59 @@ import {
   StyledButton,
   TimerText,
   IllustrationSection,
-  FormSection
+  FormSection,
+  TimerBtnContainer,
+  ResendBtn
 } from "./VerifyOtp.styled";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { verifyOtp } from "../../redux/slice/authSlice";
+import { resendOtp, verifyOtp } from "../../redux/slice/authSlice";
 import { AppDispatch } from "../../redux/store/store";
 import Loader from "../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
 
 const VerifyOtp = () => {
   const { state } = useLocation();
-  const email = state?.email;  
+  const email = state?.email;
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(90);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [otpSubmitted, setOtpSubmitted] = useState<boolean>(false);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startTimer = () => {
+    setTimer(90);
+    setIsTimerRunning(true);
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!);
+          setIsTimerRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   useEffect(() => {
-    if (isTimerRunning && timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-    if (timer === 0) {
-      setIsTimerRunning(false);
-    }
-  }, [isTimerRunning, timer]);
+    startTimer();
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const value = e.target.value;
@@ -80,7 +100,6 @@ const VerifyOtp = () => {
     }
   };
 
-  // Dispatch verifyOtp when otpSubmitted flag is set.
   useEffect(() => {
     if (otpSubmitted) {
       const otpString = otp.join("");
@@ -102,6 +121,23 @@ const VerifyOtp = () => {
     }
   }, [otpSubmitted, dispatch, email, otp, navigate]);
 
+  const handleResendOtp = () => {
+    if (!email) return;
+    setIsLoading(true);
+    dispatch(resendOtp(email!))
+      .unwrap()
+      .then(() => {
+        toast.success("New OTP sent successfully!");
+        startTimer();
+      })
+      .catch(() => {
+        toast.error("Failed to resend OTP. Please try again.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <PageContainer>
       <VerifyCard>
@@ -113,11 +149,11 @@ const VerifyOtp = () => {
           />
         </IllustrationSection>
         <FormSection>
-          <Typography variant="h4" fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontWeight="bold"  mb={1}>
             Verify OTP
           </Typography>
-          <Typography variant="h6" sx={{ marginBottom: 2 }}>
-            Enter the OTP sent to your email
+          <Typography variant="subtitle2" mb={1}>
+            Enter the OTP sent to <b>{email}</b>
           </Typography>
 
           <OtpFieldsContainer>
@@ -138,14 +174,22 @@ const VerifyOtp = () => {
               />
             ))}
           </OtpFieldsContainer>
-
+          <TimerBtnContainer>
+            <TimerText>
+              Time remaining {Math.floor(timer / 60).toString().padStart(2, "0")}:
+              {(timer % 60).toString().padStart(2, "0")}
+            </TimerText>
+            <ResendBtn
+              variant="text"
+              onClick={handleResendOtp}
+              disabled={isTimerRunning} 
+            >
+              Resend OTP
+            </ResendBtn>
+          </TimerBtnContainer>
           <StyledButton variant="contained" onClick={handleVerifyOtp}>
             VERIFY OTP
           </StyledButton>
-
-          <Box sx={{ marginTop: 2 }}>
-            {isTimerRunning && <TimerText>Time remaining: {timer}s</TimerText>}
-          </Box>
         </FormSection>
       </VerifyCard>
 
