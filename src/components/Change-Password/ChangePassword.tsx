@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Typography } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useNavigate,useLocation } from "react-router-dom";
 import {
   PageContainer,
   ChangePasswordCard,
@@ -9,7 +9,7 @@ import {
   FormSection,
   StyledButton,
 } from "./ChangePassword.styled";
-import { RootState, AppDispatch } from "../../redux/store/store";
+import { AppDispatch } from "../../redux/store/store";
 import { changePassword } from "../../redux/slice/authSlice";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader";
@@ -19,8 +19,8 @@ import fieldValidation from "../../validations/FieldValidation";
 const ChangePassword: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.user);
-
+  const location = useLocation();
+  const emailFromState = location.state?.email || "";
   const [existingPassword, setExistingPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -72,15 +72,11 @@ const ChangePassword: React.FC = () => {
     setErrors(newErrors);
     if (hasError) return;
 
-    if (!user) {
-      toast.error("User not found. Please log in again.");
-      return;
-    }
     setLoading(true);
     try {
       await dispatch(
         changePassword({
-          email: user.email,
+          email: emailFromState,
           existingPassword,
           newPassword,
         })
@@ -94,6 +90,9 @@ const ChangePassword: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const isDisabled = [existingPassword, newPassword, confirmPassword].some((field) => !field) ||
+  Object.values(errors).some((error) => !!error)
 
   return (
     <PageContainer>
@@ -146,7 +145,7 @@ const ChangePassword: React.FC = () => {
             helperText={errors.confirmPassword}
           />
 
-          <StyledButton variant="contained" onClick={handleChangePassword}>
+          <StyledButton variant="contained" onClick={handleChangePassword} disabled={isDisabled}>
             Change Password
           </StyledButton>
         </FormSection>

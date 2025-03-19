@@ -109,7 +109,7 @@ const ResetPassword = () => {
             helperText={error || ""}
           />
 
-          <StyledButton fullWidth onClick={handleSubmitPassword} >
+          <StyledButton fullWidth onClick={handleSubmitPassword} disabled={!password} >
             Reset Password
           </StyledButton>
         </FormSection>

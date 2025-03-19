@@ -77,6 +77,10 @@ export const StyledButton = styled(Button)`
     background: var(--theme-color);
     opacity: 0.9;
   }
+  &:disabled{
+    background-color: #ccc; 
+    cursor: not-allowed;
+  },
 `;
 
 

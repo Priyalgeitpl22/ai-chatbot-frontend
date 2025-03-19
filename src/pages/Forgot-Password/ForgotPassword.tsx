@@ -64,6 +64,7 @@ const ForgotPassword = () => {
     }
   };
 
+  const isFormValid = email.trim() !== "" && !error;
   return (
     <PageContainer>
        {loading && <Loader />}
@@ -98,7 +99,7 @@ const ForgotPassword = () => {
               fullWidth
             />
 
-            <StyledButton fullWidth type="submit">
+            <StyledButton fullWidth type="submit" disabled={!isFormValid}>
               RESET PASSWORD
             </StyledButton>
           </form>

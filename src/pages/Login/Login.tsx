@@ -117,7 +117,7 @@ function Login() {
     }
   }, [loginSubmitted, dispatch, navigate, email, password]);
 
-
+  const isFormValid = email && password && !errors.email && !errors.password;
   return (
     <PageContainer>
       <LoginCard>
@@ -170,7 +170,7 @@ function Login() {
             variant="contained" 
             fullWidth 
             onClick={handleSignIn}
-            disabled={loading}
+            disabled={!isFormValid}
           >
             SIGN IN
           </StyledButton>

@@ -169,6 +169,9 @@ const Register = () => {
   };
 
   const handleIconClick = () => fileInputRef.current?.click();
+  const isFormValid =
+  Object.values(formData).every((value) => value && value !== "") &&
+  Object.values(errors).every((error) => !error);
 
   return (
     <PageContainer>
@@ -287,7 +290,7 @@ const Register = () => {
             })}
           </Grid>
 
-          <StyledButton variant="contained" fullWidth onClick={handleSubmit}>
+          <StyledButton variant="contained" fullWidth onClick={handleSubmit} disabled={!isFormValid}>
             REGISTER
           </StyledButton>
 

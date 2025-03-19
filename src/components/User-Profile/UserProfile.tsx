@@ -102,6 +102,7 @@ const UserProfileMenu: React.FC = () => {
         <StyledMenuItem onClick={handleMenuClose}>
           <Link
             to="/change-password"
+            state={{ email: user?.email }}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <Typography variant="body2" fontFamily={"Times New Roman"} color="textSecondary">

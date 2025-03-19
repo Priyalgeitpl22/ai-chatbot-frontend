@@ -63,7 +63,7 @@ function AppRoutes() {
 
   return (
     <SocketProvider>
-    <Toaster position="top-center" />
+      <Toaster position="top-center" />
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
@@ -72,7 +72,6 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/confirmation" element={<PasswordResetConfirmation />} />
-        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/activate-account" element={<ActivateAccount />} />
 
         {/* Protected Routes */}
@@ -96,6 +95,15 @@ function AppRoutes() {
                   </ContentArea>
                 </MainContainer>
               </DashboardContainer>
+            </AuthGuard>
+          }
+        />
+        {/* Separate Route for Change Password (Inside AuthGuard) */}
+        <Route
+          path="/change-password"
+          element={
+            <AuthGuard>
+              <ChangePassword />
             </AuthGuard>
           }
         />

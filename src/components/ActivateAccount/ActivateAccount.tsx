@@ -110,7 +110,7 @@ const ActivateAccount = () => {
             helperText={error}
           />
 
-          <StyledButton fullWidth onClick={handleSubmitPassword}>
+          <StyledButton fullWidth onClick={handleSubmitPassword} disabled={!password}>
             Activate Account
           </StyledButton>
         </FormSection>

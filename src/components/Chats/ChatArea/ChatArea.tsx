@@ -283,7 +283,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
               }}
               InputProps={{
                 endAdornment: (
-                  <IconButton color="primary" onClick={sendMessage}>
+                  <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim()}>
                     <Send size={20} />
                   </IconButton>
                 ),
