@@ -160,7 +160,9 @@ const Register = () => {
       const res = await dispatch(registerUser(payload)).unwrap();
       const message = typeof res === "string" ? res : res.message || "Registration successful!";
       toast.success(message);
-      navigate("/verify-otp", { state: { email: formData.email } });
+      const otpExpireTime = Math.floor(new Date(res.otpExpireTime).getTime() / 1000);
+      console.log('otpExpireTime', res.otpExpireTime, otpExpireTime);
+      navigate("/verify-otp", { state: { email: formData.email, otpExpireTime } });
     } catch (err: any) {
       toast.error(err.message || "Registration failed. Please try again.");
     } finally {

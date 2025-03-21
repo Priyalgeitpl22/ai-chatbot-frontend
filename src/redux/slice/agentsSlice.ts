@@ -28,7 +28,7 @@ interface CreateAgentPayload {
 const token = Cookies.get("access_token");
 
 export const fetchAgents = createAsyncThunk<
-  { data: Agent[] },
+  { data: Agent[], message: string },
   string,
   { rejectValue: string }
 >("agents/fetchAgents", async (orgId, { rejectWithValue }) => {
@@ -36,7 +36,8 @@ export const fetchAgents = createAsyncThunk<
     const response = await api.get(`/agent/org/${orgId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data;
+    const filteredAgents = response.data.data.filter((agent: Agent) => !agent.deletedAt);
+    return { data: filteredAgents,message: response.data.message };
   } catch (error: unknown) {
     let errorMessage = "Something went wrong";
     if (error instanceof AxiosError) {
@@ -86,6 +87,26 @@ export const updateAgent = createAsyncThunk<
     }
   }
 );
+
+export const deleteAgent = createAsyncThunk<
+{ data: Agent; message: string },
+  string,
+  { rejectValue: string }
+>("agents/deleteAgent", async (agentId, { rejectWithValue }) => {
+  try {
+    const response = await api.delete(`/agent/${agentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return { data: response.data.data, message: response.data.message };
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong";
+    if (error instanceof AxiosError) {
+      errorMessage = (error.response?.data as string) || errorMessage;
+    }
+    return rejectWithValue(errorMessage);
+  }
+});
+
 
 const initialState: AgentState = {
   data: null,
@@ -155,7 +176,21 @@ const agentsSlice = createSlice({
           state.loading = false;
           state.error = action.payload || "Something went wrong";
         }
-      );
+      )
+      .addCase(deleteAgent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAgent.fulfilled, (state, action: PayloadAction<{ data: Agent }>) => {
+        state.loading = false;
+        if (state.data) {
+          state.data = state.data.filter((agent) => agent.id !== action.payload.data.id);
+        }
+      })
+      .addCase(deleteAgent.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      });
   },
 });
 

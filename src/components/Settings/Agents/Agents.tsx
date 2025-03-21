@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Avatar, Table, TableBody, TableRow } from "@mui/material";
+import { Avatar, Box, Table, TableBody, TableRow } from "@mui/material";
 import {
   AgentsContainer,
   AgentHeader,
@@ -17,7 +17,7 @@ import { Edit, Trash2 } from "lucide-react";
 import AgentDialog from "./AgentDialogBox/AgentDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
-import { fetchAgents } from "../../../redux/slice/agentsSlice";
+import { deleteAgent, fetchAgents } from "../../../redux/slice/agentsSlice";
 import Loader from "../../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
 import dayjs, { Dayjs } from "dayjs";
@@ -110,9 +110,9 @@ const Agents: React.FC = () => {
     if (user) {
       dispatch(fetchAgents(user.orgId))
         .unwrap()
-        .then((result) => {
+        .then(({message}) => {
           setLoading(false);
-          toast.success((result as { data: Agent[]; message: string }).message); 
+          toast.success(message); 
         })
         .catch((error) => {
           toast.error(error.message);
@@ -156,7 +156,15 @@ const Agents: React.FC = () => {
   };
 
   const handleDeleteAgent = (id: string) => {
-    setAgents(agents.filter((agent) => agent.id !== id));
+    dispatch(deleteAgent(id))
+      .unwrap()
+      .then(({message}) => {
+        toast.success(message);
+        setAgents(agents.filter((agent) => agent.id !== id));
+      })
+      .catch((error) => {
+        toast.error(error);
+      });
   };
 
   return (
@@ -170,7 +178,7 @@ const Agents: React.FC = () => {
           onSave={handleSaveAgent}
           agent={editingAgent}
         />
-        <Button onClick={handleOpenDialog}>Add User</Button>
+        {isAdmin && <Button onClick={handleOpenDialog}>Add User</Button>}
       </AgentHeader>
       <StyledTableContainer>
         <Table>
@@ -228,6 +236,7 @@ const Agents: React.FC = () => {
                   <StyledTableCell>{agent.role}</StyledTableCell>
                   {isAdmin && (
                     <StyledTableCell >
+                      <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1 }}>
                       <ActionButton
                         color="primary"
                         size="small"
@@ -242,6 +251,7 @@ const Agents: React.FC = () => {
                       >
                         <Trash2 size={18} />
                       </ActionButton>
+                      </Box>
                     </StyledTableCell>
                   )}
                 </TableRow>

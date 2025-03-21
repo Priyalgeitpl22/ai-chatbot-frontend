@@ -118,7 +118,7 @@ const Configuration = () => {
       dispatch(getChatConfig(user.orgId))
         .unwrap()
         .then((chatConfig) => {
-          if (chatConfig) {
+          if (chatConfig && Object.keys(chatConfig).length > 0) {
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
             setSettings({
               iconColor: chatConfig?.iconColor,

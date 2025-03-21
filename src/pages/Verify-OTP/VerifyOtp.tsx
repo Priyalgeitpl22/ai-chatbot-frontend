@@ -22,9 +22,10 @@ import toast, { Toaster } from "react-hot-toast";
 const VerifyOtp = () => {
   const { state } = useLocation();
   const email = state?.email;
+  const otpExpireTime = state?.otpExpireTime;
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [timer, setTimer] = useState(90);
+  const [timer, setTimer] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
@@ -33,34 +34,36 @@ const VerifyOtp = () => {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const startTimer = () => {
-    setTimer(90);
-    setIsTimerRunning(true);
+  useEffect(() => {
+    if (otpExpireTime) {
+      const currentTime = Math.floor(Date.now() / 1000); 
+      const remainingTime = otpExpireTime - currentTime;
 
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      setTimer(remainingTime > 0 ? remainingTime : 0);
+      setIsTimerRunning(remainingTime > 0);
+
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
+      intervalRef.current = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(intervalRef.current!);
+            setIsTimerRunning(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
 
-    intervalRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current!);
-          setIsTimerRunning(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  useEffect(() => {
-    startTimer();
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, []);
+  }, [otpExpireTime]);
 
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const value = e.target.value;
@@ -126,9 +129,29 @@ const VerifyOtp = () => {
     setIsLoading(true);
     dispatch(resendOtp(email!))
       .unwrap()
-      .then(() => {
-        toast.success("New OTP sent successfully!");
-        startTimer();
+      .then((response) => {
+        toast.success(response.message);
+        const newExpireTime = Math.floor(new Date(response.otp).getTime() / 1000);
+        const currentTime = Math.floor(Date.now() / 1000);
+        const remainingTime = newExpireTime - currentTime;
+  
+        setTimer(remainingTime > 0 ? remainingTime : 0);
+        setIsTimerRunning(remainingTime > 0);
+  
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+  
+        intervalRef.current = setInterval(() => {
+          setTimer((prev) => {
+            if (prev <= 1) {
+              clearInterval(intervalRef.current!);
+              setIsTimerRunning(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       })
       .catch(() => {
         toast.error("Failed to resend OTP. Please try again.");
@@ -137,6 +160,7 @@ const VerifyOtp = () => {
         setIsLoading(false);
       });
   };
+  
 
   return (
     <PageContainer>
@@ -187,7 +211,8 @@ const VerifyOtp = () => {
               Resend OTP
             </ResendBtn>
           </TimerBtnContainer>
-          <StyledButton variant="contained" onClick={handleVerifyOtp}>
+          <StyledButton variant="contained" onClick={handleVerifyOtp}
+           disabled={otp.some((digit) => digit === "") || !isTimerRunning}>
             VERIFY OTP
           </StyledButton>
         </FormSection>

@@ -57,6 +57,7 @@ export interface Agent {
     timeZone: string;
     schedule: (ScheduleSlot & { startTime?: string; endTime?: string })[];
   };
+  deletedAt?: string | null;
 }
 
 interface AgentDialogProps {
