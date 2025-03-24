@@ -46,7 +46,7 @@ const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
   return (
     <SidebarContainer>
       <Box sx={{ padding: "10px", borderRadius: "8px" }} display="flex" alignItems="center" flexDirection="column">
-        <Typography variant="h6" sx={{ fontFamily: "Times New Roman", fontWeight: 600, color:"#1e293b" }}>
+        <Typography variant="h6" sx={{ fontFamily: "var(--custom-font-family)", fontWeight: 600, color:"#1e293b" }}>
           Inbox
         </Typography>
       </Box>
@@ -64,9 +64,9 @@ const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
             >
               <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text}
-              primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'Times New Roman' }} 
+              primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }} 
               />
-              {typeof item.count === "number" && <Count variant="body2" fontFamily={'Times New Roman'}>{item.count}</Count>}
+              {typeof item.count === "number" && <Count variant="body2" fontFamily={'var(--custom-font-family)'}>{item.count}</Count>}
             </MotionSidebarItem>
           );
         })}

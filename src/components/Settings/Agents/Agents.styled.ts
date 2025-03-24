@@ -28,7 +28,7 @@ export const SectionTitle = styled.h2`
     font-weight: 600;
     color: #35495c;
     display: flex;
-    font-family: "Times New Roman";
+    font-family: "var(--custom-font-family)";
   `;
 
 export const StyledTableContainer = styled(TableContainer)`
@@ -70,12 +70,12 @@ export const StyledTableCell = styled(TableCell)`
   font-weight: 500;
   font-size: 16px;
   text-align: center;
-  font-family: 'Times New Roman';
+  font-family: 'var(--custom-font-family)';
   &.MuiTableCell-head {
     background-color: #F8F7FD;
     color: #424242;
     font-weight: 600;
-    font-family: 'Times New Roman';
+    font-family: 'var(--custom-font-family)';
   }
   .MuiSelect-root {
     &::before, &::after {
@@ -101,7 +101,7 @@ export const AvailabilityChip = styled(Chip)`
   font-weight: 500;
   padding: 4px 8px;
   height: auto;
-  font-family: 'Times New Roman';
+  font-family: 'var(--custom-font-family)';
 `;
 
 export const UserInfoContainer = styled(Box)`
@@ -113,7 +113,7 @@ export const UserInfoContainer = styled(Box)`
 export const UserName = styled(Typography)`
   font-weight: 500;
   color: #2D3748;
-  font-family: "Times New Roman";
+  font-family: "var(--custom-font-family)";
 `;
 
 export const ActionButton = styled(IconButton)`

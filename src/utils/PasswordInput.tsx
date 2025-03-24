@@ -31,7 +31,7 @@ const StyledTextField = styled(TextField)`
 
   .MuiOutlinedInput-input {
     padding: 12px 10px !important;
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 `;
 
@@ -63,7 +63,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       required
       fullWidth
       sx={sx}
-      InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
+      InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
       InputProps={{
         readOnly: readOnly,
         endAdornment: value.length > 0 &&(

@@ -256,7 +256,7 @@ const Configuration = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{ fontFamily: 'Times New Roman', border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
+            style={{ fontFamily: 'var(--custom-font-family)', border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
           >
             <SectionTitle>Display</SectionTitle>
             <Section>
@@ -287,7 +287,7 @@ const Configuration = () => {
                   <UploadBtn onClick={handleUploadClick}>Upload Logo</UploadBtn>
                 </Box>
               </PreviewContainer>
-              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+              <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
                 Add your ChatBot name
               </Typography>
               <TextField
@@ -297,16 +297,16 @@ const Configuration = () => {
                 size="small"
                 value={settings.addChatBotName || ""}
                 onChange={(e) => handleChange("addChatBotName", e.target.value)}
-                InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
-                InputProps={{ style: { fontFamily: 'Times New Roman' } }}
+                InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
+                InputProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
                 sx={{ width: '50%', mt: 2, mb: 2 }}
               />
             </Section>
             <Section>
-              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Color
               </Typography>
-              <Typography fontFamily={'Times New Roman'} sx={{ color: "#3e5164", mb: 2 }}>
+              <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164", mb: 2 }}>
                 Choose an accent color
               </Typography>
               <ColorGrid>
@@ -327,7 +327,7 @@ const Configuration = () => {
                 colors.map((color) =>
                   color === "custom" ? (
                     <CustomColorPicker >
-                      <Typography fontFamily={'Times New Roman'} sx={{ color: "#3e5164" }}>Custom Color Picker</Typography>
+                      <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164" }}>Custom Color Picker</Typography>
                       <ColorPicker
                         key="custom-color-picker"
                         type="color"
@@ -344,10 +344,10 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ marginTop: '1.2rem' }}>
-              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+              <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
                 Chat widget placement
               </Typography>
-              <Typography fontFamily={'Times New Roman'} sx={{ color: "#3e5164", fontSize: "14px", mb: 1 }}>
+              <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164", fontSize: "14px", mb: 1 }}>
                 Choose where to display your chat widget.
               </Typography>
               <FormControl>
@@ -363,7 +363,7 @@ const Configuration = () => {
             </Section>
             {/* Additional settings */}
             <Section style={{ marginTop: '1rem' }}>
-              <Typography variant="h6" fontFamily={'Times New Roman'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Additional Settings
               </Typography>
               <FormControl sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -414,8 +414,8 @@ const Configuration = () => {
                     value={settings.customGreetingMessage || ""}
                     onChange={(e) => handleChange("customGreetingMessage", e.target.value)}
                     sx={{ mt: 1 }}
-                    InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
-                    inputProps={{ style: { fontFamily: 'Times New Roman' } }}
+                    InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
+                    inputProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
                   />
                 )}
                 <CustomFormControlLabel
@@ -453,14 +453,14 @@ const Configuration = () => {
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Chat Window Color
               </Typography>
               <CustomMuiColorInput format="hex" value={settings.chatWindowColor} onChange={(newValue: string) => handleChange("chatWindowColor", newValue)} />
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+              <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Font Color
               </Typography>
               <CustomMuiColorInput format="hex" value={settings.fontColor} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
@@ -485,11 +485,11 @@ const Configuration = () => {
           >
             <Section>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={14} fontWeight={500} sx={{ color: "#35495c" }}>
+                <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={14} fontWeight={500} sx={{ color: "#35495c" }}>
                   Place the code before the end of the &lt;body&gt; tag.
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <Typography fontFamily={'Times New Roman'} variant="h6" fontSize={14} fontWeight={600} sx={{ color: "#35495c" }}>
+                  <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={14} fontWeight={600} sx={{ color: "#35495c" }}>
                     Copy Code
                   </Typography>
                   <IconButton onClick={copyToClipboard}>

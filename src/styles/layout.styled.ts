@@ -139,7 +139,7 @@ background-color:var(--theme-color);
 cursor: pointer;
 font-size: 16px;  
 font-weight: 600;
-font-family:Times New Roman;
+font-family:var(--custom-font-family);
 
 :hover {
   background-color: var(--theme-color);

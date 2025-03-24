@@ -59,7 +59,7 @@ export const StyledTextField = styled(TextField)`
 
   .MuiOutlinedInput-input {
     padding: 12px 10px !important;
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 `;
 
@@ -71,7 +71,7 @@ export const StyledButton = styled(Button)`
   transition: 0.3s ease-in-out;
   background:  var(--theme-color);
   color: black;
-  font-family:Times New Roman;
+  font-family:var(--custom-font-family);
 
   &:hover {
     background: var(--theme-color);

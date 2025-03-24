@@ -22,7 +22,7 @@ export interface FieldValidationRule {
       required: { message: "Organization Name is required" }
     },
     industry: {
-      required: { message: "industry is required" }
+      required: { message: "Industry is required" }
     },
     country: {
       required: { message: "Country is required" }

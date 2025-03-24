@@ -57,7 +57,7 @@ export default function Tasks() {
           )}
         </>
       ) : (
-        <Box sx={{width:'100%', fontFamily:'Times New Roman', display:'flex', alignItems:'center', justifyContent:'center'}}>No tasks available</Box>
+        <Box sx={{width:'100%', fontFamily:'var(--custom-font-family)', display:'flex', alignItems:'center', justifyContent:'center'}}>No tasks available</Box>
       )}
     </TaskContainer>
   );

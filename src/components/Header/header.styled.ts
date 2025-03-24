@@ -63,14 +63,14 @@ export const AppTitle = styled.p`
   font-size: 26px;
   font-weight: 600;
   align-self: end;
-  font-family: 'Times New Roman';
+  font-family: 'var(--custom-font-family)';
 
 `
 export const AppSubtitle = styled.p`
   margin: 0 !important;
   font-size: 12px;
   align-self: start;
-  font-family: 'Times New Roman';
+  font-family: 'var(--custom-font-family)';
 `
 
 export const TitleContainer = styled.div`

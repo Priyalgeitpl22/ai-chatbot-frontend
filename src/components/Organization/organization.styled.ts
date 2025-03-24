@@ -16,13 +16,13 @@ export const FormTitle = styled(Typography)({
   fontSize: '2rem',
   fontWeight: 700,
   color: '#333',
-  fontFamily: 'Times New Roman',
+  fontFamily: 'var(--custom-font-family)',
 });
 
 export const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     background: '#ffffff',
-    fontFamily: 'Times New Roman',
+    fontFamily: 'var(--custom-font-family)',
     transition: 'all 0.3s ease',
     '&:hover': {
       boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
@@ -44,7 +44,7 @@ export const StyledButton = styled(Button)({
   textTransform: 'none',
   boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  fontFamily: 'Times New Roman',
+  fontFamily: 'var(--custom-font-family)',
   '&:hover': {
     transform: 'scale(1.01)',
     boxShadow: '0 4px 8px rgba(0,0,0,0.3)'

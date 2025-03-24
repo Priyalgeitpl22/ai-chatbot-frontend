@@ -134,7 +134,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             </IconButton>
           )}
         </HeaderContainer>
-        <Alert severity="info" sx={{ fontFamily: 'Times New Roman' }}>
+        <Alert severity="info" sx={{ fontFamily: 'var(--custom-font-family)' }}>
           Configure your email settings to enable sending emails from your application.
           Make sure to use secure credentials and enable "Less secure app access" if using Gmail.
         </Alert>
@@ -145,7 +145,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             value={formData.host}
             onChange={handleChange}
             fullWidth
-            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+            InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
             InputProps={{
               readOnly: !isEditable,
               endAdornment: (
@@ -162,7 +162,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             value={formData.port}
             onChange={handleChange}
             fullWidth
-            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+            InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
             InputProps={{
               readOnly: !isEditable,
               endAdornment: (
@@ -181,7 +181,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             onChange={handleChange}
             fullWidth
             InputProps={{ readOnly: !isEditable }}
-            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+            InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
           />
           <StyledTextField
             label="Email User"
@@ -194,7 +194,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             error={!!errors.user}
             helperText={errors.user}
             InputProps={{ readOnly: !isEditable }}
-            InputLabelProps={{ style: { fontFamily: 'Times New Roman' } }}
+            InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
           />
           <PasswordInput
             label="Email Password"

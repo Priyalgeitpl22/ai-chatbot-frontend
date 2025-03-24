@@ -15,7 +15,7 @@ export const FormTitle = styled(Typography)`
   font-size: 2rem;
   font-weight: 700;
   color: #333333;
-  font-family: Times New Roman;
+  font-family: var(--custom-font-family);
 `;
 
 export const HeaderContainer = styled("div")`
@@ -36,6 +36,6 @@ export const StyledTextField = styled(TextField)`
   .MuiOutlinedInput-input {
     padding: 12px 10px !important;
     transition: color 0.3s ease;
-    font-family: Times New Roman !important;
+    font-family: var(--custom-font-family) !important;
   }
 `;

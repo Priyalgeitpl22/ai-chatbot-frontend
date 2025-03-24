@@ -142,7 +142,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            InputProps={{style: {fontFamily: 'Times New Roman'}}}
+            InputProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
           />
         </FieldWrapper>
 
@@ -154,7 +154,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            InputProps={{style: {fontFamily: 'Times New Roman'}}}
+            InputProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
           />
         </FieldWrapper>
 
@@ -165,17 +165,17 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             fullWidth
             name="role"
             value={formData.role}
-            InputProps={{style: {fontFamily: 'Times New Roman'}}}
+            InputProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
             disabled
           />
         </FieldWrapper>
       </DialogBody>
 
       <DialogFooter>
-        <Button variant="outlined" onClick={handleCancel} sx={{ mr: 1, fontFamily:'Times New Roman' }}>
+        <Button variant="outlined" onClick={handleCancel} sx={{ mr: 1, fontFamily:'var(--custom-font-family)' }}>
           Cancel
         </Button>
-        <Button variant="contained" sx={{ backgroundColor: `var(--theme-color)`, color:'#333333', fontWeight: 600,fontFamily:'Times New Roman' }} onClick={handleSave}>
+        <Button variant="contained" sx={{ backgroundColor: `var(--theme-color)`, color:'#333333', fontWeight: 600,fontFamily:'var(--custom-font-family)' }} onClick={handleSave}>
           Save changes
         </Button>
       </DialogFooter>

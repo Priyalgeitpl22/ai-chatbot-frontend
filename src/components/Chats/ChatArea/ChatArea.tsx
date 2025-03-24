@@ -172,7 +172,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
           <ChatListHeader>
             <Typography
               variant="h6"
-              sx={{ fontFamily: "Times New Roman", fontWeight: 600 }}
+              sx={{ fontFamily: "var(--custom-font-family)", fontWeight: 600 }}
             >
               Conversations
             </Typography>
@@ -183,7 +183,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
               alt="No conversation selected"
               width="300"
             />
-            <Typography sx={{ fontFamily: "Times New Roman", color: "#000000" }}>
+            <Typography sx={{ fontFamily: "var(--custom-font-family)", color: "#000000" }}>
               Select a conversation to start chatting
             </Typography>
           </PlaceholderContainer>
@@ -195,12 +195,12 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
               <Avatar style={{ backgroundColor: "var(--theme-color)" }}>
                 {userInfo?.name?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
-              <Typography variant="subtitle1" fontFamily={"Times New Roman"}>
+              <Typography variant="subtitle1" fontFamily={"var(--custom-font-family)"}>
                 {(userInfo?.name.charAt(0).toUpperCase() + (userInfo?.name ?? '').slice(1)) || 'Unkown Visitor'}
               </Typography>
             </Box>
             {assignedDropdown &&
-              <Box mr={2} style={{fontFamily: "Times New Roman", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Box mr={2} style={{fontFamily: "var(--custom-font-family)", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Typography> Assigned to: </Typography>
                 <Typography>{assignedDropdown}</Typography>
               </Box>
@@ -253,7 +253,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
                 <div ref={messagesEndRef} />
               </>
             ) : (
-              <Typography fontFamily={"Times New Roman"}>No messages yet.</Typography>
+              <Typography fontFamily={"var(--custom-font-family)"}>No messages yet.</Typography>
             )}
 
             {typingAgent && (

@@ -171,10 +171,13 @@ const Register = () => {
   };
 
   const handleIconClick = () => fileInputRef.current?.click();
-  const isFormValid =
-  Object.values(formData).every((value) => value && value !== "") &&
-  Object.values(errors).every((error) => !error);
-
+  const isFormValid = ["fullName", "email", "orgName", "industry", "country", "password"].every(
+    (key) => {
+      const value = formData[key as keyof RegisterFormData];
+      return typeof value === "string" && value.trim() !== "";
+    }
+  ) && Object.values(errors).every((error) => !error);
+  
   return (
     <PageContainer>
       <RegisterCard>
@@ -187,10 +190,10 @@ const Register = () => {
         </IllustrationSection>
 
         <FormSection>
-          <Typography variant="h4" fontFamily={"Times New Roman"} fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"var(--custom-font-family)"} fontWeight="bold" mb={1}>
             Create an Account
           </Typography>
-          <Typography variant="body1" fontFamily={"Times New Roman"} color="black" mb={2}>
+          <Typography variant="body1" fontFamily={"var(--custom-font-family)"} color="black" mb={2}>
             Register with your details
           </Typography>
 
@@ -228,7 +231,7 @@ const Register = () => {
                 return (
                   <Grid size={field.sm} key={field.key}>
                     <FormControl variant="outlined" fullWidth error={!!errors.industry}>
-                      <InputLabel sx={{ fontFamily: "Times New Roman" }} id="industry-label">{field.label}</InputLabel>
+                      <InputLabel sx={{ fontFamily: "var(--custom-font-family)" }} id="industry-label">{field.label}</InputLabel>
                       <Select
                         labelId="industry-label"
                         id="industry"
@@ -238,7 +241,7 @@ const Register = () => {
                         label={field.label}
                         sx={{
                           borderRadius: "10px",
-                          "& .MuiOutlinedInput-input": { padding: "12px 10px !important", fontFamily: "Times New Roman" },
+                          "& .MuiOutlinedInput-input": { padding: "12px 10px !important", fontFamily: "var(--custom-font-family)" },
                         }}
                       >
                         <MenuItem value="">
@@ -281,11 +284,11 @@ const Register = () => {
                     onChange={handleChange}
                     error={!!errors[field.key]}
                     helperText={errors[field.key] || ""}
-                    autoComplete="nope"
+                    autoComplete="off"
                     multiline={field.multiline}
                     rows={field.rows}
                     fullWidth
-                    InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
+                    InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
                   />
                 </Grid>
               );
@@ -296,7 +299,7 @@ const Register = () => {
             REGISTER
           </StyledButton>
 
-          <Typography variant="body2" color="black" fontFamily={"Times New Roman"} align="center" sx={{ my: 1 }}>
+          <Typography variant="body2" color="black" fontFamily={"var(--custom-font-family)"} align="center" sx={{ my: 1 }}>
             Already have an account?{" "}
             <RouterLink
               to="/login"

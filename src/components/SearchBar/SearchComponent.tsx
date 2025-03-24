@@ -36,13 +36,13 @@ const SearchComponent: React.FC = () => {
   return (
     <SearchBar>
       <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-        <Search size={20} color="#64748b" fontFamily='Times New Roman' />
+        <Search size={20} color="#64748b" fontFamily='var(--custom-font-family)' />
         <input
           type="text"
           placeholder="Search conversations..."
           value={query}
           onChange={handleChange}
-          style={{ flex: 1, marginLeft: '8px', fontFamily: 'Times New Roman' }}
+          style={{ flex: 1, marginLeft: '8px', fontFamily: 'var(--custom-font-family)' }}
         />
       </div>
     </SearchBar>

@@ -54,12 +54,12 @@ const UserProfileMenu: React.FC = () => {
   return (
     <UserProfileContainer>
       <ProfileNameContainer>
-        <Typography variant="subtitle2" fontFamily={"Times New Roman"} sx={{ fontWeight: 500, fontSize: 14 }}>
+        <Typography variant="subtitle2" fontFamily={"var(--custom-font-family)"} sx={{ fontWeight: 500, fontSize: 14 }}>
           {user?.fullName || "Unknown User"}
         </Typography>
         <Typography
           variant="body2"
-          fontFamily={"Times New Roman"}
+          fontFamily={"var(--custom-font-family)"}
           sx={{ fontWeight: 500, fontSize: 12 }}
           color="textSecondary"
         >
@@ -94,7 +94,7 @@ const UserProfileMenu: React.FC = () => {
         <StyledMenuItem
           onClick={() => handleMenuItemClick(() => setIsProfileOpen(true))}
         >
-          <Typography variant="body2" fontFamily={"Times New Roman"} color="textSecondary">
+          <Typography variant="body2" fontFamily={"var(--custom-font-family)"} color="textSecondary">
             Profile
           </Typography>
         </StyledMenuItem>
@@ -105,14 +105,14 @@ const UserProfileMenu: React.FC = () => {
             state={{ email: user?.email }}
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <Typography variant="body2" fontFamily={"Times New Roman"} color="textSecondary">
+            <Typography variant="body2" fontFamily={"var(--custom-font-family)"} color="textSecondary">
               Change Password
             </Typography>
           </Link>
         </StyledMenuItem>
 
         <StyledMenuItem onClick={handleLogout}>
-          <Typography variant="body2" fontFamily={"Times New Roman"} color="textSecondary">
+          <Typography variant="body2" fontFamily={"var(--custom-font-family)"} color="textSecondary">
             Logout
           </Typography>
         </StyledMenuItem>

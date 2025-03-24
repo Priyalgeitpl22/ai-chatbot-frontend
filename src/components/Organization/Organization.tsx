@@ -191,7 +191,7 @@ const OrganizationForm: React.FC = () => {
   return (
     <FormContainer>
       {loading && <Loader />}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'Times New Roman', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'var(--custom-font-family)', mb: 2 }}>
         <FormTitle>Organization Form</FormTitle>
         <Button type="submit" form="org-form">Update</Button>
       </Box>
@@ -211,9 +211,9 @@ const OrganizationForm: React.FC = () => {
                   helperText={errors.description || ""}
                   multiline
                   rows={4}
-                  InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
+                  InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
                   InputProps={{
-                    endAdornment: (
+                    endAdornment: values.description.length < 500 ? (
                       <Typography
                         variant="caption"
                         sx={{
@@ -226,12 +226,13 @@ const OrganizationForm: React.FC = () => {
                       >
                         {values.description.length} / 500
                       </Typography>
-                    ),
+                    ) : null,
                   }}
+                  
                 />
               ) : field.key === "industry" ? (
                 <FormControl fullWidth sx={{ backgroundColor: 'white' }}>
-                  <InputLabel sx={{fontFamily: 'Times New Roman'}}>Industry</InputLabel>
+                  <InputLabel sx={{fontFamily: 'var(--custom-font-family)'}}>Industry</InputLabel>
                   <Select
                     name="industry"
                     value={values.industry}
@@ -242,7 +243,7 @@ const OrganizationForm: React.FC = () => {
                     }}
                   >
                     {industriesData.industries.map((industry: string, idx: number) => (
-                      <MenuItem sx={{ fontFamily: 'Times New Roman' }} key={idx} value={industry}>{industry}</MenuItem>
+                      <MenuItem sx={{ fontFamily: 'var(--custom-font-family)' }} key={idx} value={industry}>{industry}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -262,7 +263,7 @@ const OrganizationForm: React.FC = () => {
                   onChange={handleChange}
                   error={!!errors[field.key as keyof OrganizationData]}
                   helperText={errors[field.key as keyof OrganizationData] || ""}
-                  InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
+                  InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
                   {...(field.multiline ? { multiline: true, rows: field.rows } : {})}
                 />
               )}

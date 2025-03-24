@@ -195,15 +195,16 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                   rows={field.rows || 1}
                   required={field.required}
                   InputProps={{
-                    endAdornment: field.key === "companyInfo" && (
-                      <Typography
-                        variant="caption"
-                        sx={{ position: "absolute", bottom: 0, right: 10, color: "rgba(0, 0, 0, 0.6)", fontSize: "0.75rem" }}
-                      >
-                        {aiSettings.companyInfo.length} / {COMPANY_INFO_MAX_LENGTH}
-                      </Typography>
-                    ),
-                  }}
+                    endAdornment: 
+                      field.key === "companyInfo" && aiSettings.companyInfo.length < COMPANY_INFO_MAX_LENGTH ? (
+                        <Typography
+                          variant="caption"
+                          sx={{ position: "absolute", bottom: 0, right: 10, color: "rgba(0, 0, 0, 0.6)", fontSize: "0.75rem" }}
+                        >
+                          {aiSettings.companyInfo.length} / {COMPANY_INFO_MAX_LENGTH}
+                        </Typography>
+                      ) : null,
+                  }}                  
                   error={field.key === "companyInfo" && Boolean(companyInfoError)}
                 />
 

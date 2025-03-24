@@ -41,12 +41,12 @@ export const FormSection = styled(Box)`
 
 export const StyledTextField = styled(TextField)`
   margin-bottom: 10px;
-  font-family:Times New Roman;
+  font-family:var(--custom-font-family);
   
   .MuiOutlinedInput-root {
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 
 
@@ -55,7 +55,7 @@ export const StyledTextField = styled(TextField)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 `;
 
@@ -67,7 +67,7 @@ export const StyledButton = styled(Button)`
   transition: all 0.3s ease-in-out;
   background:  var(--theme-color);
   color: black;
-  font-family:Times New Roman;
+  font-family:var(--custom-font-family);
 
 
   &:hover {
@@ -76,7 +76,7 @@ export const StyledButton = styled(Button)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 `;
 
@@ -94,7 +94,7 @@ export const ForgotPasswordLink = styled.span`
   margin-bottom: 24px;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
-  font-family:Times New Roman;
+  font-family:var(--custom-font-family);
   
   &:hover {
     color: #004a99;

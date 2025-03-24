@@ -375,7 +375,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             <Step key={idx}>
               <StepLabel sx={{
                 "& .MuiStepLabel-label": {
-                  fontFamily:'Times New Roman'
+                  fontFamily:'var(--custom-font-family)'
                 }
               }}>{label}</StepLabel>
             </Step>
@@ -417,7 +417,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 helperText={errors.fullName}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    fontFamily:'Times New Roman',
+                    fontFamily:'var(--custom-font-family)',
                     "&:hover fieldset": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
@@ -434,7 +434,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 helperText={errors.email}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    fontFamily:'Times New Roman',
+                    fontFamily:'var(--custom-font-family)',
                     "&:hover fieldset": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
@@ -451,7 +451,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 helperText={errors.phone}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    fontFamily:'Times New Roman',
+                    fontFamily:'var(--custom-font-family)',
                     "&:hover fieldset": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
@@ -465,7 +465,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                   value={formData.role}
                   onChange={handleSelectChange}
                   sx={{
-                    fontFamily:'Times New Roman',
+                    fontFamily:'var(--custom-font-family)',
                     "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                   }}
@@ -492,7 +492,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 value={formData.schedule.timeZone}
                 onChange={handleSelectChange}
                 sx={{
-                  fontFamily:'Times New Roman',
+                  fontFamily:'var(--custom-font-family)',
                   "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                 }}
@@ -504,7 +504,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             <AvailabilityContainer>
               <Typography
                 variant="h6"
-                fontFamily={'Times New Roman'}
+                fontFamily={'var(--custom-font-family)'}
                 sx={{ color: "#1e293b", display: "flex", alignItems: "center", gap: 1 }}
               >
                 <Schedule /> Availability
@@ -523,7 +523,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                     onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
                     variant="outlined"
                     sx={{
-                      fontFamily:'Times New Roman',
+                      fontFamily:'var(--custom-font-family)',
                       "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                     }}
@@ -546,7 +546,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                       ampm
                       sx={{
                         "& .MuiOutlinedInput-root": {
-                          fontFamily:'Times New Roman',
+                          fontFamily:'var(--custom-font-family)',
                           "&:hover fieldset": { borderColor: "var(--theme-color)" },
                           "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                         },
@@ -559,7 +559,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                       ampm
                       sx={{
                         "& .MuiOutlinedInput-root": {
-                          fontFamily:'Times New Roman',
+                          fontFamily:'var(--custom-font-family)',
                           "&:hover fieldset": { borderColor: "var(--theme-color)" },
                           "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                         },

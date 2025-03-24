@@ -76,10 +76,10 @@ const ForgotPassword = () => {
           />
         </IllustrationSection>
         <FormSection>
-          <Typography variant="h4" fontFamily={"Times New Roman"} fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"var(--custom-font-family)"} fontWeight="bold" mb={1}>
             Forgot Password?
           </Typography>
-          <Typography variant="body1" fontFamily={"Times New Roman"} color="black" mb={3}>
+          <Typography variant="body1" fontFamily={"var(--custom-font-family)"} color="black" mb={3}>
             Enter your email to receive a password reset link.
           </Typography>
 
@@ -95,7 +95,7 @@ const ForgotPassword = () => {
               }}
               error={!!error}
               helperText={error}
-              InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
+              InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
               fullWidth
             />
 
@@ -104,7 +104,7 @@ const ForgotPassword = () => {
             </StyledButton>
           </form>
 
-          <Typography variant="body2" fontFamily={"Times New Roman"} align="center" sx={{ my: 2 }}>
+          <Typography variant="body2" fontFamily={"var(--custom-font-family)"} align="center" sx={{ my: 2 }}>
             Remember your password?{" "}
             <RouterLink
               to="/login"

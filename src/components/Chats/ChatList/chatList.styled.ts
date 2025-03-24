@@ -55,7 +55,7 @@ export const TimeStamp = styled(Typography)({
   fontSize: '0.75rem',
   color: 'rgba(0, 0, 0, 0.6)',
   alignItems: 'center',
-  fontFamily: 'Times New Roman',
+  fontFamily: 'var(--custom-font-family)',
 });
 
 export const MessagePreview = styled(Typography)<TypographyProps>({
@@ -67,7 +67,7 @@ export const MessagePreview = styled(Typography)<TypographyProps>({
   overflow: 'hidden',
   maxWidth: '22ch',
   textOverflow: 'clip',
-  fontFamily:'Times New Roman',
+  fontFamily:'var(--custom-font-family)',
 });
 
 MessagePreview.defaultProps = {

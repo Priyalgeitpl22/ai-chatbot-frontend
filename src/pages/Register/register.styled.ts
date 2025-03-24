@@ -55,7 +55,7 @@ export const PreviewImage = styled('img')`
 
 export const StyledTextField = styled(TextField)`
   margin-bottom: 10px;
-  font-family:Times New Roman;
+  font-family:var(--custom-font-family);
   .MuiOutlinedInput-root {
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
@@ -67,7 +67,7 @@ export const StyledTextField = styled(TextField)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 `;
 
@@ -80,7 +80,7 @@ export const StyledButton = styled(Button)`
   background: var(--theme-color);
   color: black;
   margin-top: 20px;
-  font-family:Times New Roman;
+  font-family:var(--custom-font-family);
 
   &:hover {
     background: var(--theme-color);
@@ -88,7 +88,7 @@ export const StyledButton = styled(Button)`
   }
   .MuiOutlinedInput-input {
     padding: 12px 10px !important; 
-    font-family:Times New Roman;
+    font-family:var(--custom-font-family);
   }
 `;
 

@@ -94,10 +94,10 @@ const ResetPassword = () => {
         </IllustrationSection>
 
         <FormSection>
-          <Typography variant="h4" fontFamily={"Times New Roman"} fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"var(--custom-font-family)"} fontWeight="bold" mb={1}>
             Reset Password
           </Typography>
-          <Typography variant="body1" fontFamily={"Times New Roman"} color="black" mb={3}>
+          <Typography variant="body1" fontFamily={"var(--custom-font-family)"} color="black" mb={3}>
             Your identity has been verified. Set your new password.
           </Typography>
 

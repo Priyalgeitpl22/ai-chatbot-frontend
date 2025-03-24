@@ -130,10 +130,10 @@ function Login() {
         </IllustrationSection>
         
         <FormSection>
-          <Typography variant="h4" fontWeight="bold" fontFamily={"Times New Roman"} mb={1}>
+          <Typography variant="h4" fontWeight="bold" fontFamily={"var(--custom-font-family)"} mb={1}>
             Welcome!
           </Typography>
-          <Typography variant="body1" color="black" fontFamily={"Times New Roman"} mb={4}>
+          <Typography variant="body1" color="black" fontFamily={"var(--custom-font-family)"} mb={4}>
             Sign in to your Account
           </Typography>
 
@@ -147,7 +147,7 @@ function Login() {
             error={!!errors.email}
             helperText={errors.email}
             autoComplete='nope'
-            InputLabelProps={{style: {fontFamily: 'Times New Roman'}}}
+            InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
           />
           
           <PasswordInput 
@@ -174,7 +174,7 @@ function Login() {
           >
             SIGN IN
           </StyledButton>
-          <Typography variant="body2" color="black" align="center" fontFamily={"Times New Roman"} sx={{ my: 2 }}>
+          <Typography variant="body2" color="black" align="center" fontFamily={"var(--custom-font-family)"} sx={{ my: 2 }}>
             Don't have an account?{' '}
             <RouterLink to="/register" style={{ textDecoration: 'none', color: 'var(--theme-color-dark)' }}>
               Register
