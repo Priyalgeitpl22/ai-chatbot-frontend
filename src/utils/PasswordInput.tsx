@@ -18,7 +18,10 @@ interface PasswordInputProps {
 }
 
 const StyledTextField = styled(TextField)`
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  .MuiFormHelperText-root{
+  margin: 0px;
+  }
 
   .MuiOutlinedInput-root {
     border-radius: 10px;

@@ -30,6 +30,8 @@ import Loader from "../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from "../../validations/FieldValidation";
 import PasswordInput from "../../utils/PasswordInput";
+import PhoneNumberInput from "../../utils/CountryPhone";
+import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js";
 
 interface RegisterFormData {
   profilePicture: File | null;
@@ -52,15 +54,13 @@ interface Field {
   rows?: number;
 }
 
-// Field definitions with grid props
 const fields: Field[] = [
-  { label: "Full Name", key: "fullName", xs: 12, sm: 6, type: "text" },
-  { label: "Email Address", key: "email", xs: 12, sm: 6, type: "email" },
-  { label: "Organization Name", key: "orgName", xs: 12, sm: 6, type: "text" },
-  { label: "Password", key: "password", xs: 12, sm: 6, type: "password" },
-  { label: "Country", key: "country", xs: 12, sm: 6, type: "text" },
-  { label: "Phone Number", key: "phone", xs: 12, sm: 6, type: "tel" },
-  { label: "Industry", key: "industry", xs: 12, sm: 12, type: "text" },
+  { label: "Full Name *", key: "fullName", xs: 12, sm: 6, type: "text" },
+  { label: "Email Address *", key: "email", xs: 12, sm: 6, type: "email" },
+  { label: "Organization Name *", key: "orgName", xs: 12, sm: 6, type: "text" },
+  { label: "Password ", key: "password", xs: 12, sm: 6, type: "password" },
+  { label: "Industry *", key: "industry", xs: 12, sm: 6, type: "text" },
+  { label: "Phone Number *", key: "phone", xs: 12, sm: 6, type: "text" },
 ];
 
 const getValidationError = (
@@ -68,16 +68,22 @@ const getValidationError = (
   value: string
 ): string => {
   const rules = fieldValidation[field];
+  let errors: string[] = [];
+
   if (!value.trim()) {
-    return rules?.required?.message || `${field} is required`;
+    errors.push(rules?.required?.message || `${field} is required`);
   }
   if (rules?.minLength && value.length < rules.minLength.value) {
-    return rules.minLength.message;
+    errors.push(rules.minLength.message);
   }
   if (rules?.pattern && !new RegExp(rules.pattern.value).test(value)) {
-    return rules.pattern.message;
+    errors.push(rules.pattern.message);
   }
-  return "";
+  // if (field === "phone" && isValid) {
+  //   errors.push("Phone number must be at least 10 digits.");
+  // }
+
+  return errors.join(". "); 
 };
 
 const Register = () => {
@@ -101,13 +107,11 @@ const Register = () => {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const newValue =
-      name === "phone"
-        ? value[0] === "+" 
-          ? "+" + value.slice(1).replace(/[^\d]/g, "").slice(0, 10)
-          : value.replace(/[^\d]/g, "").slice(0, 10)
-        : value;
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "phone" ? { phone: value } : {}),
+    }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   }, []);
 
@@ -141,21 +145,42 @@ const Register = () => {
         isValid = false;
       }
     });
+
+    const phoneNumber = parsePhoneNumberFromString(formData.phone, formData.country as CountryCode);
+    console.log('phoneNumber', phoneNumber);
+    if (!phoneNumber || !phoneNumber.isValid()) {
+      newErrors.phone = "Invalid phone number format.";
+      isValid = false;
+    }
     setErrors(newErrors);
     return isValid;
   };
 
+
+  const handlePhoneChange = (phone: string, countryCode: string) => {
+    setFormData((prev) => ({ 
+      ...prev, 
+      phone, 
+      country: countryCode 
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      phone: "",
+    }));
+    console.log("phone", phone, "countryCode", countryCode);
+  };
+  
   const handleSubmit = async () => {
     if (!validateFormData()) return;
     setIsLoading(true);
     const payload = new FormData();
-    // Append all fields from formData except profilePicture first
     (["fullName", "email", "orgName", "industry", "country", "phone", "password"] as const).forEach(
       (field) => payload.append(field, formData[field])
     );
     if (formData.profilePicture) {
       payload.append("profilePicture", formData.profilePicture);
     }
+    console.log('formData', formData);
     try {
       const res = await dispatch(registerUser(payload)).unwrap();
       const message = typeof res === "string" ? res : res.message || "Registration successful!";
@@ -177,7 +202,7 @@ const Register = () => {
       return typeof value === "string" && value.trim() !== "";
     }
   ) && Object.values(errors).every((error) => !error);
-  
+
   return (
     <PageContainer>
       <RegisterCard>
@@ -267,9 +292,20 @@ const Register = () => {
                       value={formData.password}
                       onChange={handleChange}
                       error={!!errors.password}
-                      helperText={errors.password || ""}
+                      helperText={errors.password || ""} // Shows all errors at once
                       autoComplete="new-password"
                     />
+                  </Grid>
+                );
+              }
+              if (field.key === "phone") {
+                return (
+                  <Grid size={field.sm} key={field.key}>
+                    <PhoneNumberInput
+                      value={formData.phone}
+                      onChange={handlePhoneChange}
+                    />
+                    {errors.phone && <FormHelperText error>{errors.phone}</FormHelperText>}
                   </Grid>
                 );
               }
@@ -288,7 +324,7 @@ const Register = () => {
                     multiline={field.multiline}
                     rows={field.rows}
                     fullWidth
-                    InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
+                    InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
                   />
                 </Grid>
               );

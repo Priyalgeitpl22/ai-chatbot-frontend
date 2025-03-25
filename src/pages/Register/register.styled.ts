@@ -13,7 +13,7 @@ export const RegisterCard = styled(Box)`
   border-radius: 20px;
   border: 1px solid #333; 
   width: 100%;
-  max-width: 900px;
+  max-width: 1100px;
   display: flex;
   overflow: auto;
 `;
@@ -60,7 +60,7 @@ export const StyledTextField = styled(TextField)`
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
   }
-
+    
 
   .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
     border: 1px solid #ddd;
@@ -69,6 +69,7 @@ export const StyledTextField = styled(TextField)`
     padding: 12px 10px !important; 
     font-family:var(--custom-font-family);
   }
+  
 `;
 
 export const StyledButton = styled(Button)`

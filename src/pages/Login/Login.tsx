@@ -139,7 +139,7 @@ function Login() {
 
           <StyledTextField 
             fullWidth 
-            label="Email Address" 
+            label="Email Address *" 
             variant="outlined" 
             type="email" 
             value={email}

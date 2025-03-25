@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
-import { AddAPhoto, Delete, Schedule } from "@mui/icons-material";
+import { Delete, Schedule } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { createAgent, updateAgent } from "../../../../redux/slice/agentsSlice";
@@ -118,7 +118,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ fullName?: string; email?: string; phone?: string }>({});
-
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -375,7 +375,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             <Step key={idx}>
               <StepLabel sx={{
                 "& .MuiStepLabel-label": {
-                  fontFamily:'var(--custom-font-family)'
+                  fontFamily: 'var(--custom-font-family)'
                 }
               }}>{label}</StepLabel>
             </Step>
@@ -391,19 +391,19 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
             transition={{ duration: 0.3 }}
           >
             <AvatarWrapper>
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
               <Avatar
                 src={previewUrl || (typeof agent?.profilePicture === "string" ? agent.profilePicture : "")}
                 alt={formData.fullName}
+                onClick={() => fileInputRef.current?.click()}
+                style={{ cursor: "pointer", backgroundColor: "var(--theme-color)" }}
               />
-              <IconButton component="label">
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-                <AddAPhoto fontSize="small" />
-              </IconButton>
             </AvatarWrapper>
             <FormGroup>
               <TextField
@@ -417,7 +417,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 helperText={errors.fullName}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    fontFamily:'var(--custom-font-family)',
+                    fontFamily: 'var(--custom-font-family)',
                     "&:hover fieldset": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
@@ -434,7 +434,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 helperText={errors.email}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    fontFamily:'var(--custom-font-family)',
+                    fontFamily: 'var(--custom-font-family)',
                     "&:hover fieldset": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
@@ -451,7 +451,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 helperText={errors.phone}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    fontFamily:'var(--custom-font-family)',
+                    fontFamily: 'var(--custom-font-family)',
                     "&:hover fieldset": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                   },
@@ -465,7 +465,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                   value={formData.role}
                   onChange={handleSelectChange}
                   sx={{
-                    fontFamily:'var(--custom-font-family)',
+                    fontFamily: 'var(--custom-font-family)',
                     "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                   }}
@@ -492,7 +492,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 value={formData.schedule.timeZone}
                 onChange={handleSelectChange}
                 sx={{
-                  fontFamily:'var(--custom-font-family)',
+                  fontFamily: 'var(--custom-font-family)',
                   "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                 }}
@@ -523,7 +523,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                     onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
                     variant="outlined"
                     sx={{
-                      fontFamily:'var(--custom-font-family)',
+                      fontFamily: 'var(--custom-font-family)',
                       "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "var(--theme-color)" },
                     }}
@@ -546,7 +546,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                       ampm
                       sx={{
                         "& .MuiOutlinedInput-root": {
-                          fontFamily:'var(--custom-font-family)',
+                          fontFamily: 'var(--custom-font-family)',
                           "&:hover fieldset": { borderColor: "var(--theme-color)" },
                           "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                         },
@@ -559,7 +559,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                       ampm
                       sx={{
                         "& .MuiOutlinedInput-root": {
-                          fontFamily:'var(--custom-font-family)',
+                          fontFamily: 'var(--custom-font-family)',
                           "&:hover fieldset": { borderColor: "var(--theme-color)" },
                           "&.Mui-focused fieldset": { borderColor: "var(--theme-color)" },
                         },

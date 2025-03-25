@@ -33,9 +33,12 @@ export interface FieldValidationRule {
     },
     password: {
       required: { message: "Password is required" },
-      minLength: { value: 6, message: "Password must be at least 6 characters" },
-      pattern: { value: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\da-zA-Z]).+$", message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character" }
-    }
+      minLength: { value: 6, message: "At least 6 characters" },
+      pattern: { 
+        value: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\da-zA-Z]).+$", 
+        message: "Include uppercase, lowercase, number & special char" 
+      }
+    }    
   };
   
   export default fieldValidation;

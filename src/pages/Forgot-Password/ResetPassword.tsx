@@ -47,17 +47,21 @@ const ResetPassword = () => {
 
   const validatePassword = (password: string) => {
     const rules = fieldValidation.password;
+    let errors: string[] = [];
+  
     if (rules.required && !password) {
-      return rules.required.message;
+      errors.push(rules.required.message);
     }
     if (rules.minLength && password.length < rules.minLength.value) {
-      return rules.minLength.message;
+      errors.push(rules.minLength.message);
     }
     if (rules.pattern && !new RegExp(rules.pattern.value).test(password)) {
-      return rules.pattern.message;
+      errors.push(rules.pattern.message);
     }
-    return null;
+  
+    return errors.length > 0 ? errors.join("\n") : null;
   };
+  
 
   const handleSubmitPassword = async () => {
     const validationError = validatePassword(password);
@@ -66,22 +70,23 @@ const ResetPassword = () => {
       return;
     }
     setError(null);
-
+  
     if (!password || !token || !email) {
       return;
     }
-
+  
     try {
-    await dispatch(resetPassword({ token, password, email })).unwrap().then((result) => {
-        toast.success(result.message);
-        navigate("/login");  
-    });
-      
-    } catch (err: any) {      
+      await dispatch(resetPassword({ token, password, email }))
+        .unwrap()
+        .then((result) => {
+          toast.success(result.message);
+          navigate("/login");
+        });
+    } catch (err: any) {
       toast.error(err.message);
     }
   };
-
+  
   return (
     <PageContainer>
       {loading && <Loader />}
@@ -104,7 +109,9 @@ const ResetPassword = () => {
           <PasswordInput
             label="New Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {setPassword(e.target.value);
+              setError(null);}
+            }
             error={!!error}
             helperText={error || ""}
           />

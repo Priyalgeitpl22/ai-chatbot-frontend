@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Typography } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   PageContainer,
   ChangePasswordCard,
@@ -13,7 +13,7 @@ import { AppDispatch } from "../../redux/store/store";
 import { changePassword } from "../../redux/slice/authSlice";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader";
-import PasswordInput from "../../utils/PasswordInput"; // adjust the path as needed
+import PasswordInput from "../../utils/PasswordInput";
 import fieldValidation from "../../validations/FieldValidation";
 
 const ChangePassword: React.FC = () => {
@@ -25,52 +25,44 @@ const ChangePassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  // error state for inline field validation
   const [errors, setErrors] = useState({
     existingPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
   const [loading, setLoading] = useState<boolean>(false);
+
+  const validatePassword = (password: string) => {
+    const rules = fieldValidation.password;
+    let errorMessages: string[] = [];
+
+    if (!password) {
+      errorMessages.push(rules.required?.message || "Password is required");
+    }
+    if (password.length < (rules.minLength?.value || 6)) {
+      errorMessages.push(rules.minLength?.message || "Password must be at least 6 characters");
+    }
+    if (rules.pattern && !new RegExp(rules.pattern.value).test(password)) {
+      errorMessages.push(rules.pattern?.message || "Password does not meet criteria");
+    }
+
+    return errorMessages.length ? errorMessages.join("\n") : "";
+  };
 
   const handleChangePassword = async () => {
     const newErrors = {
-      existingPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      existingPassword: existingPassword ? "" : "Existing password is required",
+      newPassword: validatePassword(newPassword),
+      confirmPassword: confirmPassword
+        ? newPassword === confirmPassword
+          ? ""
+          : "Passwords do not match"
+        : "Confirm password is required",
     };
-    let hasError = false;
-
-    if (!existingPassword) {
-      newErrors.existingPassword = "Existing password is required";
-      hasError = true;
-    }
-
-    if (!newPassword) {
-      newErrors.newPassword = fieldValidation.password.required?.message || "New password is required";
-      hasError = true;
-    } else if (newPassword.length < (fieldValidation.password.minLength?.value || 6)) {
-      newErrors.newPassword = fieldValidation.password.minLength?.message || "Password must be at least 6 characters";
-      hasError = true;
-    } else {
-      const passwordPattern = new RegExp(fieldValidation.password.pattern?.value || "");
-      if (!passwordPattern.test(newPassword)) {
-        newErrors.newPassword = fieldValidation.password.pattern?.message || "Password does not meet criteria";
-        hasError = true;
-      }
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Confirm password is required";
-      hasError = true;
-    } else if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "New password and confirm password do not match";
-      hasError = true;
-    }
 
     setErrors(newErrors);
-    if (hasError) return;
+
+    if (Object.values(newErrors).some((err) => err)) return;
 
     setLoading(true);
     try {
@@ -91,8 +83,11 @@ const ChangePassword: React.FC = () => {
     }
   };
 
-  const isDisabled = [existingPassword, newPassword, confirmPassword].some((field) => !field) ||
-  Object.values(errors).some((error) => !!error)
+  const isDisabled =
+    !existingPassword ||
+    !newPassword ||
+    !confirmPassword ||
+    Object.values(errors).some((err) => err);
 
   return (
     <PageContainer>
@@ -105,15 +100,14 @@ const ChangePassword: React.FC = () => {
           />
         </IllustrationSection>
         <FormSection>
-          <Typography variant="h4" fontFamily={"Time New Roman"} fontWeight="bold" mb={1}>
+          <Typography variant="h4" fontFamily={"Times New Roman"} fontWeight="bold" mb={1}>
             Change Password
           </Typography>
-          <Typography variant="body1" fontFamily={"Time New Roman"} mb={3}>
+          <Typography variant="body1" fontFamily={"Times New Roman"} mb={3}>
             Please enter your current password and choose a new password.
           </Typography>
           <PasswordInput
             label="Existing Password"
-            name="existingPassword"
             value={existingPassword}
             onChange={(e) => {
               setExistingPassword(e.target.value);
@@ -124,27 +118,28 @@ const ChangePassword: React.FC = () => {
           />
           <PasswordInput
             label="New Password"
-            name="newPassword"
             value={newPassword}
             onChange={(e) => {
               setNewPassword(e.target.value);
-              setErrors((prev) => ({ ...prev, newPassword: "" }));
+              setErrors((prev) => ({ ...prev, newPassword: validatePassword(e.target.value) }));
             }}
             error={!!errors.newPassword}
             helperText={errors.newPassword}
           />
           <PasswordInput
             label="Confirm Password"
-            name="confirmPassword"
             value={confirmPassword}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
-              setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+              setErrors((prev) => ({
+                ...prev,
+                confirmPassword:
+                  e.target.value === newPassword ? "" : "Passwords do not match",
+              }));
             }}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
           />
-
           <StyledButton variant="contained" onClick={handleChangePassword} disabled={isDisabled}>
             Change Password
           </StyledButton>
