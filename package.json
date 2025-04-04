@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "git pull origin main && npm run build && ls -lah /var/www/ai-chatbot-frontend/ && sudo rm -rf /var/www/ai-chatbot-frontend/* && sudo mv ~/apps/ai-chatbot-frontend/dist/* /var/www/ai-chatbot-frontend/ && sudo chown -R www-data:www-data /var/www/ai-chatbot-frontend/ && sudo chmod -R 755 /var/www/ai-chatbot-frontend/ && sudo systemctl restart nginx"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
