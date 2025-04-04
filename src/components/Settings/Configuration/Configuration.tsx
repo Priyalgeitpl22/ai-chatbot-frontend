@@ -59,6 +59,7 @@ export interface AIchatBotSettingsData {
   isAiEnabled: boolean;
 }
 export interface ChatBotSettings {
+  addInitialPopupText?: string;
   iconColor: string;
   chatWindowColor: string;
   fontColor: string;
@@ -80,6 +81,7 @@ export interface ChatBotSettings {
 
 const Configuration = () => {
   const [settings, setSettings] = useState<ChatBotSettings>({
+    addInitialPopupText: "",
     iconColor: "#c0dbf9",
     chatWindowColor: "#ffffff",
     fontColor: "#333333",
@@ -120,22 +122,25 @@ const Configuration = () => {
         .then((chatConfig) => {
           if (chatConfig && Object.keys(chatConfig).length > 0) {
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
-            setSettings({
-              iconColor: chatConfig?.iconColor,
-              chatWindowColor: chatConfig?.chatWindowColor,
-              fontColor: chatConfig?.fontColor,
-              position: chatConfig?.position,
-              allowEmojis: chatConfig?.allowEmojis,
-              allowFileUpload: chatConfig?.allowFileUpload,
-              allowNameEmail: chatConfig?.allowNameEmail,
-              allowCustomGreeting: chatConfig?.allowCustomGreeting,
-              customGreetingMessage: chatConfig?.customGreetingMessage,
-              availability: chatConfig?.availability,
-              allowFontFamily: chatConfig?.allowFontFamily,
-              customFontFamily: chatConfig?.customFontFamily,
-              addChatBotName: chatConfig?.addChatBotName,
-              ChatBotLogoImage: chatConfig?.ChatBotLogoImage,
-            })
+            setSettings((prev) => ({
+              ...prev, 
+              ...chatConfig, 
+              addInitialPopupText: chatConfig?.addInitialPopupText ?? prev.addInitialPopupText,
+              iconColor: chatConfig?.iconColor ?? prev.iconColor,
+              chatWindowColor: chatConfig?.chatWindowColor ?? prev.chatWindowColor,
+              fontColor: chatConfig?.fontColor ?? prev.fontColor,
+              position: chatConfig?.position ?? prev.position,
+              allowEmojis: chatConfig?.allowEmojis ?? prev.allowEmojis,
+              allowFileUpload: chatConfig?.allowFileUpload ?? prev.allowFileUpload,
+              allowNameEmail: chatConfig?.allowNameEmail ?? prev.allowNameEmail,
+              allowCustomGreeting: chatConfig?.allowCustomGreeting ?? prev.allowCustomGreeting,
+              customGreetingMessage: chatConfig?.customGreetingMessage ?? prev.customGreetingMessage,
+              availability: chatConfig?.availability ?? prev.availability,
+              allowFontFamily: chatConfig?.allowFontFamily ?? prev.allowFontFamily,
+              customFontFamily: chatConfig?.customFontFamily ?? prev.customFontFamily,
+              addChatBotName: chatConfig?.addChatBotName ?? prev.addChatBotName,
+              ChatBotLogoImage: chatConfig?.ChatBotLogoImage ?? prev.ChatBotLogoImage,
+            }));
           }
         })
         ;
@@ -260,6 +265,20 @@ const Configuration = () => {
           >
             <SectionTitle>Display</SectionTitle>
             <Section>
+            <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+                Add your Initial Popup Text
+              </Typography>
+              <TextField
+                fullWidth
+                label="Enter initial popup text"
+                variant="outlined"
+                size="small"
+                value={settings.addInitialPopupText || ""}
+                onChange={(e) => handleChange("addInitialPopupText", e.target.value)}
+                InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
+                InputProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
+                sx={{ width: '50%', mt: 2, mb: 2 }}
+              />
               <PreviewContainer style={{ display: 'flex', gap: '1em', alignItems: 'center' }}>
                 {logoPriviewURL ? (
                   <PreviewImage
@@ -456,14 +475,14 @@ const Configuration = () => {
               <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Chat Window Color
               </Typography>
-              <CustomMuiColorInput format="hex" value={settings.chatWindowColor} onChange={(newValue: string) => handleChange("chatWindowColor", newValue)} />
+              <CustomMuiColorInput format="hex" value={settings.chatWindowColor || '#FFFFFF'} onChange={(newValue: string) => handleChange("chatWindowColor", newValue)} />
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
               <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Font Color
               </Typography>
-              <CustomMuiColorInput format="hex" value={settings.fontColor} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
+              <CustomMuiColorInput format="hex" value={settings.fontColor || '#333333'} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
             </Section>
 
             <Section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '0.5rem' }}>
