@@ -25,7 +25,7 @@
     "js-cookie": "^3.0.5",
     "libphonenumber-js": "^1.12.6",
     "lucide-react": "^0.474.0",
-    "mui-color-input": "^5.0.1",
+    "mui-color-input": "^6.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.2",

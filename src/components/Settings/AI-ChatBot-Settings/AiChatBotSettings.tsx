@@ -161,7 +161,10 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
     setLoading(true);
     dispatch(createAiChatBotSettings({ orgId, data: { aiChatBotSettings: aiSettings } }))
       .unwrap()
-      .then(() => toast.success("AI Settings updated successfully!"))
+      .then(() => {
+        toast.success("AI Settings updated successfully!");
+        setIsExisting(true); 
+      })
       .catch((err) => toast.error(err.message || "Failed to update settings"))
       .finally(() => setLoading(false));
   };

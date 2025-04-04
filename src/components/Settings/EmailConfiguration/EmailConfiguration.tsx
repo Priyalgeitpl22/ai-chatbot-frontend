@@ -159,6 +159,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
           />
           <StyledTextField
             label="Port"
+            name="port"
             value={formData.port}
             onChange={handleChange}
             fullWidth
