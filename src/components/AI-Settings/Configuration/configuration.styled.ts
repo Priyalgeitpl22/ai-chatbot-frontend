@@ -16,6 +16,11 @@ export const Section = styled.section`
   border: 1px solid var(--border);
 `;
 
+export const ContentScroll = styled.div`
+  overflow-y: auto;
+  max-height: 460px;
+`;
+
 export const SectionTitle = styled.h2`
   font-size: 18px;
   font-weight: 600;

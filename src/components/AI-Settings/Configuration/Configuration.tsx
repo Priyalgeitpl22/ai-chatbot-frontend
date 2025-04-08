@@ -18,6 +18,7 @@ import {
   PreviewImage,
   UploadBtn,
   CustomFormControlLabel,
+  ContentScroll,
 } from "./configuration.styled";
 import {
   FormControl,
@@ -123,8 +124,8 @@ const Configuration = () => {
           if (chatConfig && Object.keys(chatConfig).length > 0) {
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
             setSettings((prev) => ({
-              ...prev, 
-              ...chatConfig, 
+              ...prev,
+              ...chatConfig,
               addInitialPopupText: chatConfig?.addInitialPopupText ?? prev.addInitialPopupText,
               iconColor: chatConfig?.iconColor ?? prev.iconColor,
               chatWindowColor: chatConfig?.chatWindowColor ?? prev.chatWindowColor,
@@ -263,9 +264,10 @@ const Configuration = () => {
             transition={{ delay: 0.2 }}
             style={{ fontFamily: 'var(--custom-font-family)', border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
           >
+            <ContentScroll>
             <SectionTitle>Display</SectionTitle>
             <Section>
-            <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
+              <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
                 Add your Initial Popup Text
               </Typography>
               <TextField
@@ -342,24 +344,22 @@ const Configuration = () => {
                   )
                 )}
               </ColorGrid>
-              {
-                colors.map((color) =>
-                  color === "custom" ? (
-                    <CustomColorPicker >
-                      <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164" }}>Custom Color Picker</Typography>
-                      <ColorPicker
-                        key="custom-color-picker"
-                        type="color"
-                        value={customColor}
-                        onChange={(e: any) => {
-                          setCustomColor(e.target.value);
-                          handleChange("iconColor", e.target.value);
-                        }}
-                      />
-                    </CustomColorPicker>
-                  ) : null
-                )
-              }
+              {colors.includes("custom") && (
+                <CustomColorPicker>
+                  <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164" }}>
+                    Custom Color Picker
+                  </Typography>
+                  <ColorPicker
+                    type="color"
+                    value={customColor}
+                    onChange={(e: any) => {
+                      setCustomColor(e.target.value);
+                      handleChange("iconColor", e.target.value);
+                    }}
+                  />
+                </CustomColorPicker>
+              )}
+
             </Section>
 
             <Section style={{ marginTop: '1.2rem' }}>
@@ -458,7 +458,7 @@ const Configuration = () => {
                     displayEmpty
                     size="small"
                     fullWidth
-                    sx={{ mt: 1,fontFamily: `${settings.customFontFamily}` || fontFamily }}
+                    sx={{ mt: 1, fontFamily: `${settings.customFontFamily}` || fontFamily }}
                   >
                     {fontFamilies.map((font) => (
                       <MenuItem key={font} value={font} style={{ fontFamily: font }}>
@@ -484,7 +484,7 @@ const Configuration = () => {
               </Typography>
               <CustomMuiColorInput format="hex" value={settings.fontColor || '#333333'} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
             </Section>
-
+            </ContentScroll>
             <Section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '0.5rem' }}>
               <Button onClick={handleSave}>
                 Save

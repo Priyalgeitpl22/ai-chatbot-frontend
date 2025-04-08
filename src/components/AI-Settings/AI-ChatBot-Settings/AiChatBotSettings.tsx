@@ -216,6 +216,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
             <Grid size={12}>
               <Button
                 sx={{
+                  float: "right",
                   color: "#1e293b",
                   marginTop: "5px",
                   backgroundColor: "var(--theme-color)",

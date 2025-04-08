@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { motion } from "framer-motion";
-import { Link, NavLink } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 export const SidebarContainer = styled(motion.aside)`
   padding: 20px;
@@ -53,49 +53,6 @@ export const NavItem = styled(Link)`
 
   &.active {
     background-color: var(--theme-color) ;
-    color: #1e293b;
-  }
-`;
-
-export const SettingsWrapper = styled.div`
-  position: absolute;
-  bottom: 20px;
-  width: auto;  
-`;
-export const SubmenuWrapper = styled(motion.div)`
-  position: absolute;
-  bottom: 75px; 
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  z-index: 10;
-  background-color: transparent;
-  border: 1px solid #ddd;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-`;
-
-export const SubNavItem = styled(NavLink)`
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  color: #1e293b;
-  text-decoration: none;
-  font-size: 14px;
-  border-radius: 5px;
-  transition: background 0.3s ease;
-
-  svg {
-    margin-right: 10px;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  &.active {
-    background: var(--theme-color);
     color: #1e293b;
   }
 `;

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
 import Cookies from "js-cookie";
-import { ChatBotSettings } from "../../components/Settings/Configuration/Configuration";
+import { ChatBotSettings } from "../../components/AI-Settings/Configuration/Configuration";
 
 interface Chat {
   id: string;

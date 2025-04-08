@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
 import { AxiosError } from "axios";
 import Cookies from "js-cookie";
-import { Agent } from "../../components/Settings/Agents/AgentDialogBox/AgentDialog";
+import { Agent } from "../../components/AI-Settings/Agents/AgentDialogBox/AgentDialog";
 export interface ScheduleSlot {
   day: string;
   hours: { startTime: string; endTime: string }[];

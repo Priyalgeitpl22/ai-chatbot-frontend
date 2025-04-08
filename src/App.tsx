@@ -10,8 +10,8 @@ import ChangePassword from "./components/Change-Password/ChangePassword";
 import Header from "./components/Header/Header";
 import Chats from "./components/Chats/Chats";
 import Organization from "./components/Organization/Organization";
-import Agents from "./components/Settings/Agents/Agents";
-import Configuration from "./components/Settings/Configuration/Configuration";
+import Agents from "./components/AI-Settings/Agents/Agents";
+import Configuration from "./components/AI-Settings/Configuration/Configuration";
 import ForgotPassword from "./pages/Forgot-Password/ForgotPassword";
 import PasswordResetConfirmation from "./pages/Forgot-Password/PasswordResetConfirmation";
 import ResetPassword from "./pages/Forgot-Password/ResetPassword";
@@ -24,6 +24,7 @@ import Home from "./pages/Home/Home";
 import { SocketProvider } from "./context/SocketContext";
 import { Toaster } from "react-hot-toast";
 import Tasks from "./components/Tasks/Tasks";
+import Settings from "./components/Settings/Settings";
 
 const publicRoutes = [
   "/login",
@@ -89,8 +90,9 @@ function AppRoutes() {
                       <Route path="/chats" element={<Chats />} />
                       <Route path="/organization" element={<Organization />} />
                       <Route path="/tasks" element={<Tasks />} />
-                      <Route path="/settings/configuration" element={<Configuration />} />
-                      <Route path="/settings/agents" element={<Agents />} />
+                      <Route path="/configuration" element={<Configuration />} />
+                      <Route path="/agents" element={<Agents />} />
+                      <Route path="/settings" element={<Settings />} />
                     </Routes>
                   </ContentArea>
                 </MainContainer>

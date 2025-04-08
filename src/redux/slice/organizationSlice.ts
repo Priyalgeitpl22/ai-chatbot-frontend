@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
 import { AxiosError } from "axios";
 import Cookies from "js-cookie";
-import {AiSettings} from "../../components/Settings/AI-ChatBot-Settings/AiChatBotSettings";
+import {AiSettings} from "../../components/AI-Settings/AI-ChatBot-Settings/AiChatBotSettings";
 
 
 interface EmailConfig {

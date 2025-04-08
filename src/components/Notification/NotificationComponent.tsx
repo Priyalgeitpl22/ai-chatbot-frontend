@@ -12,21 +12,28 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useSocket } from "../../context/SocketContext";
 import { NotificationContainer } from "./notification.styled";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store/store";
 
 const NotificationComponent: React.FC = () => {
   const [notifications, setNotifications] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const settings = useSelector((state: RootState) => state.settings.settings);
+  const selectedSound = settings?.notification?.selectedSound || "chime.mp3";
+  const isSoundOn = settings?.notification?.isSoundOn ?? true;
+  
   const open = Boolean(anchorEl);
   const { socket } = useSocket();
 
   useEffect(() => {
     if (!socket) return;
 
+    socket.off("notification");
     const playNotificationSound = () => {
-      const audio = new Audio("/sounds/notification.mp3");
-      audio
-        .play()
-        .catch((err) => console.error("🔊 Error playing sound:", err));
+      if (!isSoundOn) return;
+    
+      const audio = new Audio(`/sounds/${selectedSound}`);
+      audio.play().catch((err) => console.error("🔊 Error playing sound:", err));
     };
 
     const handleNotification = (data: { message: string }) => {
@@ -41,7 +48,9 @@ const NotificationComponent: React.FC = () => {
     return () => {
       socket.off("notification", handleNotification);
     };
-  }, [socket]);
+  }, [socket,selectedSound, isSoundOn]);
+
+  
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

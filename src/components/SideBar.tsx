@@ -4,7 +4,8 @@ import {
   Users,
   MessageSquare,
   Building,
-  LayoutList,
+  Settings,
+  Tickets,
 } from "lucide-react";
 import {
   SidebarContainer,
@@ -27,7 +28,7 @@ const Sidebar = () => {
       animate={sidebarAnimation.animate}
       transition={sidebarAnimation.transition}
     >
-      <nav>
+      <nav style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <NavItem to="/" className={location.pathname === "/" ? "active" : ""}>
           <HomeIcon size={20} />
           Home
@@ -48,17 +49,17 @@ const Sidebar = () => {
           Organization
         </NavItem>
         <NavItem
-          to="/settings/configuration"
+          to="/configuration"
           className={
-            location.pathname === "/settings/configuration" ? "active" : ""
+            location.pathname === "/configuration" ? "active" : ""
           }
         >
           <Sliders size={18} />
           Configuration
         </NavItem>
         <NavItem
-          to="/settings/agents"
-          className={location.pathname === "/settings/agents" ? "active" : ""}
+          to="/agents"
+          className={location.pathname === "/agents" ? "active" : ""}
         >
           <Users size={18} />
           Agents
@@ -67,52 +68,19 @@ const Sidebar = () => {
           to="/tasks"
           className={location.pathname === "/tasks" ? "active" : ""}
         >
-          <LayoutList size={18} />
+          <Tickets size={18} />
           Tickets
         </NavItem>
-        {/* <SettingsWrapper>
-          <div onClick={() => setIsSettingsOpen(!isSettingsOpen)}>
-            <NavItem
-              to="#"
-              className={
-                location.pathname.includes("/settings") ? "active" : ""
-              }
-            >
-              <Settings />
-              Settings
-              {isSettingsOpen ? (
-                <ChevronUp style={{ marginLeft: "auto" }} />
-              ) : (
-                <ChevronDown style={{ marginLeft: "auto" }} />
-              )}
-            </NavItem>
-          </div>
-
-          {isSettingsOpen && (
-            <SubmenuWrapper>
-              <SubNavItem
-                to="/settings/configuration"
-                className={
-                  location.pathname === "/settings/configuration"
-                    ? "active"
-                    : ""
-                }
-              >
-                <Sliders size={18} />
-                Configuration
-              </SubNavItem>
-              <SubNavItem
-                to="/settings/agents"
-                className={
-                  location.pathname === "/settings/agents" ? "active" : ""
-                }
-              >
-                <Users size={18} />
-                Agents
-              </SubNavItem>
-            </SubmenuWrapper>
-          )}
-        </SettingsWrapper> */}
+        <div style={{ flexGrow: 1 }}></div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <NavItem
+            to="/settings"
+            className={location.pathname === "/settings" ? "active" : ""}
+          >
+            <Settings size={18} />
+            Settings
+          </NavItem>
+        </div>
       </nav>
     </SidebarContainer>
   );

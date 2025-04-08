@@ -215,7 +215,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
               },
             }}
           />
-          <Box display="flex" justifyContent="space-between" mt={2}>
+          <Box display="flex" justifyContent="flex-end" alignItems={"center"} mt={2}>
             {isEditable && (
               isVerified ? (
                 <Button type="button" onClick={handleSave}>Save</Button>
