@@ -11,6 +11,15 @@ interface AuthState {
     aiOrgId: string;
     profilePicture: string;
     role: string;
+    userSettings: {
+      settings: {
+        notification: {
+          selectedSound: string;
+          isSoundOn: boolean;
+        };   
+        };
+      };
+    online: boolean; 
   } | null;
   token: string | null;
   loading: boolean;

@@ -11,6 +11,14 @@ interface AuthState {
     profilePicture: string;
     role: string;
     online: boolean;
+    userSettings: {
+      settings: {
+        notification: {
+          selectedSound: string;
+          isSoundOn: boolean;
+        };   
+        };
+      };
   } | null;
   token: string | null;
   loading: boolean;

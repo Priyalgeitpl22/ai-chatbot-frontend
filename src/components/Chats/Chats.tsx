@@ -11,25 +11,39 @@ import { ChatContainer } from "./ChatSideBar/chatSidebar.styled";
 import { ThreadType } from "../../enums";
 import { PlaceholderContainer } from "./ChatArea/chatArea.styled";
 import { Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 export default function Chats() {
   const dispatch = useDispatch<AppDispatch>();
   const { threads = [] } = useSelector((state: RootState) => state.thread);
   const { socket } = useSocket();
-
+  const location = useLocation();
+  const notificationThreadId = location.state?.threadId;
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [selectedThreadType, setSelectedThreadType] = useState<string>(ThreadType.UNASSIGNED);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
-    dispatch(getAllThreads()).finally(() => setIsLoading(false));
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (selectedThreadId && !threads.find((thread) => thread.id === selectedThreadId)) {
-      setSelectedThreadId(null);
-    }
-  }, [threads, selectedThreadId]);
+    setIsLoading(true);
+  
+    dispatch(getAllThreads()).then((res: any) => {
+      const loadedThreads = res.payload || [];
+  
+      if (notificationThreadId) {
+        const matchedThread = loadedThreads.find(
+          (t: any) => t.id === notificationThreadId
+        );
+  
+        if (matchedThread) {
+          setSelectedThreadId(matchedThread.id);
+        }
+      }
+  
+      setIsLoading(false);
+      window.history.replaceState({}, document.title);
+    });
+  }, [dispatch, notificationThreadId]);
+  
 
   useEffect(() => {
     if (threads.length > 0 && !selectedThreadId) {
