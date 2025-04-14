@@ -27,15 +27,20 @@ interface NotificationData {
   thread?: {
     id: string;
     name?: string;
-    avatarUrl?: string;
-    createdAt?: string;
+    createdAt: string;
   };
+}
+interface GroupedNotification {
+  messages: string[];
+  count: number;
+  latestMessage: string;
+  thread?: NotificationData["thread"];
   read?: boolean;
 }
 
 const NotificationComponent: React.FC = () => {
-  const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [groupedNotifications, setGroupedNotifications] = useState<Record<string, GroupedNotification>>({});
   const [menuAnchor, setMenuAnchor] = useState<{ [key: number]: HTMLElement | null }>({});
   const settings = useSelector((state: RootState) => state.settings.settings);
   const { user } = useSelector((state: RootState) => state.user);
@@ -63,8 +68,24 @@ const NotificationComponent: React.FC = () => {
     };
 
     const handleNotification = (data: NotificationData) => {
+      const threadId = data.thread?.id;
+      if (!threadId) return;
+
+      setGroupedNotifications((prev) => {
+        const existing = prev[threadId];
+        const newCount = existing ? existing.count + 1 : 1;
+        return {
+          ...prev,
+          [threadId]: {
+            messages: [...(existing?.messages || []), data.message],
+            count: newCount,
+            latestMessage: data.message,
+            thread: data.thread,
+            read: false,
+          },
+        };
+      });
       toast.success(`📩 Message from ${data.thread?.name || "Unknown Visitor"}: ${data.message}`);
-      setNotifications((prev) => [...prev, data]);
       playNotificationSound();
     };
 
@@ -92,24 +113,37 @@ const NotificationComponent: React.FC = () => {
     setMenuAnchor((prev) => ({ ...prev, [index]: null }));
   };
 
-  const handleMarkAsRead = (index: number) => {
-    setNotifications((prev) =>
-      prev.map((n, i) => (i === index ? { ...n, read: true } : n))
-    );
+  const handleMarkAsRead = (threadId: string) => {
+    setGroupedNotifications((prev) => ({
+      ...prev,
+      [threadId]: {
+        ...prev[threadId],
+        read: true,
+        count: 0,
+      },
+    }));
     toast("✅ Marked as read");
-    handleMenuClose(index)();
   };
 
-  const handleDelete = (index: number) => {
-    setNotifications((prev) => prev.filter((_, i) => i !== index));
+  const handleDelete = (threadId: string) => {
+    setGroupedNotifications((prev) => {
+      const { [threadId]: _, ...rest } = prev;
+      return rest;
+    });
     toast("🗑️ Deleted notification");
-    handleMenuClose(index)();
   };
 
   const handleNotificationClick = (threadId?: string) => {
-    // setNotifications((prev) =>
-    //   prev.filter((notification) => notification.thread?.id !== threadId)
-    // );
+
+    if (!threadId) return;
+    setGroupedNotifications((prev) => ({
+      ...prev,
+      [threadId]: {
+        ...prev[threadId],
+        read: true,
+        count: 0,
+      },
+    }));
     console.info("Thread ID:", threadId);
     navigate("/chats", { state: { threadId, timestamp: Date.now() } });
     handleClose();
@@ -127,17 +161,7 @@ const NotificationComponent: React.FC = () => {
         }}
         onClick={handleClick}
       >
-        <Badge
-          badgeContent={notifications.length}
-          color="error"
-          sx={{
-            "& .MuiBadge-badge": {
-              fontSize: "10px",
-              width: "14px",
-              height: "14px",
-            },
-          }}
-        >
+        <Badge badgeContent={Object.values(groupedNotifications).reduce((sum, n) => sum + n.count, 0)} color="error">
           <NotificationsIcon sx={{ fontSize: 25, color: "var(--theme-color-dark)" }} />
         </Badge>
         <Typography variant="subtitle2" sx={{ fontSize: 10, color: "#696969" }}>
@@ -156,22 +180,22 @@ const NotificationComponent: React.FC = () => {
               Notifications
             </NotificationTitle>
             <ClearAllBtn onClick={() => {
-              setNotifications([]);
+              setGroupedNotifications({});
               handleClose();
             }}>
               Clear all
             </ClearAllBtn>
           </NotificationHeader>
           <List sx={{ padding: "0 !important" }}>
-            {notifications.length > 0 ? (
-              notifications.map((notification, index) => (
+            {Object.entries(groupedNotifications).length > 0 ? (
+              Object.entries(groupedNotifications).map(([threadId, notification], index) => (
                 <ListItem onClick={() => handleNotificationClick(notification.thread?.id)}
                   sx={{
-                    backgroundColor: notification.read ? "#fff" : "#e8f4ff", 
+                    backgroundColor: notification.read ? "#fff" : "#e8f4ff",
                     transition: "background-color 0.3s",
                     cursor: "pointer",
                     "&:hover": {
-                      backgroundColor: notification.read ? "#fff" : "#e8f4ff", 
+                      backgroundColor: notification.read ? "#fff" : "#e8f4ff",
                     },
                     "&.MuiList-root": {
                       padding: "0px",
@@ -207,13 +231,15 @@ const NotificationComponent: React.FC = () => {
                       >
                         {!notification.read && <MenuItem onClick={(e) => {
                           e.stopPropagation();
-                          handleMarkAsRead(index);
+                          handleMarkAsRead(threadId);
+                          handleMenuClose(index)();
                         }}>
                           <CheckSharp fontSize="small" sx={{ mr: 1 }} /> Mark as read
                         </MenuItem>}
                         <MenuItem onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(index);
+                          handleDelete(threadId);
+                          handleMenuClose(index)();
                         }}>
                           <Delete fontSize="small" sx={{ mr: 1 }} /> Delete
                         </MenuItem>
@@ -227,12 +253,24 @@ const NotificationComponent: React.FC = () => {
                     primary={
                       <Box display="flex" flexDirection="column">
                         <Typography variant="body2" fontWeight="bold">
-                          {notification.thread?.name || "User"}
+                          {notification.thread?.name || "User"}{" "}
+                          {notification.count > 1 && (
+                            <Badge badgeContent={notification.count} color="primary" sx={{
+                              ml: 1, "& .MuiBadge-badge": {
+                                fontSize: "10px",
+                                height: "16px",
+                                minWidth: "16px",
+                                padding: "0 4px",
+                              },
+                            }} />
+                          )}
                         </Typography>
-                        <Typography variant="subtitle2" sx={{ color: "#64748b" }}>
-                          {notification.message}
+                        <Typography variant="subtitle2" sx={{ color: "#64748b",fontSize: "12px" }}>
+                          {notification.latestMessage.length > 20
+                            ? `${notification.latestMessage.slice(0, 20)}...`
+                            : notification.latestMessage}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" sx={{ color: "#64748b",fontSize: "10px" }}>
                           {dayjs(notification.thread?.createdAt || new Date()).format("hh:mm A")}
                         </Typography>
                       </Box>

@@ -15,11 +15,17 @@ export default function Tasks() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   useEffect(() => {
-    if(user){
-      dispatch(getAllTasks());
-      dispatch(fetchAgents(user?.orgId))
-    }
-  }, [dispatch,user?.orgId]);
+    if (!user) return;
+  
+    (async () => {
+      const { payload: tasks = [] } = await dispatch(getAllTasks());
+  
+      if (Array.isArray(tasks) && tasks.length > 0) {
+        dispatch(fetchAgents(user.orgId));
+      }
+    })();
+  }, [dispatch, user]);
+  
 
   const { tasks, loading, error } = useSelector((state: RootState) => state.task);
 

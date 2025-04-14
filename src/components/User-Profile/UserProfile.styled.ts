@@ -2,14 +2,14 @@ import { Box, MenuItem, styled } from "@mui/material";
 
 export const ProfileIcon = styled(Box)`
   cursor: pointer;
-  border-radius: 20%;
+  border-radius: 50%;
   overflow: auto;
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.9;
   }
 `;
 

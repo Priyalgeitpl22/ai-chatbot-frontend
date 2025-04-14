@@ -100,7 +100,6 @@ const Configuration = () => {
   });
   const [activeTab, setActiveTab] = useState("configure");
   const [embedCode, setEmbedCode] = useState("");
-  const [customColor, setCustomColor] = useState("#446f45");
   const colors = ["#45607c", "#c0dbf9", "#b15194", "#f8b771", "#546db9", "custom"];
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
@@ -351,9 +350,8 @@ const Configuration = () => {
                   </Typography>
                   <ColorPicker
                     type="color"
-                    value={customColor}
+                  value={settings.iconColor || "#c0dbf9"}
                     onChange={(e: any) => {
-                      setCustomColor(e.target.value);
                       handleChange("iconColor", e.target.value);
                     }}
                   />

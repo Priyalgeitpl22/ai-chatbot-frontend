@@ -67,12 +67,12 @@ const UserProfileMenu: React.FC = () => {
         </Typography>
       </ProfileNameContainer>
 
-      <ProfileIcon onClick={handleMenuOpen} style={{ cursor: "pointer" }}>
+      <ProfileIcon onClick={handleMenuOpen}>
         {user?.profilePicture ? (
           <img
             src={user.profilePicture}
             alt="Profile"
-            style={{ width: "35px", height: "35px", borderRadius: "20%" }}
+            style={{ width: "35px", height: "35px" }}
           />
         ) : (
           <AccountCircleIcon style={{ width: "35px", height: "35px" }} />

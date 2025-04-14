@@ -13,7 +13,6 @@ import { StatusIndicator } from "../Chats/ChatSideBar/chatSidebar.styled";
 import { Switch, Typography } from "@mui/material";
 import { useSocket } from "../../context/SocketContext";
 import Cookies from "js-cookie";
-import { getUserDetails } from "../../redux/slice/userSlice";
 import { useNavigate } from "react-router-dom";
 import NotificationComponent from "../Notification/NotificationComponent";
 import logo from "../../../public/logo3.png";
@@ -51,8 +50,8 @@ const Header = () => {
   useEffect(() => {
     console.log("onlineUsers", onlineUsers);
     const token = Cookies.get("access_token");
-    if (!user && token) {
-      dispatch(getUserDetails(token)).catch(() => navigate("/login"));
+    if (!token) {
+      navigate("/login");
     } else if (!token) {
       navigate("/login");
     }
