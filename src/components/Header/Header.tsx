@@ -48,11 +48,8 @@ const Header = () => {
   );
 
   useEffect(() => {
-    console.log("onlineUsers", onlineUsers);
     const token = Cookies.get("access_token");
     if (!token) {
-      navigate("/login");
-    } else if (!token) {
       navigate("/login");
     }
   }, [user, dispatch, navigate]);
@@ -79,6 +76,7 @@ const Header = () => {
     }) => {
       setOnlineUsers((prev) => ({ ...prev, [userId]: online }));
     };
+    console.log("onlineUsers", onlineUsers);
 
     socket.on("agentStatusUpdate", handleAgentStatusUpdate);
 

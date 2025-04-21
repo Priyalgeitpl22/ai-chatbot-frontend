@@ -44,18 +44,22 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
   }), [formData]);
 
   useEffect(() => {
-    if (data?.emailConfig) {
-      setFormData({
-        host: data.emailConfig.host,
-        port: data.emailConfig.port,
-        secure: data.emailConfig.secure,
-        user: data.emailConfig.user,
-        pass: data.emailConfig.pass,
-      });
+    if (data?.emailConfig && Object.values(data.emailConfig).some(v => v)) {
+      setFormData(data.emailConfig);
       setIsEditable(false);
       setIsVerified(false);
+    } else {
+      setIsEditable(true);
+      setFormData({
+        host: "",
+        port: "",
+        secure: "",
+        user: "",
+        pass: "",
+      });
     }
   }, [data?.emailConfig]);
+
 
   useEffect(() => {
     if (user) {
@@ -123,12 +127,16 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
 
   if (showLoader) return <Loader />;
 
+  console.log("Email Config:", data?.emailConfig);
+  console.log("isEditable:", isEditable);
+
+
   return (
     <>
       <FormContainer elevation={3}>
         <HeaderContainer>
           <FormTitle>Email Configuration</FormTitle>
-          {!isEditable && (
+          {!isEditable && data?.emailConfig && Object.values(data.emailConfig).some(v => v) && (
             <IconButton onClick={() => { setIsEditable(true); setIsVerified(false); }}>
               <EditIcon />
             </IconButton>
