@@ -266,8 +266,8 @@ const NotificationComponent: React.FC = () => {
                           )}
                         </Typography>
                         <Typography variant="subtitle2" sx={{ color: "#64748b",fontSize: "12px" }}>
-                          {notification.latestMessage.length > 20
-                            ? `${notification.latestMessage.slice(0, 20)}...`
+                          {notification.latestMessage.length > 50
+                            ? `${notification.latestMessage.slice(0, 50)}...`
                             : notification.latestMessage}
                         </Typography>
                         <Typography variant="caption" sx={{ color: "#64748b",fontSize: "10px" }}>

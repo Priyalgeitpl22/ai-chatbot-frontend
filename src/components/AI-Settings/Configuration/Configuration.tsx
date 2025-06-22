@@ -170,7 +170,7 @@ const Configuration = () => {
     } catch (error) {
       console.error("Error fetching script:", error);
       toast.error("Error fetching script");
-      setEmbedCode("// Error loading script");
+      setEmbedCode("Please configure the chatbot first.");
     }
   };
 

@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Box, Chip, IconButton, TableCell, TableContainer, TableHead, Typography } from "@mui/material";
 
 export const AgentsContainer = styled.div`
-  width: 92%;
+  width: 97%;
   height: 98%;
   display: flex;
   border-radius: 8px;
