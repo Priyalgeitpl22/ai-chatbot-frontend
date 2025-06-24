@@ -6,4 +6,5 @@ export const FormContainer = styled(Box)({
   marginInline: '10px',
   paddingInline:'10px',
   height: '500px',
+  overflow:"scroll"
 });

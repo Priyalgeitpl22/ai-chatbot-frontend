@@ -13,6 +13,7 @@ import { PlaceholderContainer } from "./ChatArea/chatArea.styled";
 import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
+
 export default function Chats() {
   const dispatch = useDispatch<AppDispatch>();
   const { threads = [] } = useSelector((state: RootState) => state.thread);
@@ -45,11 +46,11 @@ export default function Chats() {
   }, [dispatch, notificationThreadId]);
   
 
-  useEffect(() => {
-    if (threads.length > 0 && !selectedThreadId) {
-      setSelectedThreadId(threads[0].id);
-    }
-  }, [threads, selectedThreadId]);
+  // useEffect(() => {
+  //   if (threads.length > 0 && !selectedThreadId) {
+  //     setSelectedThreadId(threads[0].id);
+  //   }
+  // }, [threads, selectedThreadId]);
 
   useEffect(() => {
     if (!socket) return;
@@ -70,20 +71,25 @@ export default function Chats() {
         selectedType={selectedThreadType} 
         onSelectType={setSelectedThreadType} 
       />
-      <ChatList
+      
+      {selectedThreadType ? (
+        <>
+        <ChatList
         threads={threads.filter((thread) => thread.type === selectedThreadType)}
         onSelectThread={setSelectedThreadId}
         type={selectedThreadType}
         selectedThreadId={selectedThreadId}
       />
-      {selectedThreadId ? (
         <ChatArea
           selectedThreadId={selectedThreadId}
           onSelectThread={setSelectedThreadId}
           threads={threads.filter((thread) => thread.type === selectedThreadType)}
+          onClose={()=>setSelectedThreadId(null)}
         />
+        </>
       ) : (
         <PlaceholderContainer>
+          
           <img
             src="https://img.freepik.com/free-vector/cartoon-style-robot-vectorart_78370-4103.jpg"
             alt="No conversation selected"
@@ -92,6 +98,7 @@ export default function Chats() {
           <Typography fontFamily={"var(--custom-font-family)"} sx={{ color: "#000000" }}>
             Select a thread to view messages.
           </Typography>
+         
         </PlaceholderContainer>
       )}
     </ChatContainer>
