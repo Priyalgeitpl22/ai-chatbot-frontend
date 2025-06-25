@@ -63,12 +63,12 @@ export const getChatConfig = createAsyncThunk(
 
 export const getScript = createAsyncThunk(
   "getScript",
-  async (_, { rejectWithValue }) => {
+  async (orgId:string|undefined, { rejectWithValue }) => {
     try {
       const token = Cookies.get("access_token");
       if (!token) return rejectWithValue("No authentication token found");
 
-      const response = await api.get(`/chat/config/script`, {
+      const response = await api.get(`/chat/config/script/${orgId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data", 

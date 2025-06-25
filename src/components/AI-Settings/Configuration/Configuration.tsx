@@ -162,7 +162,8 @@ const Configuration = () => {
 
   const fetchScript = async () => {
     try {
-      const response = await dispatch(getScript()).unwrap();
+      const orgId= user?.orgId
+      const response = await dispatch(getScript(orgId)).unwrap();
       if (response) {
         toast.success("Script fetched successfully");
       }
