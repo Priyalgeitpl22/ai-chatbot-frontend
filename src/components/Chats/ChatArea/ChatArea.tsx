@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef,useLayoutEffect } from "react";
 import {
   Avatar,
   Box,
@@ -69,7 +69,13 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     }
   };
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     requestAnimationFrame(scrollToBottom);
+  //   },100);
+  // }, [chats]);
+
+  useLayoutEffect(() => {
     setTimeout(() => {
       requestAnimationFrame(scrollToBottom);
     }, 100);
@@ -196,7 +202,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
                 {userInfo?.name?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
               <Typography variant="subtitle1" fontFamily={"var(--custom-font-family)"}>
-                {(userInfo?.name.charAt(0).toUpperCase() + (userInfo?.name ?? '').slice(1)) || 'Unkown Visitor'}
+                {(userInfo?.name?.charAt(0).toUpperCase() + userInfo?.name?.slice(1)) || 'Unkown Visitor'}
               </Typography>
             </Box>
             {assignedDropdown &&

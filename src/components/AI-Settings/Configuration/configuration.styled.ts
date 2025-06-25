@@ -174,6 +174,7 @@ export const CustomTab = styled(Tab)`
 
 export const ContentContainer = styled(Box)`
   width: 100%;
+  padding:1rem;
   display: flex;
   border-radius: 8px;
   overflow: auto;

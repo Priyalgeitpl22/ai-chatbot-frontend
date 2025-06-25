@@ -171,7 +171,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
   return (
     <FormContainer>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{padding:"1rem"}} >
         <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1 }}>
           <FormControlLabel
             sx={{ color: "#35495c", marginBottom: "10px" }}
