@@ -57,7 +57,7 @@ export const assignTask = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await api.patch(`/task/tasks/${id}/assign`, { assignedTo },{
+      const response = await api.patch(`/task/tasks/${id}/assign`, { assignedTo ,assign:true},{
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.task;
@@ -65,6 +65,31 @@ export const assignTask = createAsyncThunk(
       console.error("Error assigning task:", error);
       return rejectWithValue(
         error.response?.data?.message || "Error assigning task"
+      );
+    }
+  }
+);
+
+// Thunk to unassign thask to the agent
+export const unassignTask = createAsyncThunk(
+  "task/unassignTask",
+  async (
+    { id}: { id: string},
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.patch(
+        `/task/tasks/${id}/assign`,
+        {assign:false} ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data.task;
+    } catch (error: any) {
+      console.error("Error unassigning task:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error unassigning task"
       );
     }
   }

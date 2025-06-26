@@ -13,3 +13,7 @@ export enum Priority {
 }
 
 
+export enum DropDownPurpose {
+  Task="task",
+  Thread="thread"
+}
