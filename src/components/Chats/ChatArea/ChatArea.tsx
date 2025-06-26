@@ -173,7 +173,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
 
   return (
     <ChatContainer>
-      {!selectedThreadId ? (
+      {!selectedThreadId || selectedThreadId==="" ? (
         <>
           <ChatListHeader>
             <Typography

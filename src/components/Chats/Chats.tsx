@@ -12,6 +12,9 @@ import { ThreadType } from "../../enums";
 import { PlaceholderContainer } from "./ChatArea/chatArea.styled";
 import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import AssignedDropDown from "../Tasks/AssignedDropDown/AssignedDropDown";
+import { fetchAgents } from "../../redux/slice/agentsSlice";
+import { DropDownPurpose } from "../../enums";
 
 
 export default function Chats() {
@@ -23,6 +26,9 @@ export default function Chats() {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [selectedThreadType, setSelectedThreadType] = useState<string>(ThreadType.UNASSIGNED);
   const [isLoading, setIsLoading] = useState(true);
+  const {user} = useSelector((state: RootState) => state.user);
+  const selectedThread = threads.find((thread)=> selectedThreadId === thread.id)
+  const [isUpdated,setIsUpdated] = useState<boolean>(false)
   
   useEffect(() => {
     setIsLoading(true);
@@ -43,7 +49,13 @@ export default function Chats() {
       setIsLoading(false);
       window.history.replaceState({}, document.title);
     });
-  }, [dispatch, notificationThreadId]);
+  }, [dispatch, notificationThreadId,isUpdated]);
+
+  useEffect(() => {
+  if (user?.orgId) {
+    dispatch(fetchAgents(user.orgId));
+  }
+}, [dispatch, user?.orgId]);
   
 
   // useEffect(() => {
@@ -75,7 +87,7 @@ export default function Chats() {
       {selectedThreadType ? (
         <>
         <ChatList
-        threads={threads.filter((thread) => thread.type === selectedThreadType)}
+        threads={threads.filter((thread) => thread.type === selectedThreadType )}
         onSelectThread={setSelectedThreadId}
         type={selectedThreadType}
         selectedThreadId={selectedThreadId}
@@ -85,6 +97,16 @@ export default function Chats() {
           onSelectThread={setSelectedThreadId}
           threads={threads.filter((thread) => thread.type === selectedThreadType)}
           onClose={()=>setSelectedThreadId(null)}
+          
+          assignedDropdown={
+  selectedThread ? (
+    <AssignedDropDown
+      taskId={selectedThread.id}
+      assignedTo={selectedThread.assignedTo||""}
+      purpose={DropDownPurpose.Thread}
+      setIsUpdated={setIsUpdated}
+    />
+  ) : null}
         />
         </>
       ) : (

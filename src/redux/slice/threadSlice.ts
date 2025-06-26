@@ -13,6 +13,7 @@ export interface Thread {
   email: string;
   type: ThreadType;
   createdAt: string;
+  assignedTo:string|null;
 }
 
 
@@ -71,6 +72,57 @@ export const searchThreads = createAsyncThunk(
     }
   }
 );
+
+// Thunk to assign thread to the agent
+export const assignThread = createAsyncThunk(
+  "threads/assign",
+  async (
+    { id, assignedTo }: { id: string; assignedTo: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.patch(
+        `/thread/${id}/assign`,
+        {assignedTo,assign:true} ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data.thread;
+    } catch (error: any) {
+      console.error("Error assigning thread:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error assigning thread"
+      );
+    }
+  }
+);
+
+// Thunk to unassign thread to the agent
+export const unassignThread = createAsyncThunk(
+  "threads/unassign",
+  async (
+    { id}: { id: string;},
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.patch(
+        `/thread/${id}/assign`,
+        {assign:false} ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data.thread;
+    } catch (error: any) {
+      console.error("Error unassigning thread:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error unassigning thread"
+      );
+    }
+  }
+);
+
 
 const threadSlice = createSlice({
   name: "threads",

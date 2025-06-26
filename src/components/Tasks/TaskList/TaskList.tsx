@@ -74,7 +74,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
       return task.assignedTo && task.assignedTo === user?.id;
     }
     return true;
-  });
+  }); 
 
   return (
     <TaskListContainer>
