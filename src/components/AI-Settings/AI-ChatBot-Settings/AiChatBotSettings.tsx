@@ -16,7 +16,9 @@ export interface AiSettings {
   googlePageUrl: string;
   linkedinPageUrl: string;
   facebookPageUrl: string;
+  ConpanyWebsiteUrl:string;
 }
+import {main} from "./aiChatBjotWebCrawler"
 
 type AiFieldKey = Exclude<keyof AiSettings, "isAiEnabled">;
 
@@ -82,6 +84,15 @@ export const aiChatbotFields: {
     sm: 6,
     required: false,
   },
+  {
+    label: "Website page Url (Optional)",
+    key: "ConpanyWebsiteUrl",
+    xs: 12,
+    sm: 6,
+    required: true,
+    
+  },
+
 ];
 
 interface AiChatbotFormProps {
@@ -100,6 +111,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
     googlePageUrl: "",
     linkedinPageUrl: "",
     facebookPageUrl: "",
+    ConpanyWebsiteUrl:""
   });
 
   const [isExisting, setIsExisting] = useState<boolean>(false);
@@ -123,6 +135,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
               googlePageUrl: settings?.data?.aiChatBotSettings?.googlePageUrl || "",
               linkedinPageUrl: settings?.data?.aiChatBotSettings?.linkedinPageUrl || "",
               facebookPageUrl: settings?.data?.aiChatBotSettings?.facebookPageUrl || "",
+              ConpanyWebsiteUrl:settings?.data?.aiChatBotSettings?.ConpanyWebsiteUrl
             });
             setIsExisting(true);
           }
@@ -185,8 +198,10 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
             label="Enable AI Chatbot"
           />
         </Box>
+      
         {aiSettings.isAiEnabled ? (
           <Grid container spacing={1.5}>
+          
             {aiChatbotFields.map((field) => (
               <Grid key={field.key} size={field.sm}>
                 <TextField
@@ -197,6 +212,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                   multiline={field.multiline || false}
                   rows={field.rows || 1}
                   required={field.required}
+                  
                   InputProps={{
                     endAdornment: 
                       field.key === "companyInfo" && aiSettings.companyInfo.length < COMPANY_INFO_MAX_LENGTH ? (
@@ -231,6 +247,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
           </Grid>
         ) : (
           <Grid container spacing={1.5}>
+
             <Grid size={12}>
               <Button
                 sx={{

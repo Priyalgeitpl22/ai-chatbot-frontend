@@ -105,7 +105,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     };
 
     const handleUpdateDashboard = (data: ChatData) => {
-      if (data.sender === "User" && data.threadId === selectedThreadId) {
+      if (data.sender === "User" && data.threadId === selectedThreadId) { 
         dispatch(addchat(data));
       }
     };
