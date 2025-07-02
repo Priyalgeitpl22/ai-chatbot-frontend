@@ -8,11 +8,13 @@ import { CircularProgress, Box, Typography } from "@mui/material";
 import ChatArea from "../Chats/ChatArea/ChatArea";
 import AssignedDropDown from "./AssignedDropDown/AssignedDropDown";
 import { fetchAgents } from "../../redux/slice/agentsSlice";
+import { DropDownPurpose } from "../../enums";
 
 export default function Tasks() {
   const dispatch = useDispatch<AppDispatch>();
   const {user} = useSelector((state: RootState) => state.user);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isUpdated,setIsUpdated] = useState<boolean>(false)
 
   useEffect(() => {
     if (!user) return;
@@ -24,7 +26,7 @@ export default function Tasks() {
         dispatch(fetchAgents(user.orgId));
       }
     })();
-  }, [dispatch, user]);
+  }, [dispatch, user,isUpdated]);
   
 
   const { tasks, loading, error } = useSelector((state: RootState) => state.task);
@@ -51,13 +53,17 @@ export default function Tasks() {
             selectedTaskId={selectedTaskId}
           />
           
-          {selectedTask && (
-            <ChatArea onClose={() => setSelectedTaskId(null)} selectedThreadId={selectedTask.threadId} 
+          {(
+            <ChatArea 
+            onClose={() => setSelectedTaskId(null)} 
+            selectedThreadId={selectedTask?.threadId || ""} 
             tasks={tasks.filter((task) => task.id === selectedTaskId)} 
             assignedDropdown={
               <AssignedDropDown
-                taskId={selectedTask.id}
-                assignedTo={selectedTask.assignedTo}
+                taskId={selectedTask?.id||""}
+                assignedTo={selectedTask?.assignedTo || ""}
+                purpose={DropDownPurpose.Task}
+                setIsUpdated={setIsUpdated}
               />
             }/>
           )}

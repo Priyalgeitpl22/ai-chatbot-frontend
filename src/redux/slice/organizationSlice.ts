@@ -24,6 +24,7 @@ interface AIChatBotSettings {
   googlePageUrl?: string;
   linkedinPageUrl?: string;
   facebookPageUrl?: string;
+  ConpanyWebsiteUrl:string;
 }
 
 interface Organization {

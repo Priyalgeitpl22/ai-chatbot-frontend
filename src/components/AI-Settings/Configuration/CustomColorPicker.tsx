@@ -47,6 +47,7 @@ const CustomColorPicker: React.FC<CustomColorPickerProps> = ({ value, onChange, 
                 type="color"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
+                
             />
         </ColorPickerWrapper>
     );
