@@ -13,7 +13,7 @@ import {
 import { unassignThread } from "../../../redux/slice/threadSlice";
 import { unassignTask } from "../../../redux/slice/taskSlice";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import { DropDownPurpose, ThreadType } from "../../../enums";
+import { DropDownPurpose } from "../../../enums";
 
 interface AssignedDropDownProps {
   taskId: string;
