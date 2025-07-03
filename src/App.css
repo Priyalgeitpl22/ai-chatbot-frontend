@@ -14,6 +14,7 @@ body {
   --theme-color: #c0dbf9;
   --theme-color-dark: #4782db;
   --theme-color-light: #edf6ff;
+  --thread-unreaded:#E8EAF6;
   /* 🎨 Custom Font Variable */
   --custom-font-family: "Times New Roman";
 }
