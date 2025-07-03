@@ -41,12 +41,15 @@ export const ChatListItem = styled(motion.create(ListItem), {
 })<ChatListItemProps>(({ active }) => ({
   '&:hover': {
     backgroundColor: 'var(--theme-color)',
+    
     cursor: 'pointer',
   },
   padding: '12px 16px',
-  backgroundColor: active ? 'var(--theme-color)' : 'transparent',
+  backgroundColor: active ? 'var(--theme-color-light)' : 'transparent',
+  borderLeft: active ? "3px solid  #3399FF":"transparent",
   borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-  borderRadius: '8px'
+  borderRadius: '8px',
+  
 }));
 
 export const TimeStamp = styled(Typography)({

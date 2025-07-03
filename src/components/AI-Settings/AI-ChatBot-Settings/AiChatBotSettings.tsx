@@ -18,7 +18,7 @@ export interface AiSettings {
   facebookPageUrl: string;
   ConpanyWebsiteUrl:string;
 }
-import {main} from "./aiChatBjotWebCrawler"
+
 
 type AiFieldKey = Exclude<keyof AiSettings, "isAiEnabled">;
 

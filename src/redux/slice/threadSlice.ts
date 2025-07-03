@@ -13,6 +13,7 @@ export interface Thread {
   email: string;
   type: ThreadType;
   createdAt: string;
+  readed: boolean;
   assignedTo:string|null;
 }
 
@@ -122,6 +123,27 @@ export const unassignThread = createAsyncThunk(
     }
   }
 );
+
+// thunk to read the thread
+export const readThread  = createAsyncThunk(
+  "threads/read",
+  async({id}:{id:string},{rejectWithValue})=>{
+    try{
+
+      const response = await api.patch(`/thread/${id}/readed`,{},{
+        headers:{Authorization: `Bearer ${token}` }
+      })
+      console.log(response,"slice")
+      return response.data.message;
+
+    }catch(error:any){
+      console.error("Error reading thread",error)
+      return rejectWithValue(
+        error.response?.data?.message || "Error unassigning thread"
+      );
+    }
+  }
+)
 
 
 const threadSlice = createSlice({
