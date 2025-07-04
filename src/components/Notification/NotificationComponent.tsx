@@ -12,7 +12,6 @@ import {
   Button,
   Paper,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useSocket } from "../../context/SocketContext";
@@ -90,7 +89,7 @@ const NotificationComponent: React.FC = () => {
         };
       });
       // toast.success(`📩 Message from ${data.thread?.name || "Unknown Visitor"}: ${data.message}`);
-toast.custom((t) => (
+toast.custom(() => (
   <Paper
     elevation={6}
     sx={{

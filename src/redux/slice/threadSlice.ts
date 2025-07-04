@@ -3,6 +3,7 @@ import api from "../../services/api";
 import Cookies from "js-cookie";
 import { ThreadType } from "../../enums";
 
+
 export interface Thread {
   id: string;
   user: string;
@@ -16,6 +17,7 @@ export interface Thread {
   readed: boolean;
   assignedTo:string|null;
   unseenCount:number|null;
+  latestMessage:{content:string}
 }
 
 
