@@ -41,6 +41,7 @@ interface Organization {
   industry?: string;
   description?: string;
   emailConfig?: EmailConfig;
+  aiEnabled?: boolean;
   aiChatBotSettings?: AIChatBotSettings; 
 }
 interface OrganizationState {

@@ -3,9 +3,9 @@ import { TextField, Switch, FormControlLabel, Button, Box, Typography } from "@m
 import Grid from "@mui/material/Grid2";
 import { FormContainer } from "./aiChatBotSettings.styled";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../../redux/store/store"; 
-import { getAIChatbotSettingsData, createAiChatBotSettings } from "../../../redux/slice/organizationSlice"; 
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store/store"; 
+import { getAIChatbotSettingsData, createAiChatBotSettings, updateOrganization } from "../../../redux/slice/organizationSlice"; 
 
 export interface AiSettings {
   isAiEnabled: boolean;
@@ -117,7 +117,8 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   const [isExisting, setIsExisting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false); 
   const [companyInfoError, setCompanyInfoError] = useState<string>("");
-  
+  const { user } = useSelector((state: RootState) => state.user);
+
   useEffect(() => {
     if (orgId) {
       setLoading(true);
@@ -159,10 +160,25 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   };
 
 
-  const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleToggleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.checked;
     setAiSettings((prev) => ({ ...prev, isAiEnabled: newValue }));
-    toast.success(newValue ? "AI Chatbot Enabled" : "AI Chatbot Disabled");
+    
+    try {
+      await dispatch(
+        updateOrganization({
+          orgId: user?.orgId || "", data: {
+              aiEnabled: newValue
+          }
+        })
+      ).unwrap();
+
+      toast.success("AI chatbot status updated successfully!"); 
+    } catch (error: unknown) {
+      setAiSettings((prev) => ({ ...prev, isAiEnabled: !newValue }));
+      const errorMessage = typeof error === 'string' ? error : "Failed to update AI chatbot status";
+      toast.error(errorMessage);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
