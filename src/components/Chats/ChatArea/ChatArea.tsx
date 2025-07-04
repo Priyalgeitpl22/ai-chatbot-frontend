@@ -63,13 +63,12 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   );
   const [delayedLoading, setDelayedLoading] = useState(loading);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
+  
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-  console.log(user)
 
   // useEffect(() => {
   //   setTimeout(() => {
