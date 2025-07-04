@@ -9,7 +9,10 @@ import {
   Typography,
   MenuItem,
   Box,
+  Button,
+  Paper,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useSocket } from "../../context/SocketContext";
@@ -44,6 +47,7 @@ const NotificationComponent: React.FC = () => {
   const [menuAnchor, setMenuAnchor] = useState<{ [key: number]: HTMLElement | null }>({});
   const settings = useSelector((state: RootState) => state.settings.settings);
   const { user } = useSelector((state: RootState) => state.user);
+  const [threadId,setThreadId] = useState("")
   const selectedSound =
     settings?.notification?.selectedSound ||
     user?.userSettings?.settings?.notification?.selectedSound;
@@ -70,7 +74,7 @@ const NotificationComponent: React.FC = () => {
     const handleNotification = (data: NotificationData) => {
       const threadId = data.thread?.id;
       if (!threadId) return;
-
+      setThreadId(threadId)
       setGroupedNotifications((prev) => {
         const existing = prev[threadId];
         const newCount = existing ? existing.count + 1 : 1;
@@ -85,7 +89,46 @@ const NotificationComponent: React.FC = () => {
           },
         };
       });
-      toast.success(`📩 Message from ${data.thread?.name || "Unknown Visitor"}: ${data.message}`);
+      // toast.success(`📩 Message from ${data.thread?.name || "Unknown Visitor"}: ${data.message}`);
+toast.custom((t) => (
+  <Paper
+    elevation={6}
+    sx={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      backgroundColor: 'var(--theme-color-light)',
+      color: 'black',
+      borderRadius: 2,
+      p: 2,
+      minWidth: 300,
+    }}
+  >
+    <div style={{ flex: 1 }}>
+      <Typography variant="subtitle1" fontWeight={600}>
+        📩 Message from {data.thread?.name || 'Unknown Visitor'}
+      </Typography>
+      <Typography variant="body2" sx={{ mt: 0.5 }}>
+        {data.message}
+      </Typography>
+    </div>
+
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginLeft: 16 }}>
+      <Button
+        variant="contained"
+        size="small"
+        color="success"
+        sx={{ mb: 1, textTransform: 'none', borderRadius: 2 }}
+        onClick={() => {
+          handleNotificationClick(threadId)
+        }}
+      >
+        Reply
+      </Button>
+    </div>
+  </Paper>
+));
+
+
       playNotificationSound();
     };
 
