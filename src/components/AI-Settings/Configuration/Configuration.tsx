@@ -44,6 +44,7 @@ import { Button } from "../../../styles/layout.styled";
 import EmailConfiguration from "../EmailConfiguration/EmailConfiguration";
 import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
 
 export interface EmailConfigData {
   host: string;
@@ -254,6 +255,7 @@ const Configuration = () => {
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
         <CustomTab label="Ai Chatbot Settings" value="ai chatbot settings" />
+        <CustomTab label="FAQ & Pricing" value="FAQ & Pricing" />
       </CustomTabs>
 
       {activeTab === "configure" && (
@@ -549,6 +551,20 @@ const Configuration = () => {
           </motion.div>
         </SettingsContainer>
       )}
+      {activeTab === "FAQ & Pricing" &&
+      <SettingsContainer >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Section style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
+
+              {user?.orgId && <FAQConfiguration></FAQConfiguration>}
+            </Section>
+          </motion.div>
+        </SettingsContainer>
+      }
       {loading && (
         <Loader />
       )}
