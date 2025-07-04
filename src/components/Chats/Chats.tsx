@@ -77,6 +77,9 @@ export default function Chats() {
           if (selectedThreadType === "assigned") {
             return thread.type === selectedThreadType && thread.assignedTo === user?.id;
           }
+          if (selectedThreadType === "open") {
+            return true;
+          }
           return thread.type === selectedThreadType;
         })}
         onSelectThread={setSelectedThreadId}
@@ -89,6 +92,9 @@ export default function Chats() {
           threads={threads.filter((thread) => {
             if (selectedThreadType === "assigned") {
               return thread.type === selectedThreadType && thread.assignedTo === user?.id;
+            }
+            if (selectedThreadType === "open") {
+              return true;
             }
             return thread.type === selectedThreadType;
           })}

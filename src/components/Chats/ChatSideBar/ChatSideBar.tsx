@@ -36,6 +36,7 @@ const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
       },
       {}
     );
+    groupedCounts["open"] = threadsState.threads.length;    
     setThreadCounts(groupedCounts);
   }, [threadsState.threads, user?.id]);
   const menuItems: MenuItem[] = [
