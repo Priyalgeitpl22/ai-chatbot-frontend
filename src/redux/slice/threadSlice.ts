@@ -15,6 +15,7 @@ export interface Thread {
   createdAt: string;
   readed: boolean;
   assignedTo:string|null;
+  unseenCount:number|null;
 }
 
 

@@ -111,8 +111,8 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unkown Visitor'}
-                      secondary={<MessagePreview>{`${thread?.messages[0].content.substr(0,20)}...` || "Click to start a conversation"}</MessagePreview>}
+ primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
+                      secondary={<MessagePreview>{(thread?.messages?.[0] as any)?.content?.substr(0,20) ? `${(thread.messages[0] as any).content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
                     />
                     <div style={{display:"flex",flexDirection:"column"}}>
@@ -141,13 +141,13 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unkown Visitor'}
-                      secondary={<MessagePreview>{`${thread?.messages[0].content.substr(0,20)}...` || "Click to start a conversation"}</MessagePreview>}
+primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
+                      secondary={<MessagePreview>{thread?.messages[0]?.content?.substr(0,20) ? `${thread.messages[0].content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
                     />
                       <div style={{display:"flex",flexDirection:"column"}}>
                       <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
-                    {thread.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
+                    {thread?.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
                     </div>
                   </MotionChatListItem>
                 );
