@@ -55,6 +55,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
+  const { user } = useSelector((state:RootState)=> state.user)
   const [inputMessage, setInputMessage] = useState("");
   const [typingAgent, setTypingAgent] = useState<string | null>(null);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
@@ -68,6 +69,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+  console.log(user)
 
   // useEffect(() => {
   //   setTimeout(() => {
@@ -162,6 +164,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       sender: "Bot",
       content: messageData.content,
       threadId: selectedThreadId,
+      agentId:user?.id
     });
 
     dispatch(addchat(messageData));

@@ -41,6 +41,24 @@ export const getChats = createAsyncThunk(
   }
 );
 
+// thuk for message seen  
+export const seenMessage = createAsyncThunk(
+  "messsage/seen",
+  async({id}:{id:string},{rejectWithValue})=>{
+    try{
+      const response  = await api.patch(`/message/${id}/seen`,{},{
+        headers: { Authorization: `Bearer ${token}`}
+      })
+      return response.data.message
+    }catch(error:any){
+      console.error("Error reading thread",error)
+      return rejectWithValue(
+        error.response?.data?.message || "Error unassigning thread"
+      );
+    }
+  }
+)
+
 export const getChatConfig = createAsyncThunk(
   "chat/getChatConfig",
   async (orgId: string, { rejectWithValue }) => {

@@ -14,6 +14,7 @@ import { readThread, Thread } from '../../../redux/slice/threadSlice';
 import { AppDispatch } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
 import SearchComponent from '../../SearchBar/SearchComponent';
+import { seenMessage } from '../../../redux/slice/chatSlice';
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -33,10 +34,24 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
   const { socket } = useSocket();
   const dispatch = useDispatch<AppDispatch>();
 
-  const HandleThreadSelect  = async(id:string)=>{
+  const HandleUnreadedThreadSelect  = async(id:string)=>{
     if(id){
+      
       dispatch(readThread({id})).then(()=>{
         console.log("readed")
+        onSelectThread(id)
+      }).catch((err)=>{
+        console.log(err)
+      })
+    }else{
+      return
+    }
+  }
+
+  const handleReadedThreadSelect = async(id:string)=>{
+    if(id){
+      dispatch(seenMessage({id})).then(()=>{
+        console.log("seen")
         onSelectThread(id)
       }).catch((err)=>{
         console.log(err)
@@ -76,14 +91,14 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
             <ThreadList>
               {threads.map((thread, index) => {
                 const isActive = thread.id === selectedThreadId; // Correct active thread logic
-                
+                console.log(thread,"thread")
                 if(!thread.readed){
                   return(
                      <MotionChatListItem
                     sx={{bgcolor:"var(--theme-color)"}}
                     key={thread.id}
                     active={isActive}
-                    onClick={() => HandleThreadSelect(thread.id)}
+                    onClick={() => HandleUnreadedThreadSelect(thread.id)}
                     variants={listItemVariants}
                     initial="hidden"
                     animate="visible"
@@ -96,23 +111,23 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unkown Visitor'}
-                      secondary={<MessagePreview>{`${thread?.messages[0].content.substr(0,20)}...` || "Click to start a conversation"}</MessagePreview>}
+ primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
+                      secondary={<MessagePreview>{(thread?.messages?.[0] as any)?.content?.substr(0,20) ? `${(thread.messages[0] as any).content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
                     />
                     <div style={{display:"flex",flexDirection:"column"}}>
                       <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
-                    <Chip label={thread?._count.messages || ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>
+                      {thread.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
                     </div>
-                    
                   </MotionChatListItem>
                   )
                 }else{
                   return (
                   <MotionChatListItem
+                  sx={{ bgcolor:`${thread.unseenCount?"var(--theme-color)":""}`}}
                     key={thread.id}
                     active={isActive}
-                    onClick={() => HandleThreadSelect(thread.id)}
+                    onClick={() => handleReadedThreadSelect(thread.id)}
                     variants={listItemVariants}
                     initial="hidden"
                     animate="visible"
@@ -121,18 +136,18 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
                   >
                    
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: 'var(--theme-color)', width: 32, height: 32 }}>
+                      <Avatar sx={{ bgcolor:`${thread.unseenCount?"var(--theme-color-dark)":""}`, width: 32, height: 32 }}>
                         {thread.name[0]?.toUpperCase() || "U"}
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unkown Visitor'}
-                      secondary={<MessagePreview>{`${thread?.messages[0].content.substr(0,20)}...` || "Click to start a conversation"}</MessagePreview>}
+primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
+                      secondary={<MessagePreview>{thread?.messages[0]?.content?.substr(0,20) ? `${thread.messages[0].content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
                       primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
                     />
                       <div style={{display:"flex",flexDirection:"column"}}>
                       <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
-                    <Chip label={thread?._count.messages || ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>
+                    {thread?.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
                     </div>
                   </MotionChatListItem>
                 );
