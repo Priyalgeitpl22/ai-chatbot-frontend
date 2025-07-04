@@ -4,6 +4,8 @@ import Cookies from "js-cookie";
 import { ThreadType } from "../../enums";
 
 export interface Thread {
+  messages: any;
+  _count: any;
   id: string;
   user: string;
   aiOrgId: number;
