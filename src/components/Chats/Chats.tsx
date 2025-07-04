@@ -49,7 +49,7 @@ export default function Chats() {
       setIsLoading(false);
       window.history.replaceState({}, document.title);
     });
-  }, [dispatch, notificationThreadId,isUpdated]);
+  }, [dispatch, notificationThreadId,isUpdated,selectedThreadId]);
 
   useEffect(() => {
   if (user?.orgId) {

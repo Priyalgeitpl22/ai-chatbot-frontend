@@ -55,6 +55,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
+  const {id} = useSelector((state:RootState)=>state.auth)
   const [inputMessage, setInputMessage] = useState("");
   const [typingAgent, setTypingAgent] = useState<string | null>(null);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
@@ -162,6 +163,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       sender: "Bot",
       content: messageData.content,
       threadId: selectedThreadId,
+      
     });
 
     dispatch(addchat(messageData));
