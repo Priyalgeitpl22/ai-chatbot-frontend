@@ -25,6 +25,7 @@ interface AIChatBotSettings {
   linkedinPageUrl?: string;
   facebookPageUrl?: string;
   ConpanyWebsiteUrl:string;
+  faqs?: Array<{ id: string; question: string; answer: string }>;
 }
 
 interface Organization {
@@ -42,6 +43,7 @@ interface Organization {
   description?: string;
   emailConfig?: EmailConfig;
   aiEnabled?: boolean;
+  openAiKey?: string;
   aiChatBotSettings?: AIChatBotSettings; 
 }
 interface OrganizationState {

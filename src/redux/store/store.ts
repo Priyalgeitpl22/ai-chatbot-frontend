@@ -7,6 +7,7 @@ import chatsReducer from "../slice/chatSlice";
 import authReducer from "../slice/authSlice";
 import taskReducer from "../slice/taskSlice";
 import settingsReducer from "../slice/settingsSlice";
+import faqReducer from "../slice/faqSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     auth: authReducer,
     task: taskReducer,
     settings: settingsReducer,
+    faq: faqReducer,
   },
 });
 

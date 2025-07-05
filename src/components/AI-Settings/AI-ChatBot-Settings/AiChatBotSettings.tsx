@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Switch, FormControlLabel, Button, Box, Typography } from "@mui/material";
+import {
+  TextField,
+  Switch,
+  FormControlLabel,
+  Button,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { FormContainer } from "./aiChatBotSettings.styled";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../redux/store/store"; 
-import { getAIChatbotSettingsData, createAiChatBotSettings, updateOrganization } from "../../../redux/slice/organizationSlice"; 
+import { AppDispatch, RootState } from "../../../redux/store/store";
+import {
+  getAIChatbotSettingsData,
+  createAiChatBotSettings,
+  updateOrganization,
+} from "../../../redux/slice/organizationSlice";
 
 export interface AiSettings {
-  isAiEnabled: boolean;
+  isAiEnabled?: boolean;
   companyInfo: string;
   serviceOrProductInfo: string;
   contactDetails: string;
@@ -16,12 +28,12 @@ export interface AiSettings {
   googlePageUrl: string;
   linkedinPageUrl: string;
   facebookPageUrl: string;
-  ConpanyWebsiteUrl:string;
+  ConpanyWebsiteUrl: string;
 }
-
 
 type AiFieldKey = Exclude<keyof AiSettings, "isAiEnabled">;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const aiChatbotFields: {
   label: string;
   key: AiFieldKey;
@@ -90,20 +102,18 @@ export const aiChatbotFields: {
     xs: 12,
     sm: 6,
     required: true,
-    
   },
-
 ];
 
 interface AiChatbotFormProps {
-  orgId: string; 
+  orgId: string;
 }
 
 const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const [isAiEnabled, setIsAiEnabled] = useState<boolean>(false);
 
   const [aiSettings, setAiSettings] = useState<AiSettings>({
-    isAiEnabled: false,
     companyInfo: "",
     serviceOrProductInfo: "",
     contactDetails: "",
@@ -111,11 +121,11 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
     googlePageUrl: "",
     linkedinPageUrl: "",
     facebookPageUrl: "",
-    ConpanyWebsiteUrl:""
+    ConpanyWebsiteUrl: "",
   });
 
   const [isExisting, setIsExisting] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
   const [companyInfoError, setCompanyInfoError] = useState<string>("");
   const { user } = useSelector((state: RootState) => state.user);
 
@@ -125,24 +135,31 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
       dispatch(getAIChatbotSettingsData(orgId))
         .unwrap()
         .then((settings) => {
-          console.log(settings,"Settings");
-          if (settings?.data?.aiChatBotSettings?.isAiEnabled) {
+          console.log(settings, "Settings");
+          setIsAiEnabled(settings?.data?.aiEnabled || false);
+
+          if (settings?.data?.aiChatBotSettings) {
             setAiSettings({
-              isAiEnabled: settings?.data?.aiChatBotSettings?.isAiEnabled,
               companyInfo: settings?.data?.aiChatBotSettings?.companyInfo,
-              serviceOrProductInfo: settings?.data?.aiChatBotSettings?.serviceOrProductInfo,
+              serviceOrProductInfo:
+                settings?.data?.aiChatBotSettings?.serviceOrProductInfo,
               contactDetails: settings?.data?.aiChatBotSettings?.contactDetails,
-              buzznexxAddress: settings?.data?.aiChatBotSettings?.buzznexxAddress,
-              googlePageUrl: settings?.data?.aiChatBotSettings?.googlePageUrl || "",
-              linkedinPageUrl: settings?.data?.aiChatBotSettings?.linkedinPageUrl || "",
-              facebookPageUrl: settings?.data?.aiChatBotSettings?.facebookPageUrl || "",
-              ConpanyWebsiteUrl:settings?.data?.aiChatBotSettings?.ConpanyWebsiteUrl
+              buzznexxAddress:
+                settings?.data?.aiChatBotSettings?.buzznexxAddress,
+              googlePageUrl:
+                settings?.data?.aiChatBotSettings?.googlePageUrl || "",
+              linkedinPageUrl:
+                settings?.data?.aiChatBotSettings?.linkedinPageUrl || "",
+              facebookPageUrl:
+                settings?.data?.aiChatBotSettings?.facebookPageUrl || "",
+              ConpanyWebsiteUrl:
+                settings?.data?.aiChatBotSettings?.ConpanyWebsiteUrl,
             });
             setIsExisting(true);
           }
         })
         .catch((err) => {
-          toast.error(err.message||"Failed to fetch AI chatbot settings");
+          toast.error(err.message || "Failed to fetch AI chatbot settings");
         })
         .finally(() => setLoading(false));
     }
@@ -153,46 +170,63 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   const handleAiChange = (field: AiFieldKey, value: string) => {
     setAiSettings((prev) => ({ ...prev, [field]: value }));
     if (field === "companyInfo" && value.length < 500) {
-      setCompanyInfoError("Company Information must be at least 500 characters long.");
+      setCompanyInfoError(
+        "Company Information must be at least 500 characters long."
+      );
     } else {
       setCompanyInfoError("");
     }
   };
 
-
   const handleToggleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.checked;
+    setIsAiEnabled(newValue);
     setAiSettings((prev) => ({ ...prev, isAiEnabled: newValue }));
-    
+    setLoading(true);
+
     try {
       await dispatch(
         updateOrganization({
-          orgId: user?.orgId || "", data: {
-              aiEnabled: newValue
-          }
+          orgId: user?.orgId || "",
+          data: {
+            aiEnabled: newValue,
+          },
         })
       ).unwrap();
 
-      toast.success("AI chatbot status updated successfully!"); 
+      toast.success("AI chatbot status updated successfully!");
     } catch (error: unknown) {
       setAiSettings((prev) => ({ ...prev, isAiEnabled: !newValue }));
-      const errorMessage = typeof error === 'string' ? error : "Failed to update AI chatbot status";
+      setIsAiEnabled(!newValue);
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : "Failed to update AI chatbot status";
       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (aiSettings.companyInfo.length < 500) {
-      setCompanyInfoError("Company Information must be at least 500 characters long.");
+      setCompanyInfoError(
+        "Company Information must be at least 500 characters long."
+      );
       return;
     }
     setLoading(true);
-    dispatch(createAiChatBotSettings({ orgId, data: { aiChatBotSettings: aiSettings } }))
+    dispatch(
+      createAiChatBotSettings({
+        orgId,
+        data: { aiChatBotSettings: aiSettings },
+      })
+    )
       .unwrap()
       .then(() => {
         toast.success("AI Settings updated successfully!");
-        setIsExisting(true); 
+        setIsExisting(true);
       })
       .catch((err) => toast.error(err.message || "Failed to update settings"))
       .finally(() => setLoading(false));
@@ -200,24 +234,27 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
   return (
     <FormContainer>
-      <form onSubmit={handleSubmit} style={{padding:"1rem"}} >
+      <form onSubmit={handleSubmit} style={{ padding: "1rem" }}>
         <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1 }}>
           <FormControlLabel
             sx={{ color: "#35495c", marginBottom: "10px" }}
             control={
-              <Switch
-                checked={aiSettings.isAiEnabled}
-                onChange={handleToggleChange}
-                disabled={loading}
-              />
+              loading ? (
+                <CircularProgress size={24} sx={{ marginRight: "10px" }} />
+              ) : (
+                <Switch
+                  checked={isAiEnabled}
+                  onChange={handleToggleChange}
+                  disabled={loading}
+                />
+              )
             }
             label="Enable AI Chatbot"
           />
         </Box>
-      
-        {aiSettings.isAiEnabled ? (
+
+        {isAiEnabled ? (
           <Grid container spacing={1.5}>
-          
             {aiChatbotFields.map((field) => (
               <Grid key={field.key} size={field.sm}>
                 <TextField
@@ -228,21 +265,30 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                   multiline={field.multiline || false}
                   rows={field.rows || 1}
                   required={field.required}
-                  
                   InputProps={{
-                    endAdornment: 
-                      field.key === "companyInfo" && aiSettings.companyInfo.length < COMPANY_INFO_MAX_LENGTH ? (
+                    endAdornment:
+                      field.key === "companyInfo" &&
+                      aiSettings.companyInfo.length <
+                        COMPANY_INFO_MAX_LENGTH ? (
                         <Typography
                           variant="caption"
-                          sx={{ position: "absolute", bottom: 0, right: 10, color: "rgba(0, 0, 0, 0.6)", fontSize: "0.75rem" }}
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            right: 10,
+                            color: "rgba(0, 0, 0, 0.6)",
+                            fontSize: "0.75rem",
+                          }}
                         >
-                          {aiSettings.companyInfo.length} / {COMPANY_INFO_MAX_LENGTH}
+                          {aiSettings.companyInfo.length} /{" "}
+                          {COMPANY_INFO_MAX_LENGTH}
                         </Typography>
                       ) : null,
-                  }}                  
-                  error={field.key === "companyInfo" && Boolean(companyInfoError)}
+                  }}
+                  error={
+                    field.key === "companyInfo" && Boolean(companyInfoError)
+                  }
                 />
-
               </Grid>
             ))}
             <Grid size={12}>
@@ -255,15 +301,18 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                 }}
                 type="submit"
                 variant="contained"
-                disabled={!aiSettings.isAiEnabled || loading}
+                disabled={!isAiEnabled || loading}
               >
-                {loading ? "Saving..." : isExisting ? "Edit AI Settings" : "Save AI Settings"}
+                {loading
+                  ? "Saving..."
+                  : isExisting
+                  ? "Edit AI Settings"
+                  : "Save AI Settings"}
               </Button>
             </Grid>
           </Grid>
         ) : (
           <Grid container spacing={1.5}>
-
             <Grid size={12}>
               <Button
                 sx={{
