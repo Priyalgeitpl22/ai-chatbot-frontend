@@ -109,6 +109,11 @@ const Configuration = () => {
   const [logoPriviewURL, setLogoPriviewURL] = useState<string>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeConfigTab");
+    if (savedTab) setActiveTab(savedTab);
+  }, []);
+
   const loadFont = (font: string) => {
     const fontUrl = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
     const link = document.createElement("link");
@@ -221,9 +226,9 @@ const Configuration = () => {
   };
 
 
-  const handleTabChange = (_: any, newValue: SetStateAction<string>) => {
-    setActiveTab(newValue);
-    if (newValue === "tracking_code") fetchScript();
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    localStorage.setItem("activeConfigTab", tab);
   };
 
   const handleEmailConfigSubmit = (emailConfigData: EmailConfigData) => {
@@ -250,7 +255,7 @@ const Configuration = () => {
 
   return (
     <ContentContainer>
-      <CustomTabs value={activeTab} onChange={handleTabChange}>
+      <CustomTabs value={activeTab} onChange={(_, newValue) => handleTabChange(newValue)}>
         <CustomTab label="Configure" value="configure" />
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
@@ -495,7 +500,6 @@ const Configuration = () => {
           <ChatBot settings={settings} LogoImage={logoPriviewURL} />
         </SettingsContainer>
       )}
-
       {activeTab === "tracking_code" && (
         <SettingsContainer>
           <motion.div
@@ -524,7 +528,6 @@ const Configuration = () => {
           </motion.div>
         </SettingsContainer>
       )}
-
       {activeTab === "email configuration" && (
         <SettingsContainer >
           <motion.div

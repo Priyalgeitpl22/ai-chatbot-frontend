@@ -164,57 +164,59 @@ export default function FAQConfiguration() {
             </Typography>
 
             {localFaqs.map((faq, index) => (
-              <Box key={faq.id} sx={{ mt: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Box key={faq.id || index} sx={{ mt: 2, p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                   <Typography variant="subtitle2" color="textSecondary">
                     FAQ #{index + 1}
                   </Typography>
                   {localFaqs.length > 1 && (
-                    <Button 
-                      size="small" 
-                      color="error" 
+                    <Button
+                      size="small"
+                      color="error"
                       onClick={() => handleRemoveFaq(faq.id)}
-                      sx={{ minWidth: 'auto', p: 0.5 }}
+                      sx={{ minWidth: "auto", p: 0.5 }}
+                      disabled={!aiEnabled}
                     >
                       ✕
                     </Button>
                   )}
                 </Box>
-                
                 <TextField
                   label="Question"
                   value={faq.question}
-                  onChange={(e) => handleChange(faq.id, 'question', e.target.value)}
+                  onChange={e => handleChange(faq.id, "question", e.target.value)}
                   fullWidth
                   sx={{ mb: 2 }}
+                  disabled={!aiEnabled}
                 />
-
                 <TextField
                   label="Answer"
                   value={faq.answer}
-                  onChange={(e) => handleChange(faq.id, 'answer', e.target.value)}
+                  onChange={e => handleChange(faq.id, "answer", e.target.value)}
                   fullWidth
                   multiline
                   rows={3}
+                  disabled={!aiEnabled}
                 />
               </Box>
             ))}
           </Box>
 
           {/* Fixed Button Area */}
-          <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: '1px solid #e0e0e0', justifyContent: 'space-between' }}>
+          <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: "1px solid #e0e0e0", justifyContent: "space-between" }}>
             <Button
               variant="contained"
               onClick={handleSave}
-              sx={{ width: '50%' }}
-              disabled={!hasNewFaqs || saving}
+              sx={{ width: "50%" }}
+              disabled={!aiEnabled || !hasNewFaqs || saving}
             >
               Save All FAQs
             </Button>
             <Button
               variant="outlined"
               onClick={handleAddNew}
-              sx={{ width: '50%' }}
+              sx={{ width: "50%" }}
+              disabled={!aiEnabled}
             >
               Add New FAQ
             </Button>

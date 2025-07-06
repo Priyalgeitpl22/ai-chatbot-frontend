@@ -6,6 +6,7 @@ import {
   SelectChangeEvent,
   Switch,
   Stack,
+  Button,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,7 +45,6 @@ const NotificationSettings = () => {
 
   const [selectedSound, setSelectedSound] = useState(DEFAULT_SETTINGS.selectedSound);
   const [isSoundOn, setIsSoundOn] = useState(DEFAULT_SETTINGS.isSoundOn);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
 
@@ -65,7 +65,6 @@ const NotificationSettings = () => {
             })
           );
         }
-        setIsInitialLoad(false);
       });
     }
   }, [dispatch, user?.id]);
@@ -75,7 +74,7 @@ const NotificationSettings = () => {
   const handleSoundChange = (event: SelectChangeEvent<string>) => {
     const newSound = event.target.value;
     setSelectedSound(newSound);
-    if (!isInitialLoad && isSoundOn) {
+    if (isSoundOn) {
       playSound(newSound);
     }
   };
@@ -108,7 +107,10 @@ const NotificationSettings = () => {
   
     const audio = new Audio(`/sounds/${file}`);
     audioRef.current = audio;
-    audio.play().catch((err) => console.error("🔊 Error playing sound:", err));
+    audio.play().catch((err) => {
+      console.error("🔊 Error playing sound:", err);
+      toast.error("Could not play sound. Check your browser and file path.");
+    });
   };
   
 
@@ -141,6 +143,10 @@ const NotificationSettings = () => {
           ))}
         </Select>
       </FormControl>
+
+      <Button onClick={() => playSound(selectedSound)} sx={{ mt: 2 }}>
+        Test Sound
+      </Button>
 
       <SaveButtonWrapper>
         <CustomButton variant="contained" onClick={handleSave}>
