@@ -46,7 +46,7 @@ const NotificationComponent: React.FC = () => {
   const [menuAnchor, setMenuAnchor] = useState<{ [key: number]: HTMLElement | null }>({});
   const settings = useSelector((state: RootState) => state.settings.settings);
   const { user } = useSelector((state: RootState) => state.user);
-  const [threadId,setThreadId] = useState("")
+  // const [threadId,setThreadId] = useState("")
   const selectedSound =
     settings?.notification?.selectedSound ||
     user?.userSettings?.settings?.notification?.selectedSound;
@@ -73,7 +73,7 @@ const NotificationComponent: React.FC = () => {
     const handleNotification = (data: NotificationData) => {
       const threadId = data.thread?.id;
       if (!threadId) return;
-      setThreadId(threadId)
+      // setThreadId(threadId)
       setGroupedNotifications((prev) => {
         const existing = prev[threadId];
         const newCount = existing ? existing.count + 1 : 1;
