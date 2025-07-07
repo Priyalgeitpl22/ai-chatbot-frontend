@@ -136,7 +136,6 @@ export const readThread  = createAsyncThunk(
       const response = await api.patch(`/thread/${id}/readed`,{},{
         headers:{Authorization: `Bearer ${token}` }
       })
-      console.log(response,"slice")
       return response.data.message;
 
     }catch(error:any){

@@ -247,7 +247,6 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
             ) : chats.length > 0 ? (
               <>
                 {chats.map((chat) => {
-                  console.log(chat)
                   const isBot = chat.sender === "Bot";
                   if(chat.content!==""){
                   return (
