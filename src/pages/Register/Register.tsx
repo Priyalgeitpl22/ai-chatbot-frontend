@@ -288,6 +288,7 @@ const Register = () => {
                   <Grid size={field.sm} key={field.key}>
                     <PasswordInput
                       name="password"
+                      onkeydown={()=>""}
                       label={field.label}
                       value={formData.password}
                       onChange={handleChange}

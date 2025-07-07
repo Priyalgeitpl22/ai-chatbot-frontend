@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -109,6 +109,7 @@ const ResetPassword = () => {
           <PasswordInput
             label="New Password"
             value={password}
+            onkeydown={(e:React.KeyboardEvent)=>{if(e.key==="Enter")handleSubmitPassword()}}
             onChange={(e) => {setPassword(e.target.value);
               setError(null);}
             }
