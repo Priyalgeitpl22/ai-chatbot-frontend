@@ -136,7 +136,6 @@ export const readThread  = createAsyncThunk(
       const response = await api.patch(`/thread/${id}/readed`,{},{
         headers:{Authorization: `Bearer ${token}` }
       })
-      console.log(response,"slice")
       return response.data.message;
 
     }catch(error:any){
@@ -152,7 +151,16 @@ export const readThread  = createAsyncThunk(
 const threadSlice = createSlice({
   name: "threads",
   initialState,
-  reducers: {},
+  reducers: {
+    updateThread: (state, action: PayloadAction<Thread>) => {
+  const updated = action.payload;
+  const index = state.threads.findIndex((t) => t.id === updated.id);
+  if (index !== -1) {
+    state.threads[index] = updated;
+  }
+}
+
+  },
   extraReducers: (builder) => {
     builder
       // Handlers for getAllThreads
@@ -185,3 +193,4 @@ const threadSlice = createSlice({
 });
 
 export default threadSlice.reducer;
+export const { updateThread } = threadSlice.actions;

@@ -78,7 +78,6 @@ const NotificationComponent: React.FC = () => {
         const existing = prev[threadId];
         const newCount = existing ? existing.count + 1 : 1;
         return {
-          ...prev,
           [threadId]: {
             messages: [...(existing?.messages || []), data.message],
             count: newCount,
@@ -86,6 +85,7 @@ const NotificationComponent: React.FC = () => {
             thread: data.thread,
             read: false,
           },
+          ...prev,
         };
       });
       // toast.success(`📩 Message from ${data.thread?.name || "Unknown Visitor"}: ${data.message}`);

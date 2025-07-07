@@ -26,8 +26,9 @@ import {
 } from "./chatArea.styled";
 import { ChatListHeader, TimeStamp } from "../ChatList/chatList.styled";
 import { formatTimestamp } from "../../../utils/utils";
-import { Thread } from "../../../redux/slice/threadSlice";
+import { Thread, updateThread } from "../../../redux/slice/threadSlice";
 import { Task } from "../../../redux/slice/taskSlice";
+import { ThreadType } from "../../../enums";
 
 interface ChatData {
   id: string;
@@ -167,6 +168,19 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       agentId:user?.id
     });
 
+    const tempThread = threads.find(thread => thread.id === selectedThreadId);
+
+if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assignedTo !== user?.id)) {
+  const updatedThread: Thread = {
+    ...tempThread,
+    type: ThreadType.ASSIGNED,
+    assignedTo: user?.id || null,
+  };
+
+  dispatch(updateThread(updatedThread));
+}
+
+
     dispatch(addchat(messageData));
     setInputMessage("");
   }, [socket, selectedThreadId, inputMessage, dispatch]);
@@ -233,7 +247,6 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
             ) : chats.length > 0 ? (
               <>
                 {chats.map((chat) => {
-                  console.log(chat)
                   const isBot = chat.sender === "Bot";
                   if(chat.content!==""){
                   return (

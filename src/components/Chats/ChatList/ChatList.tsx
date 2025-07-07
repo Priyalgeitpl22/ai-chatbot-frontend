@@ -38,7 +38,6 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
     if(id){
       
       dispatch(readThread({id})).then(()=>{
-        console.log("readed")
         onSelectThread(id)
       }).catch((err)=>{
         console.log(err)
@@ -91,7 +90,6 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
             <ThreadList>
               {threads.map((thread, index) => {
                 const isActive = thread.id === selectedThreadId; // Correct active thread logic
-                console.log(thread,"thread")
                 if(!thread.readed){
                   return(
                      <MotionChatListItem
