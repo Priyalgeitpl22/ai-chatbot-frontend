@@ -21,12 +21,14 @@ interface TaskState {
   tasks: Task[];
   loading: boolean;
   error: string | null;
+  unreadCount: number;
 }
 
 const initialState: TaskState = {
   tasks: [],
   loading: false,
   error: null,
+  unreadCount: 0,
 };
 
 const token = Cookies.get("access_token");
@@ -95,6 +97,22 @@ export const unassignTask = createAsyncThunk(
   }
 );
 
+export const fetchUnreadTaskCount = createAsyncThunk<
+  number,
+  string,
+  { rejectValue: string }
+>("tasks/fetchUnreadTaskCount", async (orgId, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/task/unread/${orgId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    // Assuming the API returns { count: number }
+    return response.data.count;
+  } catch (error: any) {
+    return rejectWithValue("Failed to fetch unread task count");
+  }
+});
+
 const taskSlice = createSlice({
   name: "tasks",
   initialState,
@@ -127,6 +145,9 @@ const taskSlice = createSlice({
       .addCase(assignTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchUnreadTaskCount.fulfilled, (state, action: PayloadAction<number>) => {
+        state.unreadCount = action.payload;
       });
   },
 });

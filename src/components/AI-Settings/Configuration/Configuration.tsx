@@ -110,6 +110,11 @@ const Configuration = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    const run = async () => {
+      await fetchScript();
+    };
+    run();
+
     const savedTab = localStorage.getItem("activeConfigTab");
     if (savedTab) setActiveTab(savedTab);
   }, []);

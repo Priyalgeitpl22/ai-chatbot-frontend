@@ -18,6 +18,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ activeFilter, setActi
     { type: 'filter', label: 'Filter', alwaysActive: true },
     { type: 'unassigned', label: 'Unassigned' },
     { type: 'assigned', label: 'Assigned' },
+    { type: 'resolved', label: 'Resolved' },
   ];
 
   const handleActivate = (filterType: string) => {

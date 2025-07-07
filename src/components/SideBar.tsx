@@ -12,6 +12,11 @@ import {
   NavItem,
 } from "../styles/layout.styled";
 import { useLocation } from "react-router-dom";
+import Badge from "@mui/material/Badge";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUnreadTaskCount } from "../redux/slice/taskSlice";
+import { RootState, AppDispatch } from "../redux/store/store";
 
 const sidebarAnimation = {
   initial: { x: -260 },
@@ -21,6 +26,15 @@ const sidebarAnimation = {
 
 const Sidebar = () => {
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.user);
+  const unreadCount = useSelector((state: RootState) => state.task.unreadCount);
+
+  useEffect(() => {
+    if (user?.orgId) {
+      dispatch(fetchUnreadTaskCount(user.orgId));
+    }
+  }, [dispatch, user?.orgId]);
 
   return (
     <SidebarContainer
@@ -68,7 +82,9 @@ const Sidebar = () => {
           to="/tasks"
           className={location.pathname === "/tasks" ? "active" : ""}
         >
-          <Tickets size={18} />
+          <Badge badgeContent={unreadCount} color="error" sx={{ mr: 1 }}>
+            <Tickets size={18} />
+          </Badge>
           Tickets
         </NavItem>
         <div style={{ flexGrow: 1 }}></div>
