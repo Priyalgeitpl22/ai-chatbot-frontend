@@ -105,6 +105,7 @@ const ActivateAccount = () => {
           <PasswordInput
             label="New Password"
             value={password}
+            onkeydown={()=>""}
             onChange={(e) => setPassword(e.target.value)}
             error={!!error}
             helperText={error}

@@ -102,6 +102,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     const handleReceiveMessage = (newMessage: ChatData) => {
       if (newMessage.threadId === selectedThreadId) {
         dispatch(addchat(newMessage));
+        socket.emit("readMessage",({selectedThreadId}))
       }
     };
 
@@ -232,7 +233,9 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
             ) : chats.length > 0 ? (
               <>
                 {chats.map((chat) => {
+                  console.log(chat)
                   const isBot = chat.sender === "Bot";
+                  if(chat.content!==""){
                   return (
                     <motion.div
                       key={chat.id}
@@ -245,7 +248,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
                           <TimeStamp>
                             {chat.sender} • {formatTimestamp(chat.createdAt)}
                           </TimeStamp>
-                          <BotMessageBubble>{chat.content}</BotMessageBubble>
+                          <BotMessageBubble>{chat?.content}</BotMessageBubble>
                         </BotMessage>
                       ) : (
                         <UserMessage>
@@ -257,6 +260,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
                       )}
                     </motion.div>
                   );
+                }
                 })}
                 <div ref={messagesEndRef} />
               </>

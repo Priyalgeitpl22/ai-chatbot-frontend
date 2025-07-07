@@ -15,6 +15,7 @@ interface PasswordInputProps {
   readOnly?: boolean; 
   fullWidth?: boolean;
   sx?: object;
+  onkeydown:(e: React.KeyboardEvent)=>void;
 }
 
 const StyledTextField = styled(TextField)`
@@ -46,6 +47,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   error,
   helperText,
   readOnly = false,
+  onkeydown,
   sx,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -65,6 +67,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       helperText={helperText}
       required
       fullWidth
+      onKeyDown={onkeydown}
       sx={sx}
       InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
       InputProps={{

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -109,6 +109,7 @@ const ChangePassword: React.FC = () => {
           <PasswordInput
             label="Existing Password"
             value={existingPassword}
+            onkeydown={()=>""}
             onChange={(e) => {
               setExistingPassword(e.target.value);
               setErrors((prev) => ({ ...prev, existingPassword: "" }));
@@ -119,6 +120,7 @@ const ChangePassword: React.FC = () => {
           <PasswordInput
             label="New Password"
             value={newPassword}
+            onkeydown={()=>""}
             onChange={(e) => {
               setNewPassword(e.target.value);
               setErrors((prev) => ({ ...prev, newPassword: validatePassword(e.target.value) }));
@@ -129,6 +131,7 @@ const ChangePassword: React.FC = () => {
           <PasswordInput
             label="Confirm Password"
             value={confirmPassword}
+            onkeydown={(e:React.KeyboardEvent)=>{if(e.key==="Enter")handleChangePassword()}}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
               setErrors((prev) => ({

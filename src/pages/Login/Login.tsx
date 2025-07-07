@@ -157,6 +157,7 @@ function Login() {
             error={!!errors.password}
             autoComplete='new-password'
             helperText={errors.password || ""}
+            onkeydown={(e:React.KeyboardEvent)=>{if(e.key==="Enter")handleSignIn()}}
           />
           
           <RouterLink 

@@ -212,6 +212,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             fullWidth
             value={formData.pass}
             onChange={handleChange}
+            onkeydown={()=>""}
             autoComplete="new-password"
             readOnly={!isEditable}
             sx={{
