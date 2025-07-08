@@ -110,6 +110,7 @@ const Configuration = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    if(user?.orgId){
     const run = async () => {
       await fetchScript();
     };
@@ -117,7 +118,8 @@ const Configuration = () => {
 
     const savedTab = localStorage.getItem("activeConfigTab");
     if (savedTab) setActiveTab(savedTab);
-  }, []);
+  }
+  }, [user]);
 
   const loadFont = (font: string) => {
     const fontUrl = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
@@ -176,9 +178,8 @@ const Configuration = () => {
       const orgId= user?.orgId
       const response = await dispatch(getScript(orgId)).unwrap();
       if (response) {
-        toast.success("Script fetched successfully");
+        setEmbedCode(response);
       }
-      setEmbedCode(response);
     } catch (error) {
       console.error("Error fetching script:", error);
       toast.error("Error fetching script");
@@ -364,7 +365,7 @@ const Configuration = () => {
                   <ColorPicker
                     type="color"
                   value={settings.iconColor || "#c0dbf9"}
-                    onChange={(e: any) => {
+                    onChange={(e) => {
                       handleChange("iconColor", e.target.value);
                     }}
                   />
