@@ -40,8 +40,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.JOOPER_SSH_KEY }}
           script: |
+            ls -lah /var/www/ai-chatbot-frontend/
             sudo rm -rf /var/www/ai-chatbot-frontend/*
-            sudo mv /root/apps/ai-chatbot-frontend/dist/* /var/www/ai-chatbot-frontend/
+            sudo mv ~/apps/ai-chatbot-frontend/dist/* /var/www/ai-chatbot-frontend/
             sudo chown -R www-data:www-data /var/www/ai-chatbot-frontend/
             sudo chmod -R 755 /var/www/ai-chatbot-frontend/
             sudo systemctl restart nginx
