@@ -30,8 +30,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.JOOPER_SSH_KEY }}
-          source: "dist/*"
-          target: "~/apps/ai-chatbot-frontend/dist"
+          source: "."
+          target: "/root/apps/ai-chatbot-frontend/dist"
 
       - name: Run remote deployment commands
         uses: appleboy/ssh-action@v1.0.0
@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.JOOPER_SSH_KEY }}
           script: |
             sudo rm -rf /var/www/ai-chatbot-frontend/*
-            sudo mv ~/apps/ai-chatbot-frontend/dist/* /var/www/ai-chatbot-frontend/
+            sudo mv /root/apps/ai-chatbot-frontend/dist/* /var/www/ai-chatbot-frontend/
             sudo chown -R www-data:www-data /var/www/ai-chatbot-frontend/
             sudo chmod -R 755 /var/www/ai-chatbot-frontend/
             sudo systemctl restart nginx
