@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.JOOPER_SSH_KEY }}
           source: "."
-          target: "/root/apps/ai-chatbot-frontend/dist"
+          target: "/root/apps/ai-chatbot-backend"
 
       - name: Run remote deployment commands
         uses: appleboy/ssh-action@v1.0.0
