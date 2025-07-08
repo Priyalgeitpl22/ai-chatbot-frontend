@@ -37,7 +37,7 @@ export const fetchAgents = createAsyncThunk<
       headers: { Authorization: `Bearer ${token}` },
     });
     const filteredAgents = response.data.data.filter((agent: Agent) => !agent.deletedAt);
-    return { data: filteredAgents,message: response.data.message };
+    return { data: filteredAgents, message: response.data.message };
   } catch (error: unknown) {
     let errorMessage = "Something went wrong";
     if (error instanceof AxiosError) {
@@ -54,7 +54,7 @@ export const createAgent = createAsyncThunk<
 >("agents/createAgent", async (payload, { rejectWithValue }) => {
   try {
     const response = await api.post("/agent", payload, {
-      headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}`}
+      headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` }
     });
     return response.data;
   } catch (error: unknown) {
@@ -68,7 +68,7 @@ export const createAgent = createAsyncThunk<
 
 export const updateAgent = createAsyncThunk<
   { data: Agent },
-  { agentId: string; data: any },
+  { agentId: string; data: unknown },
   { rejectValue: string }
 >("organization/updateAgent",
   async ({ agentId, data }, { rejectWithValue }) => {
@@ -89,7 +89,7 @@ export const updateAgent = createAsyncThunk<
 );
 
 export const deleteAgent = createAsyncThunk<
-{ data: Agent; message: string },
+  { data: Agent; message: string },
   string,
   { rejectValue: string }
 >("agents/deleteAgent", async (agentId, { rejectWithValue }) => {

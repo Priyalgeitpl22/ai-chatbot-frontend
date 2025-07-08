@@ -34,6 +34,7 @@ export const SectionTitle = styled.h2`
 export const StyledTableContainer = styled(TableContainer)`
   width: auto;
   max-height: 400px;
+  min-height: 100%;
   overflow: auto !important;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -113,6 +114,7 @@ export const UserInfoContainer = styled(Box)`
 export const UserName = styled(Typography)`
   font-weight: 500;
   color: #2D3748;
+  text-wrap: nowrap;
   font-family: "var(--custom-font-family)";
 `;
 

@@ -6,6 +6,7 @@ export const FormContainer = styled(Box)(`
   width: 98%;
   height: 98%;
   padding: 20px;
+  background-color: #ffffff;
   border-radius: 8px;
   overflow: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
