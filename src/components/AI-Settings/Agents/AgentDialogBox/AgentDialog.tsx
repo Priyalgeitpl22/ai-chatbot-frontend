@@ -53,6 +53,7 @@ export interface Agent {
   orgId: string;
   profilePicture: File | null;
   phone?: string;
+  online?:boolean;
   schedule: {
     timeZone: string;
     schedule: (ScheduleSlot & { startTime?: string; endTime?: string })[];

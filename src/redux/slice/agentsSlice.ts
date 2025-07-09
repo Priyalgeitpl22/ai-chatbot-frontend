@@ -8,9 +8,12 @@ export interface ScheduleSlot {
   hours: { startTime: string; endTime: string }[];
 }
 
+interface ExtendedAgent extends Agent{
+  online:boolean
+}
 
 interface AgentState {
-  data: Agent[] | null;
+  data: ExtendedAgent[] | Agent[]|null;
   message: string;
   loading: boolean;
   error: string | null;
@@ -23,7 +26,6 @@ interface CreateAgentPayload {
   orgId: string;
   profilePicture: File |  null;
   schedule?:any;
-  online:boolean;
 }
 
 const token = Cookies.get("access_token");

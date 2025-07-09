@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import NotificationComponent from "../Notification/NotificationComponent";
 import logo from "../../../public/logo3.png";
 import { HeaderOptions } from "../../pages/Home/home.styled";
-import toast, {Toaster} from "react-hot-toast";
+import {Toaster} from "react-hot-toast";
 import {updateStatus}  from "../../redux/slice/agentsSlice"
 
 const Header = () => {
