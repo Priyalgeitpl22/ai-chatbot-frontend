@@ -18,6 +18,7 @@ import NotificationComponent from "../Notification/NotificationComponent";
 import logo from "../../../public/logo3.png";
 import { HeaderOptions } from "../../pages/Home/home.styled";
 import toast, {Toaster} from "react-hot-toast";
+import {updateStatus}  from "../../redux/slice/agentsSlice"
 
 const Header = () => {
   const { user } = useSelector((state: RootState) => state.user);
@@ -38,11 +39,13 @@ const Header = () => {
           name: user.fullName,
         });
       }
-      if (online) {
-        toast.success("Agent Online");
-      } else {
-        toast.error("Agent Offline");
+      if(online){
+
+        dispatch(updateStatus({online:online,userId:user?.id||""}))
+      }else{
+        dispatch(updateStatus({online:online,userId:user?.id||""}))
       }
+     
     },
     [socket, user?.id]
   );
@@ -79,11 +82,15 @@ const Header = () => {
     console.log("onlineUsers", onlineUsers);
 
     socket.on("agentStatusUpdate", handleAgentStatusUpdate);
-
+        if(!socket)return;
+        socket.on("onlineStatus",({userId,online})=>{
+         dispatch(updateStatus({online:online,userId:userId}))
+        })
+   
     return () => {
       socket.off("agentStatusUpdate", handleAgentStatusUpdate);
     };
-  }, [socket, user?.id]);
+  }, [socket, user?.id,user?.online, dispatch]);
 
   return (
     <HeaderContainer>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Avatar, Box, Table, TableBody, TableRow } from "@mui/material";
+import { Avatar, Box, Table, TableBody, TableRow ,Typography} from "@mui/material";
 import {
   AgentsContainer,
   AgentHeader,
@@ -22,6 +22,7 @@ import Loader from "../../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
 import dayjs, { Dayjs } from "dayjs";
 import { Button } from "../../../styles/layout.styled";
+import { StatusIndicator } from "../../Chats/ChatSideBar/chatSidebar.styled";
 
 export interface Agent {
   id: string;
@@ -31,6 +32,7 @@ export interface Agent {
   orgId: string;
   profilePicture: File | null;
   phone?: string;
+  online?:boolean;
   schedule: {
     timeZone: string;
     schedule: (ScheduleSlot & { startTime?: string; endTime?: string })[];
@@ -48,7 +50,7 @@ interface AgentAvatarProps {
 }
 
 const AgentAvatar: React.FC<AgentAvatarProps> = ({ profilePicture, fullName }) => {
-  const [url, setUrl] = useState<string | undefined>(undefined);
+  const [url, setUrl] = useState<string | undefined>(undefined);  
   
   useEffect(() => {
     if (!profilePicture) {
@@ -135,7 +137,7 @@ const Agents: React.FC = () => {
       ...newAgent,
       id: editingAgent ? editingAgent.id : (agents.length + 1).toString(),
     };
-
+    
     if (editingAgent) {
       setAgents(
         agents.map((agent) =>
@@ -186,6 +188,7 @@ const Agents: React.FC = () => {
             <TableRow>
               <StyledTableCell>S.No.</StyledTableCell>
               <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Status</StyledTableCell>
               <StyledTableCell>Phone</StyledTableCell>
               <StyledTableCell>Email</StyledTableCell>
               <StyledTableCell>Availability</StyledTableCell>
@@ -210,6 +213,12 @@ const Agents: React.FC = () => {
                       />
                       <UserName variant="body1">{agent.fullName}</UserName>
                     </UserInfoContainer>
+                  </StyledTableCell>
+                  <StyledTableCell sx={{ textAlign: "center"   }}>
+                     <Typography variant="subtitle2" fontFamily={'var(--custom-font-family)'} sx={{ fontSize: 10, color: '#696969', display:"flex", justifyContent:"space-evenly", alignItems:"center"}}>
+                                  {agent.online ? "Online" : "Offline"}
+                                  <StatusIndicator online={agent.online} />
+                                </Typography>
                   </StyledTableCell>
                   <StyledTableCell>
                     {agent.phone || "N/A"}
