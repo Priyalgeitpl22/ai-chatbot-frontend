@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../services/api";
 
 interface Props {
   token: string;
@@ -19,8 +19,8 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
       return;
     }
 
-    axios
-      .get("/api/security/user/profile", {
+    api
+      .get("/security/user/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Cache-Control": "no-cache",
@@ -47,7 +47,7 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
 
     setLoading(true);
     try {
-      const res = await axios.get("/api/security/2fa/setup", {
+      const res = await api.get("/security/2fa/setup", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,8 +71,8 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
 
     setLoading(true);
     try {
-      await axios.post(
-        "/api/security/2fa/verify",
+      await api.post(
+        "/security/2fa/verify",
         { token: otp },
         {
           headers: {
@@ -97,8 +97,8 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
 
     setLoading(true);
     try {
-      await axios.post(
-        "/api/security/2fa/disable",
+      await api.post(
+        "/security/2fa/disable",
         { token: otp },
         {
           headers: {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Typography,
   TextField,
@@ -13,6 +12,7 @@ import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/store/store";
 import { getUserDetails } from "../../redux/slice/userSlice";
+import api from "../../services/api";
 
 interface Props {
   tempToken: string;
@@ -29,7 +29,7 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
   useEffect(() => {
     const fetchQRCode = async () => {
       try {
-        const res = await axios.get("/api/security/2fa/setup", {
+        const res = await api.get("/security/2fa/setup", {
           headers: {
             Authorization: `Bearer ${tempToken}`,
           },
@@ -55,8 +55,8 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
     setLoading(true);
     try {
       if (isSetupMode) {
-        await axios.post(
-          "/api/security/2fa/verify",
+        await api.post(
+          "/security/2fa/verify",
           { token: otp },
           {
             headers: {
@@ -72,8 +72,8 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
   temp_token: tempToken
 });
 
-      const res = await axios.post(
-        "/api/security/2fa/verify2FADuringLogin",
+      const res = await api.post(
+        "/security/2fa/verify2FADuringLogin",
         { otp, temp_token: tempToken },
         {
           headers: {
