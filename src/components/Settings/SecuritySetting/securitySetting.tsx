@@ -1,127 +1,104 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../services/api";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store/store";
+import {
+  fetchUserSecurityProfile,
+  setup2FA,
+  verify2FASetup,
+  disable2FA,
+  clearError,
+  clearMessage,
+} from "../../../redux/slice/securitySlice";
 
 interface Props {
   token: string;
 }
 
 const TwoFactorSettings: React.FC<Props> = ({ token }) => {
-  const [enabled, setEnabled] = useState(false);
-  const [qrCode, setQrCode] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const { is2FAEnabled, qrCode, loading, error, message } = useSelector(
+    (state: RootState) => state.security
+  );
+  
   const [otp, setOtp] = useState("");
   const [isSetup, setIsSetup] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     if (!token) {
-      setMsg("User not authenticated.");
       return;
     }
 
-    api
-      .get("/security/user/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Cache-Control": "no-cache",
-        },
-      })
-      .then((res) => {
-        if (res.data?.user?.enable_2fa !== undefined) {
-          setEnabled(res.data.user.enable_2fa);
-        } else {
-          setMsg("Unexpected profile format.");
-        }
-      })
-      .catch((err) => {
-        console.error("User profile fetch error:", err);
-        setMsg("Failed to fetch user settings.");
-      });
-  }, [token]);
+    dispatch(fetchUserSecurityProfile(token));
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    if (error) {
+      // Clear error after 5 seconds
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, dispatch]);
+
+  useEffect(() => {
+    if (message) {
+      // Clear message after 5 seconds
+      const timer = setTimeout(() => {
+        dispatch(clearMessage());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, dispatch]);
 
   const startSetup = async () => {
     if (!token) {
-      setMsg("User not authenticated.");
       return;
     }
 
-    setLoading(true);
     try {
-      const res = await api.get("/security/2fa/setup", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setQrCode(res.data.qrCode || "");
+      await dispatch(setup2FA(token)).unwrap();
       setIsSetup(true);
-      setMsg("");
     } catch (err) {
-      console.error("QR code setup error:", err);
-      setMsg("Error generating QR code.");
+      debugger
     }
-    setLoading(false);
   };
 
   const verifyOtp = async () => {
     if (!otp || !token) {
-      setMsg("Missing OTP or user token.");
       return;
     }
 
-    setLoading(true);
     try {
-      await api.post(
-        "/security/2fa/verify",
-        { token: otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setEnabled(true);
+      await dispatch(verify2FASetup({ token, otp })).unwrap();
       setIsSetup(false);
-      setMsg("2FA enabled successfully.");
+      setOtp("");
     } catch (err) {
-      setMsg("Invalid OTP. Try again.");
+      // Error is handled by the slice
     }
-    setLoading(false);
   };
 
-  const disable2FA = async () => {
+  const disable2FAHandler = async () => {
     if (!otp || !token) {
-      setMsg("Missing OTP or token.");
       return;
     }
 
-    setLoading(true);
     try {
-      await api.post(
-        "/security/2fa/disable",
-        { token: otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setEnabled(false);
+      await dispatch(disable2FA({ token, otp })).unwrap();
       setOtp("");
-      setMsg("2FA disabled.");
     } catch (err) {
-      setMsg("Invalid OTP. Could not disable.");
+      // Error is handled by the slice
     }
-    setLoading(false);
   };
 
   return (
     <div className="p-4 border rounded-xl bg-white shadow-sm max-w-lg mx-auto mt-6">
       <h2 className="text-xl font-semibold mb-4">Two-Factor Authentication (2FA)</h2>
 
-      {msg && <p className="text-sm mb-3 text-blue-600">{msg}</p>}
+      {message && <p className="text-sm mb-3 text-green-600">{message}</p>}
+      {error && <p className="text-sm mb-3 text-red-600">{error}</p>}
 
-      {enabled ? (
+      {is2FAEnabled ? (
         <>
           <p className="mb-2 text-green-600 font-medium">
             2FA is currently <strong>enabled</strong>.
@@ -134,11 +111,11 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
             className="border p-2 rounded w-full mb-3"
           />
           <button
-            onClick={disable2FA}
+            onClick={disable2FAHandler}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
             disabled={loading}
           >
-            Disable 2FA
+            {loading ? "Disabling..." : "Disable 2FA"}
           </button>
         </>
       ) : isSetup ? (
@@ -164,7 +141,7 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
             disabled={loading}
           >
-            Verify & Enable 2FA
+            {loading ? "Verifying..." : "Verify & Enable 2FA"}
           </button>
         </>
       ) : (
@@ -173,7 +150,7 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
           disabled={loading}
         >
-          Enable 2FA
+          {loading ? "Setting up..." : "Enable 2FA"}
         </button>
       )}
     </div>
