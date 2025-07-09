@@ -10,9 +10,10 @@ import {
 } from "@mui/material";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store/store";
 import { getUserDetails } from "../../redux/slice/userSlice";
+import { setup2FA, verify2FALogin } from "../../redux/slice/securitySlice";
 
 interface Props {
   tempToken: string;
@@ -21,21 +22,18 @@ interface Props {
 
 const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { qrCode, loading } = useSelector((state: RootState) => state.security);
   const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [localLoading, setLocalLoading] = useState(false);
   const [isSetupMode, setIsSetupMode] = useState(false);
 
   useEffect(() => {
     const fetchQRCode = async () => {
       try {
-        const res = await axios.get("/api/security/2fa/setup", {
-          headers: {
-            Authorization: `Bearer ${tempToken}`,
-          },
-        });
-        setQrCode(res.data.qrCode);
+        await dispatch(setup2FA(tempToken)).unwrap();
+        // QR code will be available in the Redux state
       } catch (err) {
+        debugger
         console.error("QR code fetch error:", err);
         toast.error("Failed to fetch QR code");
       }
@@ -44,7 +42,7 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
     if (isSetupMode) {
       fetchQRCode();
     }
-  }, [isSetupMode, tempToken]);
+  }, [isSetupMode, tempToken, dispatch]);
 
   const handleVerify = async () => {
     if (!otp || otp.length !== 6) {
@@ -52,53 +50,34 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
       return;
     }
 
-    setLoading(true);
+    setLocalLoading(true);
     try {
-      if (isSetupMode) {
-        await axios.post(
-          "/api/security/2fa/verify",
-          { token: otp },
-          {
-            headers: {
-              Authorization: `Bearer ${tempToken}`,
-            },
-          }
-        );
-        toast.success("2FA setup complete. Logging in...");
-      }
-
       console.log("Sending OTP verification:", {
-  otp,
-  temp_token: tempToken
-});
-
-      const res = await axios.post(
-        "/api/security/2fa/verify2FADuringLogin",
-        { otp, temp_token: tempToken },
-        {
-          headers: {
-            Authorization: `Bearer ${tempToken}`,
-          },
-        }
-      );
-
-      const finalToken = res.data.token;
-      console.log("final Token-----",finalToken)
-      Cookies.set("access_token", finalToken, {
-        expires: 1,
-        path: "/",
-        sameSite: "Strict",
-        secure: window.location.protocol === "https:",
+        otp,
+        temp_token: tempToken
       });
 
+      const result = await dispatch(verify2FALogin({ tempToken, otp })).unwrap();
 
-      await dispatch(getUserDetails(finalToken)).unwrap();
-      toast.success("Login successful.");
-      on2FASuccess();
+      if (result.token) {
+        const finalToken = result.token;
+        console.log("final Token-----", finalToken);
+        
+        Cookies.set("access_token", finalToken, {
+          expires: 1,
+          path: "/",
+          sameSite: "Strict",
+          secure: window.location.protocol === "https:",
+        });
+
+        await dispatch(getUserDetails(finalToken)).unwrap();
+        toast.success("Login successful.");
+        on2FASuccess();
+      }
     } catch (err) {
       toast.error("Invalid OTP or 2FA failed.");
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
@@ -143,10 +122,10 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
         color="primary"
         fullWidth
         onClick={handleVerify}
-        disabled={loading}
+        disabled={localLoading}
         sx={{ mt: 2 }}
       >
-        {loading ? <CircularProgress size={24} color="inherit" /> : "Verify & Login"}
+        {localLoading ? <CircularProgress size={24} color="inherit" /> : "Verify & Login"}
       </Button>
 
     </div>
