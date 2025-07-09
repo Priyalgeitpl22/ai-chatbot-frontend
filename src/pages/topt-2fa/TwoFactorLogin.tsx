@@ -25,7 +25,6 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
   const [loading, setLoading] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [isSetupMode, setIsSetupMode] = useState(false);
-  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     const fetchQRCode = async () => {
@@ -150,7 +149,6 @@ const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
         {loading ? <CircularProgress size={24} color="inherit" /> : "Verify & Login"}
       </Button>
 
-      {msg && <p className="text-sm mt-3 text-blue-600">{msg}</p>}
     </div>
   );
 };
