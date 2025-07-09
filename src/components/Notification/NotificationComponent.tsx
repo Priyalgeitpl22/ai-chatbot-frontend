@@ -245,7 +245,7 @@ useEffect(() => {
   };
 
   const handleNotificationClick = (threadId?: string) => {
-
+    console.log(threadId,"hello")
     if (!threadId) return;
     setGroupedNotifications((prev) => ({
       ...prev,
@@ -301,7 +301,7 @@ useEffect(() => {
           <List sx={{ padding: "0 !important" }}>
             {Object.entries(groupedNotifications).length > 0 ? (
               Object.entries(groupedNotifications).map(([threadId, notification], index) => (
-                <ListItem onClick={() => handleNotificationClick(notification.thread?.id)}
+                <ListItem onClick={() => handleNotificationClick(threadId)}
                   sx={{
                     backgroundColor: notification.read ? "#fff" : "#e8f4ff",
                     transition: "background-color 0.3s",
