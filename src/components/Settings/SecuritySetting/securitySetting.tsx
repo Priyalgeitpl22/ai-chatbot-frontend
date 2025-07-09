@@ -8,7 +8,6 @@ interface Props {
 const TwoFactorSettings: React.FC<Props> = ({ token }) => {
   const [enabled, setEnabled] = useState(false);
   const [qrCode, setQrCode] = useState("");
-  const [secret, setSecret] = useState("");
   const [otp, setOtp] = useState("");
   const [isSetup, setIsSetup] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -55,7 +54,6 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
       });
 
       setQrCode(res.data.qrCode || "");
-      setSecret(res.data.secret || "");
       setIsSetup(true);
       setMsg("");
     } catch (err) {
