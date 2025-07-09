@@ -1,4 +1,6 @@
 import { List, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import SecurityIcon from '@mui/icons-material/Security';
+
 import {
   SettingsListContainer,
   SettingsListHeader,
@@ -10,6 +12,7 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
 const settingsItems = [
   { icon: <NotificationsNoneIcon />, label: "Notifications" },
+  { icon: <SecurityIcon />, label: "Security" },
 ];
 
 interface SettingsListProps {
