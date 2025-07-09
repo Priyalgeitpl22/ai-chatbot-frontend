@@ -8,9 +8,12 @@ export interface ScheduleSlot {
   hours: { startTime: string; endTime: string }[];
 }
 
+interface ExtendedAgent extends Agent{
+  online:boolean
+}
 
 interface AgentState {
-  data: Agent[] | null;
+  data: ExtendedAgent[] | Agent[]|null;
   message: string;
   loading: boolean;
   error: string | null;
@@ -22,7 +25,7 @@ interface CreateAgentPayload {
   phone: string;
   orgId: string;
   profilePicture: File |  null;
-  schedule?:any
+  schedule?:any;
 }
 
 const token = Cookies.get("access_token");
@@ -36,6 +39,7 @@ export const fetchAgents = createAsyncThunk<
     const response = await api.get(`/agent/org/${orgId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
     const filteredAgents = response.data.data.filter((agent: Agent) => !agent.deletedAt);
     return { data: filteredAgents, message: response.data.message };
   } catch (error: unknown) {
@@ -118,7 +122,21 @@ const initialState: AgentState = {
 const agentsSlice = createSlice({
   name: "agents",
   initialState,
-  reducers: {},
+  reducers: {
+    updateStatus :(state,action:PayloadAction<{online:boolean,userId:string}>)=>{
+      console.log(action.payload)
+      if(state.data){
+        const temp = [...state.data]
+       temp.map((elem)=>{
+        if(elem.id===action.payload.userId){
+          elem.online=action.payload.online
+        }
+       })
+       state.data=temp
+      }
+      
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAgents.pending, (state) => {
@@ -194,4 +212,5 @@ const agentsSlice = createSlice({
   },
 });
 
+export const {updateStatus} = agentsSlice.actions
 export default agentsSlice.reducer;
