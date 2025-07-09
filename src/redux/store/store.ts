@@ -8,6 +8,7 @@ import authReducer from "../slice/authSlice";
 import taskReducer from "../slice/taskSlice";
 import settingsReducer from "../slice/settingsSlice";
 import faqReducer from "../slice/faqSlice";
+import notificationSlice from "../slice/notificationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     task: taskReducer,
     settings: settingsReducer,
     faq: faqReducer,
+    notification:notificationSlice
   },
 });
 

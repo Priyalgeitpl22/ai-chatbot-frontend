@@ -17,18 +17,21 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useSocket } from "../../context/SocketContext";
 import { ClearAllBtn, CustomListItemAvatar, NotificationContainer, NotificationHeader, NotificationTitle } from "./notification.styled";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store/store";
+import { useSelector,useDispatch } from "react-redux";
+import { RootState,AppDispatch } from "../../redux/store/store";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { CheckSharp, Delete } from "@mui/icons-material";
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
+import { getNotifications } from "../../redux/slice/notificationSlice";
+import {addNewNotification,clearCount,handleCount,clearNotification} from "../../redux/slice/notificationSlice"
 
 interface NotificationData {
   message: string;
   thread?: {
     id: string;
     name?: string;
+    orgId:string;
     createdAt: string;
   };
 }
@@ -46,6 +49,7 @@ const NotificationComponent: React.FC = () => {
   const [menuAnchor, setMenuAnchor] = useState<{ [key: number]: HTMLElement | null }>({});
   const settings = useSelector((state: RootState) => state.settings.settings);
   const { user } = useSelector((state: RootState) => state.user);
+  const {notification,count}= useSelector((state:RootState)=>state.notification)
   // const [threadId,setThreadId] = useState("")
   const selectedSound =
     settings?.notification?.selectedSound ||
@@ -55,6 +59,7 @@ const NotificationComponent: React.FC = () => {
     settings?.notification?.isSoundOn ??
     user?.userSettings?.settings?.notification?.isSoundOn;
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const open = Boolean(anchorEl);
   const { socket } = useSocket();
@@ -64,16 +69,28 @@ const NotificationComponent: React.FC = () => {
 
     socket.off("notification");
 
-    const playNotificationSound = () => {
-      if (!isSoundOn) return;
-      const audio = new Audio(`/sounds/${selectedSound}`);
-      audio.play().catch((err) => console.error("🔊 Error playing sound:", err));
-    };
-
-    const handleNotification = (data: NotificationData) => {
-      const threadId = data.thread?.id;
+      const handleNotification = (data: NotificationData) => {
+        
+      const threadId = data?.thread?.id;
+      
       if (!threadId) return;
+     
+
+      if(data?.thread?.orgId !== user?.orgId)return;
       // setThreadId(threadId)
+        const payload = {
+          id:"",
+          message:[data.message],
+          latest: data.message,
+          orgId: data.thread?.orgId||"",
+          read: false,
+          threadId: data.thread?.id||"",
+          notification:false,
+          
+        }
+       
+        dispatch(addNewNotification(payload))
+        dispatch(handleCount(1))
       setGroupedNotifications((prev) => {
         const existing = prev[threadId];
         const newCount = existing ? existing.count + 1 : 1;
@@ -130,6 +147,11 @@ toast.custom(() => (
 
       playNotificationSound();
     };
+     const playNotificationSound = () => {
+      if (!isSoundOn) return;
+      const audio = new Audio(`/sounds/${selectedSound}`);
+      audio.play().catch((err) => console.error("🔊 Error playing sound:", err));
+    };
 
     socket.on("notification", handleNotification);
 
@@ -140,11 +162,58 @@ toast.custom(() => (
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    const threadIds = Object.keys(groupedNotifications);
+  if (threadIds.length) {
+    dispatch(clearCount(threadIds));
+    dispatch(handleCount(0));
+  }
   };
+
+  useEffect(() => {
+  if (user?.orgId) {
+    dispatch(getNotifications(user.orgId));
+  }
+}, [user?.orgId]);
+
+useEffect(() => {
+  if (notification?.length) {
+    const grouped: Record<string, GroupedNotification> = {};
+
+    for (const item of notification) {
+      const threadId = item.threadId;
+      if (!threadId) continue;
+
+      if (!grouped[threadId]) {
+        grouped[threadId] = {
+          messages: [...(item.message || [])],
+          count: item.read ? 0 : (item.message?.length || 0),
+          latestMessage:  item.latest,
+          read: item.read || false,
+        };
+      } else {
+        grouped[threadId].messages.push(...item.message);
+        grouped[threadId].count += item.read ? 0 : item.message?.length || 0;
+        grouped[threadId].latestMessage = item.latest;
+      }
+    }
+
+    setGroupedNotifications(grouped);
+  }
+}, [notification]);
+
+
+
 
   const handleClose = () => {
     setAnchorEl(null);
+  
   };
+
+  const handleClearAll = ()=>{
+    if(user?.orgId){
+      dispatch(clearNotification(user?.orgId))
+    }
+  }
 
   const handleMenuClick = (index: number) => (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -203,7 +272,7 @@ toast.custom(() => (
         }}
         onClick={handleClick}
       >
-        <Badge badgeContent={Object.values(groupedNotifications).reduce((sum, n) => sum + n.count, 0)} color="error">
+        <Badge badgeContent={count} color="error">
           <NotificationsIcon sx={{ fontSize: 25, color: "var(--theme-color-dark)" }} />
         </Badge>
         <Typography variant="subtitle2" sx={{ fontSize: 10, color: "#696969" }}>
@@ -224,6 +293,7 @@ toast.custom(() => (
             <ClearAllBtn onClick={() => {
               setGroupedNotifications({});
               handleClose();
+              handleClearAll()
             }}>
               Clear all
             </ClearAllBtn>
@@ -308,7 +378,7 @@ toast.custom(() => (
                           )}
                         </Typography>
                         <Typography variant="subtitle2" sx={{ color: "#64748b",fontSize: "12px" }}>
-                          {notification.latestMessage.length > 50
+                          {notification?.latestMessage?.length > 50
                             ? `${notification.latestMessage.slice(0, 50)}...`
                             : notification.latestMessage}
                         </Typography>
