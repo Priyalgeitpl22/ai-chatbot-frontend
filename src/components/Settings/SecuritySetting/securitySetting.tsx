@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../redux/store/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../../redux/store/store";
 import {
-  fetchUserSecurityProfile,
-  setup2FA,
-  verify2FASetup,
-  disable2FA,
-  clearError,
-  clearMessage,
-} from "../../../redux/slice/securitySlice";
+  SecurityContainer,
+  Title,
+  Label,
+  Message,
+  SwitchRow,
+  QRSection,
+  QRImage,
+  OTPInput,
+  VerifyButton
+} from "./securitySetting.styled";
+import Switch from "@mui/material/Switch";
+import api from "../../../services/api";
+import { fetchOrganization } from "../../../redux/slice/organizationSlice";
+import { AppDispatch } from "../../../redux/store/store";
+import {
+  Box,
+  Button,
+  TextField,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 
 interface Props {
   token: string;
@@ -16,144 +30,149 @@ interface Props {
 
 const TwoFactorSettings: React.FC<Props> = ({ token }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { is2FAEnabled, qrCode, loading, error, message } = useSelector(
-    (state: RootState) => state.security
-  );
-  
+  const org = useSelector((state: RootState) => state.organization.data);
+  const user = useSelector((state: RootState) => state.user.user);
+  const orgId = user?.orgId || org?.id;
+
+  const [twoFA, setTwoFA] = useState(org?.enable_totp_auth || false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  // New local states for QR setup
+  const [qrCode, setQrCode] = useState("");
   const [otp, setOtp] = useState("");
-  const [isSetup, setIsSetup] = useState(false);
+  const [isSetupStarted, setIsSetupStarted] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
-    if (!token) {
-      return;
-    }
+    debugger
+    setTwoFA(org?.enable_totp_auth || false);
+  }, [org]);
 
-    dispatch(fetchUserSecurityProfile(token));
-  }, [dispatch, token]);
-
-  useEffect(() => {
-    if (error) {
-      // Clear error after 5 seconds
-      const timer = setTimeout(() => {
-        dispatch(clearError());
-      }, 5000);
-      return () => clearTimeout(timer);
+  const handleToggle = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.checked;
+    setTwoFA(newValue);
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      if (!orgId) throw new Error("Organization ID not found");
+      await api.put(`/org/?orgId=${orgId}`, { enable_totp_auth: newValue }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMessage(`2FA ${newValue ? "enabled" : "disabled"} for organization.`);
+      dispatch(fetchOrganization(orgId));
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to update 2FA setting");
+      setTwoFA(!newValue); // revert toggle on error
+    } finally {
+      setLoading(false);
     }
-  }, [error, dispatch]);
-
-  useEffect(() => {
-    if (message) {
-      // Clear message after 5 seconds
-      const timer = setTimeout(() => {
-        dispatch(clearMessage());
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [message, dispatch]);
+  };
 
   const startSetup = async () => {
-    if (!token) {
-      return;
-    }
-
+    setQrCode("");
+    setOtp("");
+    setIsSetupStarted(true);
     try {
-      await dispatch(setup2FA(token)).unwrap();
-      setIsSetup(true);
+      const res = await api.get("/security/2fa/setup", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setQrCode(res.data.qrCode || "");
     } catch (err) {
-      debugger
+      setError("Error generating QR code.");
     }
   };
 
   const verifyOtp = async () => {
-    if (!otp || !token) {
-      return;
-    }
+    if (!otp) return;
 
+    setVerifying(true);
+    setError(null);
+    setMessage(null);
     try {
-      await dispatch(verify2FASetup({ token, otp })).unwrap();
-      setIsSetup(false);
+      await api.post(
+        "/security/2fa/verify",
+        { token: otp },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessage("2FA successfully enabled.");
+      setIsSetupStarted(false);
+      setQrCode("");
       setOtp("");
     } catch (err) {
-      // Error is handled by the slice
+      setError("Invalid OTP. Try again.");
+    } finally {
+      setVerifying(false);
     }
   };
 
-  const disable2FAHandler = async () => {
-    if (!otp || !token) {
-      return;
-    }
-
-    try {
-      await dispatch(disable2FA({ token, otp })).unwrap();
-      setOtp("");
-    } catch (err) {
-      // Error is handled by the slice
-    }
-  };
+  // if (user?.role !== "Admin") return null;
 
   return (
-    <div className="p-4 border rounded-xl bg-white shadow-sm max-w-lg mx-auto mt-6">
-      <h2 className="text-xl font-semibold mb-4">Two-Factor Authentication (2FA)</h2>
+    <SecurityContainer>
+      <Title>Two-Factor Authentication (2FA)</Title>
+      {message && <Message success>{message}</Message>}
+      {error && <Message>{error}</Message>}
 
-      {message && <p className="text-sm mb-3 text-green-600">{message}</p>}
-      {error && <p className="text-sm mb-3 text-red-600">{error}</p>}
+      <SwitchRow>
+        <Label>
+          2FA is{" "}
+          <strong style={{ color: "#1e293b" }}>
+            {org?.enable_totp_auth ? "enabled" : "disabled"}
+          </strong>
+        </Label>
+        <Switch
+          checked={twoFA}
+          onChange={handleToggle}
+          color="primary"
+          disabled={loading || !orgId}
+        />
+      </SwitchRow>
 
-      {is2FAEnabled ? (
-        <>
-          <p className="mb-2 text-green-600 font-medium">
-            2FA is currently <strong>enabled</strong>.
-          </p>
-          <label className="block mb-1 font-medium">Enter OTP to disable:</label>
-          <input
+      {/* QR Setup Section — only after toggle ON */}
+      {((isSetupStarted || qrCode) && twoFA) ? (
+        <QRSection>
+          <Typography>Scan the QR Code with Google Authenticator:</Typography>
+          <QRImage src={qrCode} alt="2FA QR Code" />
+          <OTPInput
+            type="text"
+            placeholder="Enter OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            placeholder="6-digit code"
-            className="border p-2 rounded w-full mb-3"
+            maxLength={6}
           />
-          <button
-            onClick={disable2FAHandler}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-            disabled={loading}
-          >
-            {loading ? "Disabling..." : "Disable 2FA"}
-          </button>
-        </>
-      ) : isSetup ? (
-        <>
-          <p className="mb-2">Scan this QR code using Google Authenticator or Authy:</p>
-          {qrCode ? (
-            <div className="flex justify-center mb-3">
-              <img src={qrCode} alt="QR Code" className="w-48 h-48" />
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">Loading QR code...</p>
-          )}
-
-          <label className="block mb-1 font-medium">Enter OTP:</label>
-          <input
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="6-digit code"
-            className="border p-2 rounded w-full mb-3"
-          />
-          <button
+          <VerifyButton
+            variant="contained"
+            color="success"
             onClick={verifyOtp}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            disabled={loading}
+            disabled={verifying || otp.length !== 6}
           >
-            {loading ? "Verifying..." : "Verify & Enable 2FA"}
-          </button>
-        </>
+            {verifying ? <CircularProgress size={22} /> : "Verify OTP"}
+          </VerifyButton>
+        </QRSection>
       ) : (
-        <button
-          onClick={startSetup}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          disabled={loading}
-        >
-          {loading ? "Setting up..." : "Enable 2FA"}
-        </button>
+        twoFA && !qrCode && !isSetupStarted && (
+          <Box mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={startSetup}
+              disabled={loading}
+            >
+              Set Up 2FA
+            </Button>
+          </Box>
+        )
       )}
-    </div>
+    </SecurityContainer>
   );
 };
 
