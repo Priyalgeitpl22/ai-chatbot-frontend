@@ -19,7 +19,6 @@ import { AppDispatch } from "../../../redux/store/store";
 import {
   Box,
   Button,
-  TextField,
   CircularProgress,
   Typography,
 } from "@mui/material";
@@ -39,14 +38,13 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // New local states for QR setup
   const [qrCode, setQrCode] = useState("");
   const [otp, setOtp] = useState("");
-  const [isSetupStarted, setIsSetupStarted] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [isSetupInProgress, setIsSetupInProgress] = useState(false);
+  const [isToggleDisabled, setIsToggleDisabled] = useState(!twoFA); // true if 2FA is not enabled
 
   useEffect(() => {
-    debugger
     setTwoFA(org?.enable_totp_auth || false);
   }, [org]);
 
@@ -65,7 +63,7 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
       dispatch(fetchOrganization(orgId));
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to update 2FA setting");
-      setTwoFA(!newValue); // revert toggle on error
+      setTwoFA(!newValue); 
     } finally {
       setLoading(false);
     }
@@ -74,7 +72,7 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
   const startSetup = async () => {
     setQrCode("");
     setOtp("");
-    setIsSetupStarted(true);
+    setIsSetupInProgress(true);
     try {
       const res = await api.get("/security/2fa/setup", {
         headers: {
@@ -104,9 +102,11 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
         }
       );
       setMessage("2FA successfully enabled.");
-      setIsSetupStarted(false);
+      setIsSetupInProgress(false);
       setQrCode("");
       setOtp("");
+      setIsToggleDisabled(false); 
+      setTwoFA(true);
     } catch (err) {
       setError("Invalid OTP. Try again.");
     } finally {
@@ -114,7 +114,6 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
     }
   };
 
-  // if (user?.role !== "Admin") return null;
 
   return (
     <SecurityContainer>
@@ -126,19 +125,30 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
         <Label>
           2FA is{" "}
           <strong style={{ color: "#1e293b" }}>
-            {org?.enable_totp_auth ? "enabled" : "disabled"}
+            {twoFA ? "enabled" : "disabled"}
           </strong>
         </Label>
         <Switch
           checked={twoFA}
           onChange={handleToggle}
           color="primary"
-          disabled={loading || !orgId}
+          disabled={isToggleDisabled}
         />
       </SwitchRow>
 
-      {/* QR Setup Section — only after toggle ON */}
-      {((isSetupStarted || qrCode) && twoFA) ? (
+      {!twoFA && !isSetupInProgress && (
+        <Box mt={2}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={startSetup}
+            disabled={loading}
+          >
+            Set Up 2FA
+          </Button>
+        </Box>
+      )}
+      {isSetupInProgress && (
         <QRSection>
           <Typography>Scan the QR Code with Google Authenticator:</Typography>
           <QRImage src={qrCode} alt="2FA QR Code" />
@@ -158,19 +168,6 @@ const TwoFactorSettings: React.FC<Props> = ({ token }) => {
             {verifying ? <CircularProgress size={22} /> : "Verify OTP"}
           </VerifyButton>
         </QRSection>
-      ) : (
-        twoFA && !qrCode && !isSetupStarted && (
-          <Box mt={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={startSetup}
-              disabled={loading}
-            >
-              Set Up 2FA
-            </Button>
-          </Box>
-        )
       )}
     </SecurityContainer>
   );

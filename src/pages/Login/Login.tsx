@@ -11,7 +11,6 @@ import {
 } from './login.styled';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../redux/slice/authSlice';
 import { AppDispatch, RootState } from '../../redux/store/store';
 import Loader from '../../components/Loader';
 import Cookies from "js-cookie";
@@ -46,6 +45,10 @@ const getValidationError = (
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
+  const [tempToken, setTempToken] = useState('');
+  const [otpError, setOtpError] = useState('');
   
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loginSubmitted, setLoginSubmitted] = useState(false);
@@ -98,24 +101,58 @@ function Login() {
     if (loginSubmitted) {
       (async () => {
         try {
-          await dispatch(loginUser({ email, password })).unwrap().then((res)=>{
-            toast.success(res as string);
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
           });
-          const token = Cookies.get("access_token");
-          if (token) {
-            await dispatch(getUserDetails(token)).unwrap();
+          const data = await res.json();
+          if (data.require2FA && data.tempToken) {
+            setTempToken(data.tempToken);
+            setShowOtp(true);
+            setLoginSubmitted(false);
+            return;
           }
-          navigate('/');
-          window.location.reload();
+          if (data.token) {
+            Cookies.set('access_token', data.token);
+            await dispatch(getUserDetails(data.token)).unwrap();
+            navigate('/');
+            window.location.reload();
+            return;
+          }
+          throw new Error(data.message || 'Login failed');
         } catch (err) {
           console.error('Login failed:', err);
-          toast.error(err as string);
+          toast.error(err instanceof Error ? err.message : String(err));
         } finally {
           setLoginSubmitted(false);
         }
       })();
     }
   }, [loginSubmitted, dispatch, navigate, email, password]);
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError('');
+    try {
+      const res = await fetch('/api/auth/verify-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken, otp })
+      });
+      const data = await res.json();
+      if (data.token) {
+        Cookies.set('access_token', data.token);
+        await dispatch(getUserDetails(data.token)).unwrap();
+        navigate('/');
+        window.location.reload();
+        return;
+      }
+      throw new Error(data.message || 'OTP verification failed');
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : String(err));
+    }
+  };
 
   const isFormValid = email && password && !errors.email && !errors.password;
   return (
@@ -128,7 +165,6 @@ function Login() {
             style={{ maxWidth: '100%', height: 'auto' }}
           />
         </IllustrationSection>
-        
         <FormSection>
           <Typography variant="h4" fontWeight="bold" fontFamily={"var(--custom-font-family)"} mb={1}>
             Welcome!
@@ -136,54 +172,75 @@ function Login() {
           <Typography variant="body1" color="black" fontFamily={"var(--custom-font-family)"} mb={4}>
             Sign in to your Account
           </Typography>
-
-          <StyledTextField 
-            fullWidth 
-            label="Email Address *" 
-            variant="outlined" 
-            type="email" 
-            value={email}
-            onChange={handleEmailChange}
-            error={!!errors.email}
-            helperText={errors.email}
-            autoComplete='nope'
-            InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
-          />
-          
-          <PasswordInput 
-            label="Password"
-            value={password}
-            onChange={handlePasswordChange}
-            error={!!errors.password}
-            autoComplete='new-password'
-            helperText={errors.password || ""}
-            onkeydown={(e:React.KeyboardEvent)=>{if(e.key==="Enter")handleSignIn()}}
-          />
-          
-          <RouterLink 
-            to="/forgot-password" 
-            style={{ textDecoration: 'none', marginBottom:'10px', alignSelf: 'flex-end', color: 'var(--theme-color-dark)' }}
-          >
-            <ForgotPasswordLink>Forgot Password?</ForgotPasswordLink>
-          </RouterLink>
-          
-          <StyledButton 
-            variant="contained" 
-            fullWidth 
-            onClick={handleSignIn}
-            disabled={!isFormValid}
-          >
-            SIGN IN
-          </StyledButton>
-          <Typography variant="body2" color="black" align="center" fontFamily={"var(--custom-font-family)"} sx={{ my: 2 }}>
-            Don't have an account?{' '}
-            <RouterLink to="/register" style={{ textDecoration: 'none', color: 'var(--theme-color-dark)' }}>
-              Register
-            </RouterLink>
-          </Typography>
+          {!showOtp ? (
+            <>
+              <StyledTextField 
+                fullWidth 
+                label="Email Address *" 
+                variant="outlined" 
+                type="email" 
+                value={email}
+                onChange={handleEmailChange}
+                error={!!errors.email}
+                helperText={errors.email}
+                autoComplete='nope'
+                InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
+              />
+              <PasswordInput 
+                label="Password"
+                value={password}
+                onChange={handlePasswordChange}
+                error={!!errors.password}
+                autoComplete='new-password'
+                helperText={errors.password || ""}
+                onkeydown={(e:React.KeyboardEvent)=>{if(e.key==="Enter")handleSignIn()}}
+              />
+              <RouterLink 
+                to="/forgot-password" 
+                style={{ textDecoration: 'none', marginBottom:'10px', alignSelf: 'flex-end', color: 'var(--theme-color-dark)' }}
+              >
+                <ForgotPasswordLink>Forgot Password?</ForgotPasswordLink>
+              </RouterLink>
+              <StyledButton 
+                variant="contained" 
+                fullWidth 
+                onClick={handleSignIn}
+                disabled={!isFormValid}
+              >
+                SIGN IN
+              </StyledButton>
+              <Typography variant="body2" color="black" align="center" fontFamily={"var(--custom-font-family)"} sx={{ my: 2 }}>
+                Don't have an account?{' '}
+                <RouterLink to="/register" style={{ textDecoration: 'none', color: 'var(--theme-color-dark)' }}>
+                  Register
+                </RouterLink>
+              </Typography>
+            </>
+          ) : (
+            <form onSubmit={handleOtpSubmit} style={{ width: '100%' }}>
+              <StyledTextField
+                fullWidth
+                label="Enter 6-digit OTP"
+                variant="outlined"
+                value={otp}
+                onChange={e => setOtp(e.target.value)}
+                inputProps={{ maxLength: 6 }}
+                autoFocus
+                sx={{ mb: 2 }}
+              />
+              <StyledButton
+                variant="contained"
+                fullWidth
+                type="submit"
+                disabled={otp.length !== 6}
+              >
+                Verify OTP
+              </StyledButton>
+              {otpError && <Typography color="error" mt={1}>{otpError}</Typography>}
+            </form>
+          )}
         </FormSection>
       </LoginCard>
-
       {loading && <Loader />}
       <Toaster />
     </PageContainer>

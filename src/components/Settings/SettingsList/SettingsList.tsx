@@ -18,7 +18,6 @@ interface SettingsListProps {
 }
 
 const SettingsList = ({ selectedTab, setSelectedTab }: SettingsListProps) => {
-  const org = useSelector((state: RootState) => state.organization.data);
   const { user, loading } = useSelector((state: RootState) => state.user);
 
   if (loading || user === null) {
@@ -36,7 +35,6 @@ const SettingsList = ({ selectedTab, setSelectedTab }: SettingsListProps) => {
     );
   }
 
-  // const isAdmin = user.role === "Admin";
   const isSecurityAllowed = ["Admin", "Agent"].includes(user.role);
 
   
