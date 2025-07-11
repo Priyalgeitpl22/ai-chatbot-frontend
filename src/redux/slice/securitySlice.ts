@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
 import { AxiosError } from "axios";
-import Cookies from "js-cookie";
 
 interface SecurityState {
   is2FAEnabled: boolean;
@@ -30,9 +29,6 @@ interface Disable2FAResponse {
   message: string;
 }
 
-const token = Cookies.get("access_token");
-
-// Fetch user security profile
 export const fetchUserSecurityProfile = createAsyncThunk<
   UserProfileResponse,
   string,
@@ -61,11 +57,10 @@ export const setup2FA = createAsyncThunk<
   string,
   { rejectValue: string }
 >("security/setup2FA", async (token, { rejectWithValue }) => {
-  ;
   try {
     const response = await api.get("/security/2fa/setup", {
       headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk0YTg1MWUzLTZhNmYtNGQxZi04MjExLTE3ZDU2NmMzZmU0YiIsInJvbGUiOiJBZ2VudCIsImlhdCI6MTc1MjA5MTU0NSwiZXhwIjoxNzUyMDk1MTQ1fQ.OTDJubZHOBXRtGPIjNISoM03OodUOp5VBgcWopoy4mg`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -220,7 +215,7 @@ const securitySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(verify2FASetup.fulfilled, (state, action) => {
+      .addCase(verify2FASetup.fulfilled, (state) => {
         state.loading = false;
         state.is2FAEnabled = true;
         state.qrCode = null;
@@ -239,7 +234,7 @@ const securitySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(verify2FALogin.fulfilled, (state, action) => {
+      .addCase(verify2FALogin.fulfilled, (state) => {
         state.loading = false;
         state.message = "Login successful";
       })
@@ -256,7 +251,7 @@ const securitySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(disable2FA.fulfilled, (state, action) => {
+      .addCase(disable2FA.fulfilled, (state) => {
         state.loading = false;
         state.is2FAEnabled = false;
         state.message = "2FA disabled";

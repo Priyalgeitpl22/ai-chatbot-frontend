@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/store";
-import { fetchOrganization } from "../../../redux/slice/organizationSlice";
-import { AppDispatch } from "../../../redux/store/store";
 import api from "../../../services/api";
 import {
   Box,
@@ -17,7 +15,6 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
 import AddIcon from "@mui/icons-material/Add";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import {
   PrimaryButton,
   OutlinedBlueButton,

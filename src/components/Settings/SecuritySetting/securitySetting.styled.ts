@@ -118,7 +118,7 @@ export const InfoText = styled(Box)({
   color: "var(--identity-common-ui-components-web-color-text-secondary)",
 });
 
-export const PrimaryButton = styled(Button)(({ theme }) => ({
+export const PrimaryButton = styled(Button)(({ }) => ({
   borderRadius: 6,
   cursor: "pointer",
   fontWeight: 500,
@@ -135,7 +135,7 @@ export const Label = styled("p")({
   marginTop: 0,
 });
 
-export const OutlinedBlueButton = styled(Button)(({ theme }) => ({
+export const OutlinedBlueButton = styled(Button)(({ }) => ({
   color: '#1a73e8',
   borderColor: '#1a73e8',
   borderRadius: '24px',
@@ -151,7 +151,7 @@ export const OutlinedBlueButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-export const RoundedBlueButton = styled(Button)(({ theme }) => ({
+export const RoundedBlueButton = styled(Button)(({ }) => ({
   color: '#1a73e8',
   borderColor: '#1a73e8',
   borderRadius: '24px',

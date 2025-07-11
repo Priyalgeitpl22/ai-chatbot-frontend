@@ -21,7 +21,7 @@ interface Props {
 
 const TwoFactorOTPLogin: React.FC<Props> = ({ tempToken, on2FASuccess }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { qrCode, loading } = useSelector((state: RootState) => state.security);
+  const { qrCode } = useSelector((state: RootState) => state.security);
   const [otp, setOtp] = useState("");
   const [localLoading, setLocalLoading] = useState(false);
   const [isSetupMode, setIsSetupMode] = useState(false);
