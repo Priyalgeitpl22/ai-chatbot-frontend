@@ -139,7 +139,7 @@ function Login() {
         return;
       }
       throw new Error(data.message || 'OTP verification failed');
-    } catch (err) {
+    } catch (err: any) {
       setOtpError(err?.message as string || 'OTP verification failed');
     }
   };
