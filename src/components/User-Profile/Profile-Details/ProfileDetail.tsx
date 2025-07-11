@@ -16,6 +16,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import toast, {Toaster} from 'react-hot-toast';
 import Loader from "../../Loader";
+import TwoFactorSettings from "../../Settings/SecuritySetting/securitySetting";
+import Cookies from "js-cookie";
 
 interface ProfileDetailProps {
   open: boolean;
@@ -97,6 +99,8 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     onClose();
   };
 
+  const token = Cookies.get("access_token");
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <Box sx={{ width: "100%", height: "80px", backgroundColor: "#dddddd" }}></Box>
@@ -168,6 +172,11 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             InputProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
             disabled
           />
+        </FieldWrapper>
+
+        {/* 2FA Section */}
+        <FieldWrapper>
+          <TwoFactorSettings token={token || ""} />
         </FieldWrapper>
       </DialogBody>
 

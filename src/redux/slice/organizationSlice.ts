@@ -44,7 +44,8 @@ interface Organization {
   emailConfig?: EmailConfig;
   aiEnabled?: boolean;
   openAiKey?: string;
-  aiChatBotSettings?: AIChatBotSettings; 
+  aiChatBotSettings?: AIChatBotSettings;
+  enable_totp_auth?: boolean;
 }
 interface OrganizationState {
   data: Organization | null;

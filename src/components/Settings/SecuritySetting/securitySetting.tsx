@@ -1,182 +1,537 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../../redux/store/store";
+import { fetchOrganization } from "../../../redux/slice/organizationSlice";
+import { AppDispatch } from "../../../redux/store/store";
 import api from "../../../services/api";
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Modal,
+  Stack,
+  Paper,
+} from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import QrCode2Icon from "@mui/icons-material/QrCode2";
+import AddIcon from "@mui/icons-material/Add";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import {
+  PrimaryButton,
+  OutlinedBlueButton,
+  RoundedBlueButton,
+  Title,
+  Label,
+  InfoText,
+} from "./securitySetting.styled";
+import {
+  CustomWrapper,
+  TitleWrapper,
+} from "../NotificationSettings/notificationSettingsStyled";
 
-interface Props {
-  token: string;
-}
-
-const TwoFactorSettings: React.FC<Props> = ({ token }) => {
-  const [enabled, setEnabled] = useState(false);
+const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
+  const org = useSelector((state: RootState) => state.organization.data);
+  const user = useSelector((state: RootState) => state.user.user);
+  const [twoFA, setTwoFA] = useState(
+    org?.enable_totp_auth && user?.twoFactorAuth?.isEnabled
+  );
+  const [error, setError] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState("");
+  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [showAuthenticatorModal, setShowAuthenticatorModal] = useState(false);
+  const [loadingQR, setLoadingQR] = useState(false);
+  const [showTurnOffModal, setShowTurnOffModal] = useState(false);
+  const [otpToDisable, setOtpToDisable] = useState("");
+  const [disableError, setDisableError] = useState("");
+  const [showOtpVerifyModal, setShowOtpVerifyModal] = useState(false);
   const [otp, setOtp] = useState("");
-  const [isSetup, setIsSetup] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
+  const [disabling, setDisabling] = useState(false);
+  const [enabledAt, setEnabledAt] = useState(user?.twoFactorAuth?.enabledAt || null);
 
   useEffect(() => {
-    if (!token) {
-      setMsg("User not authenticated.");
-      return;
-    }
+    setTwoFA(org?.enable_totp_auth && user?.twoFactorAuth?.isEnabled);
+  }, [org, user]);
 
-    api
-      .get("/security/user/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Cache-Control": "no-cache",
-        },
-      })
-      .then((res) => {
-        if (res.data?.user?.enable_2fa !== undefined) {
-          setEnabled(res.data.user.enable_2fa);
-        } else {
-          setMsg("Unexpected profile format.");
-        }
-      })
-      .catch((err) => {
-        console.error("User profile fetch error:", err);
-        setMsg("Failed to fetch user settings.");
-      });
-  }, [token]);
+  const daysAgo = user?.twoFactorAuth?.authenticatorAppAddedAt
+    ? Math.floor(
+        (Date.now() -
+          new Date(user?.twoFactorAuth?.authenticatorAppAddedAt).getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    : null;
 
-  const startSetup = async () => {
-    if (!token) {
-      setMsg("User not authenticated.");
-      return;
-    }
+  const handleStartSetup = async () => {
+    setShowAuthenticatorModal(true);
+  };
 
-    setLoading(true);
+  const handleSetupAuthenticator = async () => {
+    setQrCode("");
+    setOtp("");
+    setShowSetupModal(true);
+    setShowAuthenticatorModal(false);
+    setLoadingQR(true);
     try {
       const res = await api.get("/security/2fa/setup", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       setQrCode(res.data.qrCode || "");
-      setIsSetup(true);
-      setMsg("");
     } catch (err) {
-      console.error("QR code setup error:", err);
-      setMsg("Error generating QR code.");
+      setQrCode("");
+      setError("Error generating QR code.");
     }
-    setLoading(false);
+    setLoadingQR(false);
   };
 
   const verifyOtp = async () => {
-    if (!otp || !token) {
-      setMsg("Missing OTP or user token.");
-      return;
-    }
-
-    setLoading(true);
+    if (!otp) return;
+    setVerifying(true);
+    setError(null);
     try {
       await api.post(
         "/security/2fa/verify",
         { token: otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setEnabled(true);
-      setIsSetup(false);
-      setMsg("2FA enabled successfully.");
-    } catch (err) {
-      setMsg("Invalid OTP. Try again.");
-    }
-    setLoading(false);
-  };
-
-  const disable2FA = async () => {
-    if (!otp || !token) {
-      setMsg("Missing OTP or token.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await api.post(
-        "/security/2fa/disable",
-        { token: otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setEnabled(false);
+      setShowOtpVerifyModal(false);
+      setShowSetupModal(false);
+      setQrCode("");
       setOtp("");
-      setMsg("2FA disabled.");
-    } catch (err) {
-      setMsg("Invalid OTP. Could not disable.");
+      const now = new Date().toISOString();
+      setTwoFA(true);
+      setEnabledAt(now);
+      setShowAuthenticatorModal(false);
+    } catch {
+      setVerifyError("Invalid code. Try again.");
     }
-    setLoading(false);
+    setVerifying(false);
   };
 
   return (
-    <div className="p-4 border rounded-xl bg-white shadow-sm max-w-lg mx-auto mt-6">
-      <h2 className="text-xl font-semibold mb-4">Two-Factor Authentication (2FA)</h2>
+    <Box>
+      <TitleWrapper>
+        <Title>Security Settings</Title>
+      </TitleWrapper>
 
-      {msg && <p className="text-sm mb-3 text-blue-600">{msg}</p>}
-
-      {enabled ? (
-        <>
-          <p className="mb-2 text-green-600 font-medium">
-            2FA is currently <strong>enabled</strong>.
-          </p>
-          <label className="block mb-1 font-medium">Enter OTP to disable:</label>
-          <input
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="6-digit code"
-            className="border p-2 rounded w-full mb-3"
-          />
-          <button
-            onClick={disable2FA}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-            disabled={loading}
+      <CustomWrapper>
+        <Box>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
           >
-            Disable 2FA
-          </button>
-        </>
-      ) : isSetup ? (
-        <>
-          <p className="mb-2">Scan this QR code using Google Authenticator or Authy:</p>
-          {qrCode ? (
-            <div className="flex justify-center mb-3">
-              <img src={qrCode} alt="QR Code" className="w-48 h-48" />
+            <Label sx={{ fontSize: "1.25rem", fontWeight: 500, color: "#1e293b", marginBottom: 4, display: "flex", alignItems: "center", gap: 1 }}>
+              {!twoFA && (
+                <WarningAmberRoundedIcon sx={{ color: "#ef4444", fontSize: 24 }} />
+              )}
+              {twoFA
+                ? "Your account is protected with 2-Step Verification"
+                : "Two-Step Verification is not enabled."}
+            </Label>
+            {twoFA && (
+              <Box display="flex" alignItems="center">
+                <CheckCircleIcon sx={{ color: "green", fontSize: 22, mr: 1 }} />
+                <Typography sx={{ color: "#1e293b", fontWeight: 500 }}>
+                  On since{" "}
+                  {enabledAt &&
+                    new Date(enabledAt).toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}
+                </Typography>
+                <ChevronRightIcon sx={{ color: "#bdbdbd", fontSize: 22 }} />
+              </Box>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "80px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                justifyContent: "center",
+              }}
+            >
+              {user?.role === "Admin" ? (
+                <>
+                  <InfoText>
+                    Prevent hackers from accessing your account with an
+                    additional layer of security.
+                  </InfoText>
+                  <br />
+                  <InfoText>
+                    Unless you’re signing in with a passkey, you’ll be asked to
+                    complete the most secure second step available on your
+                    account.
+                  </InfoText>
+                  <Stack direction="row" spacing={2} mt={3}>
+                    <OutlinedBlueButton
+                      variant="outlined"
+                      onClick={
+                        twoFA
+                          ? () => setShowTurnOffModal(true)
+                          : handleStartSetup
+                      }
+                    >
+                      {twoFA
+                        ? "Turn off 2-Step Verification"
+                        : "Turn on 2-Step Verification"}
+                    </OutlinedBlueButton>
+                  </Stack>
+                </>
+              ) : org?.enable_totp_auth ? (
+                <>
+                  <InfoText>
+                    Prevent hackers from accessing your account with an
+                    additional layer of security.
+                  </InfoText>
+                  <br />
+                  <InfoText>
+                    Unless you’re signing in with a passkey, you’ll be asked to
+                    complete the most secure second step available on your
+                    account.
+                  </InfoText>
+                  <Stack direction="row" spacing={2} mt={3}>
+                    <OutlinedBlueButton
+                      variant="outlined"
+                      onClick={
+                        twoFA
+                          ? () => setShowTurnOffModal(true)
+                          : handleStartSetup
+                      }
+                    >
+                      {twoFA
+                        ? "Turn off 2-Step Verification"
+                        : "Turn on 2-Step Verification"}
+                    </OutlinedBlueButton>
+                  </Stack>
+                </>
+              ) : (
+                <>
+                <InfoText>
+                  2-Step Verification is not enabled for your organization.
+                  Please contact your administrator to enable this security
+                  feature.
+                </InfoText>
+                <Stack direction="row" spacing={2} mt={3}>
+                    <OutlinedBlueButton
+                      variant="outlined"
+                      disabled={true}
+                    >Turn on 2-Step Verification
+                    </OutlinedBlueButton>
+                  </Stack>
+                </>
+              )}
             </div>
-          ) : (
-            <p className="text-sm text-gray-500">Loading QR code...</p>
-          )}
+            <img
+              src="https://www.gstatic.com/identity/accountsettings/strongauth/2SV_scene_hero_v2_light_1daa958040ec3dbd3fa3eef6f0990fa4.svg"
+              alt="2-Step Verification Illustration"
+              style={{ width: 350, maxWidth: "100%" }}
+            />
+          </div>
+        </Box>
 
-          <label className="block mb-1 font-medium">Enter OTP:</label>
-          <input
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="6-digit code"
-            className="border p-2 rounded w-full mb-3"
-          />
-          <button
-            onClick={verifyOtp}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            disabled={loading}
-          >
-            Verify & Enable 2FA
-          </button>
-        </>
-      ) : (
-        <button
-          onClick={startSetup}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          disabled={loading}
+        {/* Authenticator Details Modal */}
+        <Modal
+          open={showAuthenticatorModal}
+          onClose={() => setShowAuthenticatorModal(false)}
         >
-          Enable 2FA
-        </button>
-      )}
-    </div>
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              minWidth: 400,
+              p: 4,
+              outline: "none",
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h5" fontWeight={600} mb={2}>
+              Authenticator app
+            </Typography>
+            <Typography color="text.secondary" mb={3}>
+              Instead of waiting for text messages, get verification codes from
+              an authenticator app. It works even if your phone is offline.
+              <br />
+              <br />
+              First, download Google Authenticator from the{" "}
+              <a
+                href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&pli=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#1a73e8" }}
+              >
+                Google Play Store
+              </a>{" "}
+              or the{" "}
+              <a
+                href="https://apps.apple.com/us/app/google-authenticator/id388497605"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#1a73e8" }}
+              >
+                iOS App Store
+              </a>
+              .
+            </Typography>
+            {user?.twoFactorAuth?.isEnabled ? (
+              <Box
+                sx={{
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 2,
+                  p: 2,
+                  background: "#fafafa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 2,
+                }}
+              >
+                <Box display="flex" alignItems="center" gap={2}>
+                  <QrCode2Icon color="action" />
+                  <Box>
+                    <Typography fontWeight={500}>Authenticator</Typography>
+                    <Typography color="text.secondary" fontSize={14}>
+                      Added {daysAgo !== null ? `${daysAgo} days ago` : "N/A"}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            ) : (
+              <RoundedBlueButton
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={handleSetupAuthenticator}
+                disabled={loadingQR}
+              >
+                Set up authenticator
+              </RoundedBlueButton>
+            )}
+          </Paper>
+        </Modal>
+
+        {/* QR Setup Modal */}
+        <Modal open={showSetupModal} onClose={() => setShowSetupModal(false)}>
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              minWidth: 350,
+              p: 4,
+              outline: "none",
+              borderRadius: 2,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" mb={2}>
+              Set up authenticator app
+            </Typography>
+            <Typography align="left" mb={2}>
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                <li>
+                  In the Google Authenticator app, tap the <b>+</b>
+                </li>
+                <li>
+                  Choose <b>Scan a QR code</b>
+                </li>
+              </ul>
+            </Typography>
+            {qrCode ? (
+              <img
+                src={qrCode}
+                alt="QR Code"
+                style={{ width: 180, height: 180, margin: "0 auto" }}
+              />
+            ) : (
+              <Typography color="text.secondary">Loading QR code...</Typography>
+            )}
+            {error && (
+              <Box color="error.main" mb={2}>
+                {error}
+              </Box>
+            )}
+            <Box mt={2} display="flex" justifyContent="space-between">
+              <PrimaryButton onClick={() => setShowSetupModal(false)}>
+                Cancel
+              </PrimaryButton>
+              <PrimaryButton
+                // variant="outlined"
+                onClick={() => {
+                  setShowSetupModal(false);
+                  setShowOtpVerifyModal(true);
+                }}
+              >
+                Next
+              </PrimaryButton>
+            </Box>
+          </Paper>
+        </Modal>
+
+        {/* OTP Verification Modal */}
+        <Modal
+          open={showOtpVerifyModal}
+          onClose={() => setShowOtpVerifyModal(false)}
+        >
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              minWidth: 350,
+              p: 4,
+              outline: "none",
+              borderRadius: 2,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" mb={2}>
+              Set up authenticator app
+            </Typography>
+            <Typography mb={2}>
+              Enter the 6-digit code that you see in the app
+            </Typography>
+            <input
+              type="text"
+              placeholder="Enter code"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              maxLength={6}
+              style={{
+                padding: 12,
+                borderRadius: 4,
+                border: "1px solid #ccc",
+                width: "92%",
+                fontSize: 18,
+                marginBottom: 16,
+              }}
+            />
+            {verifyError && (
+              <Typography color="error" mb={1}>
+                {verifyError}
+              </Typography>
+            )}
+            <Box mt={2} display="flex" justifyContent="space-between">
+              <PrimaryButton
+                onClick={() => {
+                  setShowOtpVerifyModal(false);
+                  setShowSetupModal(true);
+                }}
+              >
+                Back
+              </PrimaryButton>
+              <PrimaryButton
+                // variant="outlined"
+                onClick={verifyOtp}
+                disabled={verifying || otp.length !== 6}
+              >
+                {verifying ? <CircularProgress size={22} /> : "Verify"}
+              </PrimaryButton>
+            </Box>
+          </Paper>
+        </Modal>
+
+        {/* Turn Off Modal */}
+        <Modal
+          open={showTurnOffModal}
+          onClose={() => setShowTurnOffModal(false)}
+        >
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              minWidth: 350,
+              p: 4,
+              outline: "none",
+              borderRadius: 2,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" mb={2}>
+              Turn off 2-Step Verification
+            </Typography>
+            <Typography color="text.secondary" mb={2}>
+              Enter your current authenticator code to turn off 2-Step
+              Verification.
+            </Typography>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otpToDisable}
+              onChange={(e) => setOtpToDisable(e.target.value)}
+              maxLength={6}
+              style={{
+                padding: 8,
+                borderRadius: 4,
+                border: "1px solid #ccc",
+                width: 180,
+                marginBottom: 16,
+              }}
+            />
+            {disableError && (
+              <Typography color="error" mb={1}>
+                {disableError}
+              </Typography>
+            )}
+            <Box mt={2} display="flex" justifyContent="space-between">
+              <PrimaryButton onClick={() => setShowTurnOffModal(false)}>
+                Cancel
+              </PrimaryButton>
+              <PrimaryButton
+                variant="contained"
+                color="error"
+                disabled={disabling || otpToDisable.length !== 6}
+                onClick={async () => {
+                  setDisabling(true);
+                  setDisableError("");
+                  try {
+                    await api.post(
+                      "/security/2fa/disable",
+                      { token: otpToDisable },
+                      { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    setShowTurnOffModal(false);
+                    setOtpToDisable("");
+                    setTwoFA(false); // <-- Update local state
+                    setEnabledAt(null);
+                  } catch {
+                    setDisableError("Invalid OTP. Try again.");
+                  }
+                  setDisabling(false);
+                }}
+              >
+                {disabling ? "Turning off..." : "Turn off"}
+              </PrimaryButton>
+            </Box>
+          </Paper>
+        </Modal>
+      </CustomWrapper>
+    </Box>
   );
 };
 

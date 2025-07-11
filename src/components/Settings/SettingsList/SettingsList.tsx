@@ -9,11 +9,8 @@ import {
 } from "./settingsList.styled";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-
-const settingsItems = [
-  { icon: <NotificationsNoneIcon />, label: "Notifications" },
-  { icon: <SecurityIcon />, label: "Security" },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store/store";
 
 interface SettingsListProps {
   selectedTab: string;
@@ -21,6 +18,27 @@ interface SettingsListProps {
 }
 
 const SettingsList = ({ selectedTab, setSelectedTab }: SettingsListProps) => {
+  const { user, loading } = useSelector((state: RootState) => state.user);
+
+  if (loading || user === null) {
+    return (
+      <SettingsListContainer>
+        <SettingsListHeader>
+          <Typography fontFamily="var(--custom-font-family)" variant="h6" sx={{ fontWeight: 500, color: "#1e293b" }}>
+            Settings
+          </Typography>
+        </SettingsListHeader>
+      </SettingsListContainer>
+    );
+  }
+
+  const isSecurityAllowed = ["Admin", "Agent"].includes(user.role);
+
+  const settingsItems = [
+    { icon: <NotificationsNoneIcon />, label: "Notifications" },
+    { icon: <SecurityIcon />, label: "Security", disabled:!isSecurityAllowed},
+  ];
+  
   return (
     <SettingsListContainer>
       <SettingsListHeader>
@@ -33,7 +51,8 @@ const SettingsList = ({ selectedTab, setSelectedTab }: SettingsListProps) => {
           <StyledListItemButton
             key={item.label}
             selected={selectedTab === item.label}
-            onClick={() => setSelectedTab(item.label)}
+            onClick={() => !item.disabled && setSelectedTab(item.label)}
+            disabled={item.disabled}
           >
             <ListItemIcon>
               <StyledIconBox>{item.icon}</StyledIconBox>
@@ -48,5 +67,6 @@ const SettingsList = ({ selectedTab, setSelectedTab }: SettingsListProps) => {
     </SettingsListContainer>
   );
 };
+
 
 export default SettingsList;
