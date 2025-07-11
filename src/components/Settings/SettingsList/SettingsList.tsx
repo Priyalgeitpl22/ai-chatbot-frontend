@@ -28,25 +28,16 @@ const SettingsList = ({ selectedTab, setSelectedTab }: SettingsListProps) => {
             Settings
           </Typography>
         </SettingsListHeader>
-        <List>
-          <ListItemText primary="Loading..." />
-        </List>
       </SettingsListContainer>
     );
   }
 
   const isSecurityAllowed = ["Admin", "Agent"].includes(user.role);
 
-  
-  console.log(user?.role, "user role");
-  
-
   const settingsItems = [
     { icon: <NotificationsNoneIcon />, label: "Notifications" },
     { icon: <SecurityIcon />, label: "Security", disabled:!isSecurityAllowed},
   ];
-
-  console.log("setting list", settingsItems);
   
   return (
     <SettingsListContainer>

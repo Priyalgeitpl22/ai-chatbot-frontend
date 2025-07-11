@@ -16,9 +16,15 @@ interface AuthState {
         notification: {
           selectedSound: string;
           isSoundOn: boolean;
-        };   
         };
       };
+    };
+    twoFactorAuth: {
+      isEnabled: boolean;
+      enabledAt: string;
+      createdAt: string;
+      authenticatorAppAddedAt: string;
+    };
   } | null;
   token: string | null;
   loading: boolean;

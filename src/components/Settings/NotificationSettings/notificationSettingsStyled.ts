@@ -10,7 +10,7 @@ export const Container = styled(Box)({
 });
 
 export const TitleWrapper = styled(Box)`
-    padding: 16px;
+    padding: 20px;
     font-weight: bold;
     border-bottom: 1px solid #ddd;
 `;

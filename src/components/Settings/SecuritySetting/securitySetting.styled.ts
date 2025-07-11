@@ -1,5 +1,6 @@
-import styled from "@emotion/styled";
-import { Box, Button } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 export const SecurityContainer = styled(Box)`
   max-width: 700px;
@@ -15,20 +16,19 @@ export const SecurityContainer = styled(Box)`
   overflow-y: auto;
 `;
 
-export const Title = styled("h2")({
-  fontFamily: "var(--custom-font-family)",
-  fontWeight: 600,
-  color: "#1e293b",
-  fontSize: "1.5rem",
-  margin: 0,
-  marginBottom: "18px",
-});
-
-export const Label = styled("span")({
-  fontFamily: "var(--custom-font-family)",
-  fontWeight: 500,
-  color: "#64748b",
-  fontSize: "1rem",
+export const TitleWrapper = styled(Box)`
+    padding: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+`;
+  
+export const Title = styled("h6")({
+    fontFamily: "var(--custom-font-family)",
+    fontWeight: 500,
+    color: "#1e293b",
+    fontSize: "1.25rem",
+    margin: 0,
+    paddingLeft: '10px',
 });
 
 export const Message = styled("p")<{ success?: boolean }>(props => ({
@@ -51,6 +51,7 @@ export const StyledButton = styled(Button)({
   fontSize: "1rem",
   fontWeight: 600,
   padding: "0.4rem 1.5rem",
+  cursor: "pointer",
   textTransform: "none",
   fontFamily: "var(--custom-font-family)",
   color: "#000000",
@@ -96,6 +97,7 @@ export const VerifyButton = styled(Button)`
   font-weight: 600;
   font-size: 1rem;
   background: var(--theme-color);
+  cursor: pointer;
   color: #fff;
   border-radius: 4px;
   padding: 0.5rem 2rem;
@@ -103,4 +105,75 @@ export const VerifyButton = styled(Button)`
     opacity: 0.9;
     background: var(--theme-color);
   }
+`;
+
+export const InfoText = styled(Box)({
+  fontFamily: "var(--identity-gm3-migration-body1-font)",
+  fontSize: "1rem",
+  fontWeight: 400,
+  letterSpacing: "0rem",
+  lineHeight: 1.5,
+  wordBreak: "break-word",
+  wordWrap: "break-word",
+  color: "var(--identity-common-ui-components-web-color-text-secondary)",
+});
+
+export const PrimaryButton = styled(Button)(({ theme }) => ({
+  borderRadius: 6,
+  cursor: "pointer",
+  fontWeight: 500,
+  textTransform: 'none',
+  fontSize: 16,
+  padding: '8px 24px',
+}));
+
+export const Label = styled("p")({
+  fontFamily: "var(--custom-font-family)",
+  fontWeight: 500,
+  color: "#64748b",
+  marginBottom: "16px",
+  marginTop: 0,
+});
+
+export const OutlinedBlueButton = styled(Button)(({ theme }) => ({
+  color: '#1a73e8',
+  borderColor: '#1a73e8',
+  borderRadius: '24px',
+  textTransform: 'none',
+  fontWeight: 500,
+  cursor: "pointer",
+  fontSize: 14,
+  background: '#fff',
+  padding: '8px 20px',
+  '&:hover': {
+    borderColor: '#1765c1',
+    background: '#f5faff',
+  },
+}));
+
+export const RoundedBlueButton = styled(Button)(({ theme }) => ({
+  color: '#1a73e8',
+  borderColor: '#1a73e8',
+  borderRadius: '24px',
+  textTransform: 'none',
+  cursor: "pointer",
+  fontWeight: 500,
+  fontSize: 14,
+  background: '#fff',
+  padding: '8px 20px',
+  '&:hover': {
+    borderColor: '#1765c1',
+    background: '#f5faff',
+  },
+}));
+
+export const SecuritySettingsContainer = styled(Box)`
+  width: 100%;
+  height: 98%;
+  display: flex;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: white;
+  position: relative;
+  flex-direction: row;
 `;

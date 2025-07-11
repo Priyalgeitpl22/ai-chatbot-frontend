@@ -1,9 +1,10 @@
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getUserDetails } from "./redux/slice/userSlice";
-import { AppDispatch } from "./redux/store/store";
+import { fetchOrganization } from "./redux/slice/organizationSlice";
+import { RootState, AppDispatch } from "./redux/store/store";
 
 import ActivateAccount from "./components/ActivateAccount/ActivateAccount";
 import ChangePassword from "./components/Change-Password/ChangePassword";
@@ -45,6 +46,7 @@ const AuthGuard = ({ children }: { children: JSX.Element }) => {
 function AppRoutes() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
     const token = Cookies.get("access_token");
@@ -61,6 +63,12 @@ function AppRoutes() {
       }
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user?.orgId) {
+      dispatch(fetchOrganization(user.orgId));
+    }
+  }, [user?.orgId, dispatch]);
 
   return (
     <SocketProvider>
