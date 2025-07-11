@@ -49,9 +49,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [showOtp, setShowOtp] = useState(false);
-  const [tempToken, setTempToken] = useState('');
   const [otpError, setOtpError] = useState('');
-  
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loginSubmitted, setLoginSubmitted] = useState(false);
 
@@ -106,7 +104,6 @@ function Login() {
           const data = await dispatch(loginUser({ email, password })).unwrap();
 
           if (data.require2FA && data.tempToken) {
-            setTempToken(data.tempToken);
             setShowOtp(true);
             setLoginSubmitted(false);
             return;
@@ -133,7 +130,7 @@ function Login() {
     e.preventDefault();
     setOtpError('');
     try {
-      const data = await dispatch(verify2FASetup({ token: tempToken, otp })).unwrap();
+      const data = await dispatch(verify2FASetup({ token: otp, email, isLogin: true })).unwrap();
       if (data.token) {
         Cookies.set('access_token', data.token);
         await dispatch(getUserDetails(data.token)).unwrap();
@@ -143,7 +140,7 @@ function Login() {
       }
       throw new Error(data.message || 'OTP verification failed');
     } catch (err) {
-      setOtpError(err instanceof Error ? err.message : String(err));
+      setOtpError(err?.message as string || 'OTP verification failed');
     }
   };
 

@@ -76,13 +76,13 @@ export const setup2FA = createAsyncThunk<
 // Verify 2FA during setup
 export const verify2FASetup = createAsyncThunk<
   Verify2FAResponse,
-  { token: string; otp: string },
+  { token: string; email: string; isLogin: boolean },
   { rejectValue: string }
->("security/verify2FASetup", async ({ token, otp }, { rejectWithValue }) => {
+>("security/verify2FASetup", async ({ token, email, isLogin }, { rejectWithValue }) => {
   try {
     const response = await api.post(
       "/security/2fa/verify",
-      { token: otp },
+      { token: token, email, isLogin },
       {
         headers: {
           Authorization: `Bearer ${token}`,

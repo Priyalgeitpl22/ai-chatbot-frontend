@@ -92,7 +92,7 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
     try {
       await api.post(
         "/security/2fa/verify",
-        { token: otp },
+        { token: otp, email: user?.email },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setShowOtpVerifyModal(false);
