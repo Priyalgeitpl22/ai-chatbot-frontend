@@ -37,6 +37,7 @@ const Header = () => {
           id: user.id,
           online: online,
           name: user.fullName,
+          orgId:user.orgId
         });
       }
       if(online){

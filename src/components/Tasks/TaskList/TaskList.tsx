@@ -125,10 +125,10 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
                       animate="visible"
                       transition={{ delay: index * 0.1 }}
                       whileTap={{ scale: 0.98 }}
-                    sx={{ cursor: 'pointer', gap: '3px', padding: '10px', borderRadius: '5px' }}
+                    sx={{ cursor: 'pointer',  gap: '3px', padding: '10px', borderRadius: '5px' ,bgcolor:`${!task.readed?'var(--theme-color)':""}` }}
                     >
                       <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: 'var(--theme-color)', width: 32, height: 32 }}>
+                      <Avatar sx={{ bgcolor:`${!task.readed?'var(--theme-color-dark)':"var(--theme-color"}`, width: 32, height: 32 }}>
                           {task.name[0]?.toUpperCase() || "?"}
                         </Avatar>
                       </ListItemAvatar>

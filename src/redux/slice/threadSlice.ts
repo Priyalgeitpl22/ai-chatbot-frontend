@@ -158,8 +158,21 @@ const threadSlice = createSlice({
   if (index !== -1) {
     state.threads[index] = updated;
   }
+},
+   readThreads: (state, action: PayloadAction<string>) => {
+  const threadId = action.payload;
+  const index = state.threads.findIndex(thread => thread.id === threadId);
+  if (index !== -1) {
+    state.threads[index].readed = true;
+  } else {
+    console.warn(`Thread with ID "${threadId}" not found.`);
+  }
+},
+addThread: (state, action: PayloadAction<Thread>) => {
+  const threadData = action.payload
+  threadData.unseenCount=2
+  state.threads.unshift(action.payload);
 }
-
   },
   extraReducers: (builder) => {
     builder
@@ -193,4 +206,4 @@ const threadSlice = createSlice({
 });
 
 export default threadSlice.reducer;
-export const { updateThread } = threadSlice.actions;
+export const { updateThread ,addThread } = threadSlice.actions;
