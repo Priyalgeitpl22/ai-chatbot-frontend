@@ -15,6 +15,7 @@ export interface Task {
   priority: "low" | "medium" | "high";
   createdAt: string;
   updatedAt: string;
+  readed:boolean
 }
 
 interface TaskState {
@@ -116,7 +117,14 @@ export const fetchUnreadTaskCount = createAsyncThunk<
 const taskSlice = createSlice({
   name: "tasks",
   initialState,
-  reducers: {},
+  reducers: {
+    markReaded:(state,action:PayloadAction<string>)=>{
+      console.log(action.payload,"slice 123")
+      const taskId = action.payload
+      const index = state.tasks.findIndex((task)=> task.id === taskId)
+      state.tasks[index].readed=true
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllTasks.pending, (state) => {
@@ -152,4 +160,5 @@ const taskSlice = createSlice({
   },
 });
 
+export const {markReaded} = taskSlice.actions;
 export default taskSlice.reducer;

@@ -3,21 +3,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store/store";
 import TaskList from "./TaskList/TaskList";
 import { TaskContainer } from "./tasks.styled";
-import { getAllTasks } from "../../redux/slice/taskSlice";
+import { getAllTasks, markReaded } from "../../redux/slice/taskSlice";
 import { CircularProgress, Box, Typography } from "@mui/material";
 import ChatArea from "../Chats/ChatArea/ChatArea";
 import AssignedDropDown from "./AssignedDropDown/AssignedDropDown";
 import { fetchAgents } from "../../redux/slice/agentsSlice";
 import { DropDownPurpose } from "../../enums";
-
+import { useSocket } from "../../context/SocketContext";
 export default function Tasks() {
   const dispatch = useDispatch<AppDispatch>();
   const {user} = useSelector((state: RootState) => state.user);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isUpdated,setIsUpdated] = useState<boolean>(false)
+  const {socket} = useSocket()
 
   useEffect(() => {
+
     if (!user) return;
+
+    if(socket){
+      socket.on("taskReaded",(data)=>{
+        dispatch(markReaded(data))
+       
+      })
+    }
   
     (async () => {
       const { payload: tasks = [] } = await dispatch(getAllTasks());
@@ -26,13 +35,16 @@ export default function Tasks() {
         dispatch(fetchAgents(user.orgId));
       }
     })();
-  }, [dispatch, user,isUpdated]);
+  }, [dispatch, user,isUpdated,socket]);
   
 
   const { tasks, loading, error } = useSelector((state: RootState) => state.task);
 
   const handleSelectTask = (taskId: string) => {
     setSelectedTaskId(taskId); 
+    if(socket && taskId){
+      socket.emit("readedTask",{data:taskId})
+    }
   };
 
   const selectedTask = tasks.find((task) => task.id === selectedTaskId); 

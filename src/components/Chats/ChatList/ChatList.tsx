@@ -10,7 +10,7 @@ import {
 } from './chatList.styled';
 import { useSocket } from '../../../context/SocketContext';
 import { useDispatch } from 'react-redux';
-import { readThread, Thread } from '../../../redux/slice/threadSlice';
+import { addThread, readThread, Thread } from '../../../redux/slice/threadSlice';
 import { AppDispatch } from '../../../redux/store/store';
 import { formatTimestamp } from '../../../utils/utils';
 import SearchComponent from '../../SearchBar/SearchComponent';
@@ -63,10 +63,9 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
   useEffect(() => {
     if (!socket) return;
 
-    const handleChatStarted = (data: { threadId: string }) => {
-      console.log("New thread started with ID:", data.threadId);
-      onSelectThread(data.threadId);
-    };
+    const handleChatStarted = (data: { thread: Thread }) => {
+      dispatch(addThread(data.thread))
+        };
 
     socket.on("chatStarted", handleChatStarted);
     return () => {

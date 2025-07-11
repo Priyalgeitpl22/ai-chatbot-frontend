@@ -23,7 +23,6 @@ interface AssignedDropDownProps {
 }
 
 const AssignedDropDown: React.FC<AssignedDropDownProps> = ({ taskId, assignedTo ,purpose ,setIsUpdated}) => {
-  console.log("AssignedDropDownProps:", taskId, assignedTo,purpose);
   const dispatch = useDispatch<AppDispatch>();
   const { data } = useSelector((state: RootState) => state.agents);
   const [assignedValue, setAssignedValue] = useState<string>(assignedTo || "");
