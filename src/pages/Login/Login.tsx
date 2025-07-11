@@ -18,6 +18,8 @@ import { getUserDetails } from '../../redux/slice/userSlice';
 import toast, { Toaster } from "react-hot-toast";
 import fieldValidation from '../../validations/FieldValidation';
 import PasswordInput from "../../utils/PasswordInput";
+import { loginUser } from "../../redux/slice/authSlice";
+import { verify2FASetup } from "../../redux/slice/securitySlice";
 
 const getValidationError = (
   field: 'email' | 'password',
@@ -101,12 +103,8 @@ function Login() {
     if (loginSubmitted) {
       (async () => {
         try {
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
-          const data = await res.json();
+          const data = await dispatch(loginUser({ email, password })).unwrap();
+
           if (data.require2FA && data.tempToken) {
             setTempToken(data.tempToken);
             setShowOtp(true);
@@ -135,12 +133,7 @@ function Login() {
     e.preventDefault();
     setOtpError('');
     try {
-      const res = await fetch('/api/auth/verify-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tempToken, otp })
-      });
-      const data = await res.json();
+      const data = await dispatch(verify2FASetup({ token: tempToken, otp })).unwrap();
       if (data.token) {
         Cookies.set('access_token', data.token);
         await dispatch(getUserDetails(data.token)).unwrap();
