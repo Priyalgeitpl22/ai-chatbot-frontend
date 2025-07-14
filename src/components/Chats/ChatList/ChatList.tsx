@@ -1,25 +1,18 @@
 import React, { useEffect } from 'react';
-import { ListItemAvatar, Avatar, ListItemText, Box, Typography, Divider ,Chip} from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
+import {   Box, Typography, Divider } from '@mui/material';
+import { AnimatePresence } from 'framer-motion';
 import {
   ChatListContainer,
-  ChatListItem,
   ThreadList,
-  TimeStamp,
-  MessagePreview,
 } from './chatList.styled';
 import { useSocket } from '../../../context/SocketContext';
-import { useDispatch } from 'react-redux';
-import { addThread, readThread, Thread } from '../../../redux/slice/threadSlice';
-import { AppDispatch } from '../../../redux/store/store';
-import { formatTimestamp } from '../../../utils/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { addThread, readThread, Thread,newMessage ,readThreads} from '../../../redux/slice/threadSlice';
+import { AppDispatch, RootState } from '../../../redux/store/store';
 import SearchComponent from '../../SearchBar/SearchComponent';
 import { seenMessage } from '../../../redux/slice/chatSlice';
+import ChatThreadItem from './chatThreadItem';
 
-const listItemVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0 },
-};
 
 interface ChatListProps {
   threads: Thread[];
@@ -28,34 +21,35 @@ interface ChatListProps {
   selectedThreadId: string | null;
 }
 
-const MotionChatListItem = motion(ChatListItem);
+
 
 const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, selectedThreadId }) => {
   const { socket } = useSocket();
   const dispatch = useDispatch<AppDispatch>();
+  const {user} = useSelector((state:RootState)=>state.user)
 
-  const HandleUnreadedThreadSelect  = async(id:string)=>{
-    if(id){
-      
-      dispatch(readThread({id})).then(()=>{
+  const HandleUnreadedThreadSelect = async (id: string) => {
+    if (id) {
+
+      dispatch(readThread({ id })).then(() => {
         onSelectThread(id)
-      }).catch((err)=>{
+        socket?.emit("threadSeen",{id,orgId:user?.orgId})
+      }).catch((err) => {
         console.log(err)
       })
-    }else{
+    } else {
       return
     }
   }
 
-  const handleReadedThreadSelect = async(id:string)=>{
-    if(id){
-      dispatch(seenMessage({id})).then(()=>{
-        console.log("seen")
+  const handleReadedThreadSelect = async (id: string) => {
+    if (id) {
+      dispatch(seenMessage({ id })).then(() => {
         onSelectThread(id)
-      }).catch((err)=>{
+      }).catch((err) => {
         console.log(err)
       })
-    }else{
+    } else {
       return
     }
   }
@@ -65,11 +59,27 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
 
     const handleChatStarted = (data: { thread: Thread }) => {
       dispatch(addThread(data.thread))
-        };
+    };
 
+    const handleNewMessage = (data:any)=>{
+      const payload={
+        count:1,
+        latestMessage:data.data.content,
+        threadId:data.data.threadId
+      }
+      dispatch(newMessage(payload))
+    }
+
+     const handelSeen = (data:any)=>{
+             if(!data)return;
+             dispatch(readThreads(data.data.id))
+            }
+            socket.on("seenThread",handelSeen)
     socket.on("chatStarted", handleChatStarted);
+    socket.on("newMessage",handleNewMessage);
     return () => {
       socket.off("chatStarted", handleChatStarted);
+      socket.off("newMessage",handleNewMessage);
     };
   }, [socket, dispatch, onSelectThread, type]);
 
@@ -77,78 +87,31 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
     <ChatListContainer>
       <SearchComponent />
       <Divider />
-      <Box sx={{ overflowY: 'auto', flex: 1,
-       '&::-webkit-scrollbar': {
-        display: 'none',
-      },
-      'msOverflowStyle': 'none',
-      'scrollbarWidth': 'none',
-       }}>
+      <Box sx={{
+        overflowY: 'auto', flex: 1,
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+        'msOverflowStyle': 'none',
+        'scrollbarWidth': 'none',
+      }}>
         {threads && threads.length > 0 ? (
           <AnimatePresence>
             <ThreadList>
               {threads.map((thread, index) => {
-                const isActive = thread.id === selectedThreadId; // Correct active thread logic
-                if(!thread.readed){
-                  return(
-                     <MotionChatListItem
-                    sx={{bgcolor:"var(--theme-color)"}}
+                const isActive = thread.id == selectedThreadId; // Correct active thread logic
+                const onClickHandler = thread.readed
+                  ? () => handleReadedThreadSelect(thread.id)
+                  : () => HandleUnreadedThreadSelect(thread.id);
+                return (
+                  <ChatThreadItem
                     key={thread.id}
-                    active={isActive}
-                    onClick={() => HandleUnreadedThreadSelect(thread.id)}
-                    variants={listItemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: index * 0.1 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: 'var(--theme-color-dark)', width: 32, height: 32 }}>
-                        {thread.name[0]?.toUpperCase() || "U"}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
-                      secondary={<MessagePreview>{thread?.latestMessage?.content?.substr(0,20) ? `${thread.latestMessage.content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
-                      primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
-                    />
-                    <div style={{display:"flex",flexDirection:"column"}}>
-                      <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
-                      {thread.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
-                    </div>
-                  </MotionChatListItem>
-                  )
-                }else{
-                  return (
-                  <MotionChatListItem
-                  sx={{ bgcolor:`${thread.unseenCount?"var(--theme-color)":""}`}}
-                    key={thread.id}
-                    active={isActive}
-                    onClick={() => handleReadedThreadSelect(thread.id)}
-                    variants={listItemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: index * 0.1 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                   
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor:`${thread.unseenCount?"var(--theme-color-dark)":""}`, width: 32, height: 32 }}>
-                        {thread.name[0]?.toUpperCase() || "U"}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
-                      secondary={<MessagePreview>{thread?.latestMessage?.content?.substr(0,20) ? `${thread.latestMessage.content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
-                      primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
-                    />
-                      <div style={{display:"flex",flexDirection:"column"}}>
-                      <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
-                    {thread?.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
-                    </div>
-                  </MotionChatListItem>
-                );
-                }
+                    thread={thread}
+                    index={index}
+                    isActive={isActive}
+                    onClick={onClickHandler}
+                  />
+                )
               })}
             </ThreadList>
           </AnimatePresence>

@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { ListItemAvatar, Avatar, ListItemText, Box, Typography, Chip } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
-import Tooltip from "@mui/material/Tooltip";
-import { Info } from "lucide-react";
 import {
   TaskListContainer,
   TaskListHeader,
   TaskListItem,
   TaskListWrapper,
-  TimeStamp,
-  TaskPreview,
 } from './taskList.styled';
 import { useSocket } from '../../../context/SocketContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store/store';
-import { formatTimestamp } from '../../../utils/utils';
 import { getAllTasks, Task } from '../../../redux/slice/taskSlice';
-import { Priority } from '../../../enums';
 import FilterComponent from '../Filters/FilterComponent';
+import TaskItems from './TaskItems';
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -54,18 +49,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
     };
   }, [socket, dispatch, onSelectTask]);
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case Priority.HIGH:
-        return "error";
-      case Priority.MEDIUM:
-        return "warning";
-      case Priority.LOW:
-        return "info";
-      default:
-        return "success";
-    }
-  };
 
   // Filter tasks based on the active filter
   const filteredTasks = tasks.filter(task => {
@@ -93,65 +76,13 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onSelectTask, selectedTaskId
               filteredTasks.map((task, index) => {
                 const isActive = task.id === selectedTaskId;
                 return (
-                  <Tooltip title={
-                      <Box sx={{display: "flex",alignItems: "center",gap: "6px",}}>
-                        <Info size={18} color="#1976d2" />
-                        <Typography variant="body2" sx={{ fontFamily: "var(--custom-font-family)" }}>{task.query}</Typography>
-                      </Box>
-                    }
-                    placement="right"
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          bgcolor: "#fff",
-                          color: "#000",
-                          boxShadow: 2,
-                          border: "1px solid #e0e0e0",
-                          fontSize: "0.85rem",
-                          padding: "8px 12px",
-                          borderRadius: "6px",
-                        },
-                      },
-                      arrow: { sx: { color: "#fff" } },
-                    }}
-                  >
-                    <MotionTaskListItem
-                      key={task.id}
-                      data-active={isActive ? "true" : "false"}
-                      onClick={() => onSelectTask(task.id)}
-                      variants={listItemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      transition={{ delay: index * 0.1 }}
-                      whileTap={{ scale: 0.98 }}
-                    sx={{ cursor: 'pointer',  gap: '3px', padding: '10px', borderRadius: '5px' ,bgcolor:`${!task.readed?'var(--theme-color)':""}` }}
-                    >
-                      <ListItemAvatar>
-                      <Avatar sx={{ bgcolor:`${!task.readed?'var(--theme-color-dark)':"var(--theme-color"}`, width: 32, height: 32 }}>
-                          {task.name[0]?.toUpperCase() || "?"}
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={task.name}
-                      secondary={
-                        <TaskPreview>
-                          {task.query}
-                        </TaskPreview>
-                      }
-                      primaryTypographyProps={{ variant: 'body1', fontFamily: 'var(--custom-font-family)', fontSize: '0.9rem' }}
-                      />
-                    <Box sx={{ display: 'flex', flexDirection: 'column-reverse', width: '100%', alignItems: 'flex-end', gap: '5px', height: '100%' }}>
-                        <Chip
-                          label={task.priority}
-                          color={getPriorityColor(task.priority)}
-                          size="small"
-                        sx={{ fontSize: "0.75rem", fontWeight: 500, marginRight: '5px', borderRadius: '5px' }}
-                        />
-                        <TimeStamp>{formatTimestamp(task.createdAt)}</TimeStamp>
-                      </Box>
-                    </MotionTaskListItem>
-                  </Tooltip>
+                  <TaskItems
+      key={task.id}
+      task={task}
+      index={index}
+      isActive={isActive}
+      onSelectTask={onSelectTask}
+    />
                 );
               })
             ) : (
