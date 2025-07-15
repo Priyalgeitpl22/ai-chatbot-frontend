@@ -13,13 +13,15 @@ import { getAIChatbotSettingsData, updateOrganization } from '../../../redux/sli
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { fetchFAQs, createFAQs } from '../../../redux/slice/faqSlice';
+import FaqAnswerEditor from '../FaqAnswerEditor/FaqAnswerEditor'
+
 
 export default function FAQConfiguration() {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
   const { data: organizationData } = useSelector((state: RootState) => state.organization);
   const { faqs, loading } = useSelector((state: RootState) => state.faq);
-  
+
   const [localFaqs, setLocalFaqs] = useState<{ id: string; question: string; answer: string }[]>([
     { id: '1', question: '', answer: '' }
   ]);
@@ -96,7 +98,7 @@ export default function FAQConfiguration() {
       toast.error("Please enter your OpenAI key");
       return;
     }
-    
+
     try {
       await dispatch(updateOrganization({
         orgId: user.orgId,
@@ -181,6 +183,7 @@ export default function FAQConfiguration() {
                     </Button>
                   )}
                 </Box>
+
                 <TextField
                   label="Question"
                   value={faq.question}
@@ -189,20 +192,17 @@ export default function FAQConfiguration() {
                   sx={{ mb: 2 }}
                   disabled={!aiEnabled}
                 />
-                <TextField
-                  label="Answer"
+
+                <FaqAnswerEditor
                   value={faq.answer}
-                  onChange={e => handleChange(faq.id, "answer", e.target.value)}
-                  fullWidth
-                  multiline
-                  rows={3}
-                  disabled={!aiEnabled}
+                  onChange={(val:any) => handleChange(faq.id, 'answer', val)}
                 />
               </Box>
+
             ))}
           </Box>
 
-          {/* Fixed Button Area */}
+          
           <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: "1px solid #e0e0e0", justifyContent: "space-between" }}>
             <Button
               variant="contained"
@@ -223,7 +223,7 @@ export default function FAQConfiguration() {
           </Stack>
         </Box>
 
-        {/* Right Column - Pricing & OpenAI Key */}
+        
         <Box
           sx={{
             width: 350,
