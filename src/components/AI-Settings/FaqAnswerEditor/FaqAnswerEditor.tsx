@@ -4,6 +4,8 @@ import 'react-quill/dist/quill.snow.css';
 import { Box, Button } from '@mui/material';
 import api from "../../../services/api";
 import Cookies from 'js-cookie';
+import toast ,{ Toaster } from 'react-hot-toast';
+
 
 // Configure Quill to force links to open in _blank
 const Link = Quill.import('formats/link');
@@ -32,7 +34,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
   const quillRef = useRef<ReactQuill | null>(null);
 
   // Handle file upload to backend
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (!file) return;
 
@@ -40,7 +42,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
   formData.append('file', file);
 
   try {
-    const token = Cookies.get('access_token'); // Use cookie for token
+    const token = Cookies.get('access_token');
     const res = await api.post('/faq/faq-files', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -48,17 +50,20 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
       }
     });
 
-    const { file_url, file_name } = res.data;
+    const { fileName, fileUrl } = res.data.file;
 
-    // Insert link into editor
     const editor = quillRef.current?.getEditor();
     const index = editor?.getSelection()?.index || 0;
-    editor?.insertText(index, file_name, 'link', file_url);
-  } catch (error: any) {
+    editor?.insertText(index, fileName, 'link', fileUrl);
+
+    // ✅ Show toast only once
+    // toast.dismiss(); 
+      toast.success(res.data.message);  } catch (error: any) {
     console.error('File upload failed:', error);
-    alert('Failed to upload file. Please try again.');
+    toast.error("File upload failed!");
   }
 };
+
 
   const modules = {
     toolbar: {
@@ -84,6 +89,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
   ];
 
   return (
+  <>
     <Box>
       <ReactQuill
         ref={quillRef}
@@ -104,8 +110,12 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
           onChange={handleFileUpload}
         />
       </Button>
+      <Toaster />
     </Box>
-  );
+
+  </>
+);
+
 };
 
 export default FaqAnswerEditor;
