@@ -14,7 +14,7 @@ Link.sanitize = function (url: string) {
   let value = originalSanitize.call(this, url); // Call the original
   return value;
 };
-Link.prototype.format = function (name: string, value: string) {
+Link.prototype.format = function (value: string) {
   if (value) {
     this.domNode.setAttribute('href', value);
     this.domNode.setAttribute('target', '_blank');
