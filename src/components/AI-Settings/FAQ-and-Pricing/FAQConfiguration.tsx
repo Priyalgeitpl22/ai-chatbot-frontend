@@ -154,6 +154,7 @@ export default function FAQConfiguration() {
             border: '1px solid #ccc',
             borderRadius: 2,
             p: 2,
+            width: 600,
             display: 'flex',
             flexDirection: 'column',
             height: '400px', // Fixed height for the container

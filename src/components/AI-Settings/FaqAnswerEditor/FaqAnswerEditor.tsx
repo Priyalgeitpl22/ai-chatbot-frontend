@@ -98,10 +98,12 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange={onChange}
         modules={modules}
         formats={formats}
+        
         placeholder="Write the FAQ answer here..."
+        style={{ height: '140px' }}
       />
 
-      <Button variant="outlined" component="label" sx={{ mt: 1 }}>
+      <Button variant="outlined" component="label" sx={{ mt: 1, height:"35px"}}>
         Upload File (PDF/DOCX)
         <input
           type="file"
