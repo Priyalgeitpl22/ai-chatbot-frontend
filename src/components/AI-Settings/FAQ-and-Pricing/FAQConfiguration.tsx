@@ -142,7 +142,6 @@ export default function FAQConfiguration() {
         sx={{
           display: 'flex',
           gap: 3,
-          // p: 3,
           maxWidth: 1200,
           mx: 'auto',
         }}
@@ -157,7 +156,7 @@ export default function FAQConfiguration() {
             width: 600,
             display: 'flex',
             flexDirection: 'column',
-            height: '400px', // Fixed height for the container
+            height: '400px', 
           }}
         >
           {/* Scrollable Content Area */}
