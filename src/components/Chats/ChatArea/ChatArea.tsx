@@ -269,10 +269,6 @@ setInputMessage("");
   const isImage = (fileType?: string) => fileType?.startsWith("image/");
   const isDocument = (fileType?: string) => fileType && !fileType.startsWith("image/");
 
-  // const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
-  const userInfo = threadInfo? threadInfo:tasks[0];
-  const isTicketCreated = threadInfo?.status === 'ticket_created';
-
 
   return (
     <ChatContainer>
