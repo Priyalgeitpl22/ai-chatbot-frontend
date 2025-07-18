@@ -134,6 +134,30 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     };
   }, [socket, selectedThreadId, dispatch]);
 
+  const threadInfo: Thread | undefined = useSelector(
+  (state: RootState) =>
+    state.thread.threads.find((thread) => thread.id === selectedThreadId)
+);
+
+
+useEffect(() => {
+  if (!socket || !selectedThreadId) return;
+
+  const handleThreadStatusUpdated = (data: { threadId: string; status: string }) => {
+    if (data.threadId === selectedThreadId && threadInfo) {
+      dispatch(updateThread({ ...threadInfo, status: data.status }));
+    }
+  };
+
+  socket.on("threadStatusUpdated", handleThreadStatusUpdated);
+
+  socket.emit("joinThreadRoom", { threadId: selectedThreadId });
+
+  return () => {
+    socket.off("threadStatusUpdated", handleThreadStatusUpdated);
+  };
+}, [socket, selectedThreadId, threadInfo, dispatch]);
+
   const handleTyping = useCallback(() => {
     if (!socket || !selectedThreadId) return;
 
@@ -185,8 +209,9 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
     setInputMessage("");
   }, [socket, selectedThreadId, inputMessage, dispatch]);
 
-  const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
+  // const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
   const userInfo = threadInfo? threadInfo:tasks[0];
+  const isTicketCreated = threadInfo?.status === 'ticket_created';
 
   return (
     <ChatContainer>
@@ -233,6 +258,22 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
             </IconButton>
           </ChatHeader>
           <ChatMessages id="chatMessagesContainer">
+            {isTicketCreated && (
+              <Box sx={{
+                background: '#fffbe6',
+                border: '1px solid #ffe58f',
+                color: '#ad8b00',
+                borderRadius: '8px',
+                padding: '12px',
+                margin: '12px 0',
+                textAlign: 'center',
+                fontWeight: 500,
+                fontFamily: 'var(--custom-font-family)'
+              }}>
+                The chat is no longer active for messaging.<br />
+                A support ticket has been created for follow-up.
+              </Box>
+            )}
             {delayedLoading ? (
               <Box
                 sx={{
@@ -308,11 +349,12 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
               }}
               InputProps={{
                 endAdornment: (
-                  <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim()}>
+                  <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim() || isTicketCreated}>
                     <Send size={20} />
                   </IconButton>
                 ),
               }}
+              disabled={isTicketCreated}
             />
           </ChatInputContainer>
         </>

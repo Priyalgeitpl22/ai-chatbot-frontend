@@ -6,7 +6,6 @@ import api from "../../../services/api";
 import Cookies from 'js-cookie';
 import toast ,{ Toaster } from 'react-hot-toast';
 
-
 // Configure Quill to force links to open in _blank
 const Link = Quill.import('formats/link');
 const originalSanitize = Link.sanitize; // Save the original sanitize
@@ -56,14 +55,12 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const index = editor?.getSelection()?.index || 0;
     editor?.insertText(index, fileName, 'link', fileUrl);
 
-    // ✅ Show toast only once
-    // toast.dismiss(); 
-      toast.success(res.data.message);  } catch (error: any) {
+    toast.success(res.data.message);  
+  } catch (error: any) {
     console.error('File upload failed:', error);
     toast.error("File upload failed!");
   }
 };
-
 
   const modules = {
     toolbar: {
@@ -98,11 +95,9 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange={onChange}
         modules={modules}
         formats={formats}
-        
         placeholder="Write the FAQ answer here..."
         style={{ height: '140px' }}
       />
-
       <Button variant="outlined" component="label" sx={{ mt: 1, height:"35px"}}>
         Upload File (PDF/DOCX)
         <input
@@ -114,7 +109,6 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       </Button>
       <Toaster />
     </Box>
-
   </>
 );
 
