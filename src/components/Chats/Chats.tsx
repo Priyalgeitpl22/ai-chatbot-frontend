@@ -50,11 +50,7 @@ export default function Chats() {
     dispatch(fetchAgents(user.orgId));
   }
 }, [dispatch, user?.orgId]);
-  // useEffect(() => {
-  //   if (threads.length > 0 && !selectedThreadId) {
-  //     setSelectedThreadId(threads[0].id);
-  //   }
-  // }, [threads, selectedThreadId]);
+  
   useEffect(() => {
     if (!socket || !selectedThreadId) return;
     const handleThreadStatusUpdated = (data: { threadId: string; status: string }) => {
