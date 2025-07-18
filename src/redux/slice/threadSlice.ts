@@ -162,9 +162,10 @@ const threadSlice = createSlice({
 },
    readThreads: (state, action: PayloadAction<string>) => {
   const threadId = action.payload;
-  const index = state.threads.findIndex(thread => thread.id === threadId);
-  if (index !== -1) {
+  const index = state.threads.findIndex(thread => thread.id == threadId);
+  if (index!==-1) {
     state.threads[index].readed = true;
+    state.threads[index].unseenCount=0;
   } else {
     console.warn(`Thread with ID "${threadId}" not found.`);
   }
@@ -173,6 +174,14 @@ addThread: (state, action: PayloadAction<Thread>) => {
   const threadData = action.payload
   threadData.unseenCount=2
   state.threads.unshift(action.payload);
+},
+newMessage:(state,action:PayloadAction<{latestMessage:string,threadId:string}>)=>{
+  const updated = action.payload.threadId;
+  const index = state.threads.findIndex((t) => t.id === updated);
+  if(state.threads[index].unseenCount != null) {
+    state.threads[index].unseenCount+=1
+  }
+  state.threads[index].latestMessage={content:action.payload.latestMessage}
 }
   },
   extraReducers: (builder) => {
@@ -207,4 +216,4 @@ addThread: (state, action: PayloadAction<Thread>) => {
 });
 
 export default threadSlice.reducer;
-export const { updateThread ,addThread } = threadSlice.actions;
+export const { updateThread ,addThread,newMessage,readThreads } = threadSlice.actions;

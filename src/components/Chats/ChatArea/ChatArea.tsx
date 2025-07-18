@@ -11,7 +11,7 @@ import { Send, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
-import { getChats, addchat } from "../../../redux/slice/chatSlice";
+import { getChats, addchat, uploadChatFile } from "../../../redux/slice/chatSlice";
 import { useSocket } from "../../../context/SocketContext";
 import {
   ChatContainer,
@@ -29,6 +29,13 @@ import { formatTimestamp } from "../../../utils/utils";
 import { Thread, updateThread } from "../../../redux/slice/threadSlice";
 import { Task } from "../../../redux/slice/taskSlice";
 import { ThreadType } from "../../../enums";
+import EmojiPicker from 'emoji-picker-react';
+import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import Popover from '@mui/material/Popover';
+import Modal from "@mui/material/Modal";
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DownloadIcon from '@mui/icons-material/Download';
 
 interface ChatData {
   id: string;
@@ -64,6 +71,9 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   );
   const [delayedLoading, setDelayedLoading] = useState(loading);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openImage, setOpenImage] = useState<string | null>(null);
   
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -106,6 +116,22 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
         socket.emit("readMessage",({selectedThreadId}))
       }
     };
+    const handleNewMessage = (data:any)=>{
+      if (
+        data.data.sender === "User" &&
+        data.data.threadId === selectedThreadId &&
+        !data.data.fileData // Only handle if not a file
+      ) {
+        const response = {
+          id: "",
+          threadId: data.data.threadId,
+          sender: data.data.sender,
+          content: data.data.content,
+          createdAt: data.data.createdAt,
+        };
+        dispatch(addchat(response));
+      }
+    }
 
     const handleUpdateDashboard = (data: ChatData) => {
       if (data.sender === "User" && data.threadId === selectedThreadId) { 
@@ -123,12 +149,14 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
 
     socket.on("receiveMessage", handleReceiveMessage);
     socket.on("updateDashboard", handleUpdateDashboard);
+    socket.on("newMessage",handleNewMessage);
     socket.on("typing", handleTyping);
     socket.on("stopTyping", handleStopTyping);
 
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
       socket.off("updateDashboard", handleUpdateDashboard);
+      socket.off("newMessage",handleNewMessage);
       socket.off("typing", handleTyping);
       socket.off("stopTyping", handleStopTyping);
     };
@@ -204,14 +232,51 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
   dispatch(updateThread(updatedThread));
 }
 
-
-    dispatch(addchat(messageData));
-    setInputMessage("");
+setInputMessage("");
   }, [socket, selectedThreadId, inputMessage, dispatch]);
+
+  const handleEmojiClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    setShowEmojiPicker((prev) => !prev);
+  };
+
+  const handleEmojiSelect = (emojiData: any) => {
+    setInputMessage((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+    setAnchorEl(null);
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !selectedThreadId || !socket) return;
+
+    try {
+      const resultAction = await dispatch(uploadChatFile(file));
+      const fileData = (uploadChatFile.fulfilled.match(resultAction) && resultAction.payload) || null;
+      if (fileData && fileData.file_presigned_url) {
+        socket.emit("sendMessage", {
+          sender: "Bot",
+          file: true,
+          content: fileData.file_name,
+          threadId: selectedThreadId,
+          createdAt: Date.now(),
+          fileData: fileData,
+        });
+      }
+    } catch (err) {
+      console.error("File upload failed:", err);
+    }
+  };
+
+  const isImage = (fileType?: string) => fileType?.startsWith("image/");
+  const isDocument = (fileType?: string) => fileType && !fileType.startsWith("image/");
+
+  
 
   // const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
   const userInfo = threadInfo? threadInfo:tasks[0];
   const isTicketCreated = threadInfo?.status === 'ticket_created';
+
 
   return (
     <ChatContainer>
@@ -289,7 +354,121 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
               <>
                 {chats.map((chat) => {
                   const isBot = chat.sender === "Bot";
-                  if(chat.content!==""){
+                  const hasFile = !!chat.fileUrl;
+                  const isImg = isImage(chat.fileType);
+                  const isDoc = isDocument(chat.fileType);
+                  const bubbleContent = (
+                    <>
+                      {hasFile && isImg && (
+                                <>
+                                <img
+                                  src={chat.fileUrl!}
+                                  alt={chat.fileName || "image"}
+                                  style={{
+                                    maxWidth: 220,
+                                    maxHeight: 160,
+                                    borderRadius: 18,
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                                    display: "block",
+                                  }}
+                                  onClick={() => setOpenImage(chat.fileUrl ?? null)}
+                                />
+                                <Modal open={!!openImage} onClose={() => setOpenImage(null)}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      height: "100vh",
+                                      bgcolor: "rgba(0,0,0,0.8)",
+                                    }}
+                                    onClick={() => setOpenImage(null)}
+                                  >
+                                    <img
+                                      src={openImage || ""}
+                                      alt="Full"
+                                      style={{
+                                        maxWidth: "90vw",
+                                        maxHeight: "90vh",
+                                        borderRadius: 18,
+                                        boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={e => e.stopPropagation()}
+                                    />
+                                  </Box>
+                                </Modal>
+                              </>
+                            )}
+                      {hasFile && isDoc && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  bgcolor: "#f5f5f5",
+                                  borderRadius: 3,
+                                  p: 1.5,
+                                  mb: 1,
+                                  boxShadow: 1,
+                                  minWidth: 220,
+                                  maxWidth: 340,
+                                  border: "4px solid var(--theme-color)",
+                                }}
+                              >
+                                <InsertDriveFileIcon sx={{ color: "#388e3c", fontSize: 32, mr: 1 }} />
+                                <a
+                                  href={chat.fileUrl!}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    color: "#222",
+                                    textDecoration: "none",
+                                    fontWeight: 600,
+                                    fontSize: 16,
+                                    flex: 1,
+                                    margin: "0 8px",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                  title={chat.fileName}
+                                >
+                                  {chat.fileName || "Document"}
+                                </a>
+                                <IconButton
+                                  href={chat.fileUrl!}
+                                  download
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  sx={{
+                                    bgcolor: "transparent",
+                                    border: "2px solid var(--theme-color)",
+                                    color: "var(--theme-color)",
+                                    borderRadius: "50%",
+                                    p: 0.5,
+                                    ml: 1,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    "&:hover": { bgcolor: "#e0d3b8" }
+                                  }}
+                                  size="small"
+                                >
+                                  <DownloadIcon sx={{ color: "var(--theme-color)" }} />
+                                </IconButton>
+                              </Box>
+                            )}
+                      {chat.content && !hasFile && !(
+                        chat.content === chat.fileName ||
+                        chat.content.startsWith("File Uploaded:")
+                      ) && (
+                        <Box>
+                          {chat.content}
+                        </Box>
+                      )}
+                    </>
+                  );
                   return (
                     <motion.div
                       key={chat.id}
@@ -302,19 +481,26 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                           <TimeStamp>
                             {chat.sender} • {formatTimestamp(chat.createdAt)}
                           </TimeStamp>
-                          <BotMessageBubble>{chat?.content}</BotMessageBubble>
+                          {(hasFile || (chat.content && !hasFile)) && (
+                            <BotMessageBubble>
+                              {bubbleContent}
+                            </BotMessageBubble>
+                          )}
                         </BotMessage>
                       ) : (
                         <UserMessage>
                           <TimeStamp>
                             {chat.sender} • {formatTimestamp(chat.createdAt)}
                           </TimeStamp>
-                          <UserMessageBubble>{chat.content}</UserMessageBubble>
+                          {(hasFile || (chat.content && !hasFile)) && (
+                            <UserMessageBubble>
+                              {bubbleContent}
+                            </UserMessageBubble>
+                          )}
                         </UserMessage>
                       )}
                     </motion.div>
                   );
-                }
                 })}
                 <div ref={messagesEndRef} />
               </>
@@ -349,9 +535,32 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
               }}
               InputProps={{
                 endAdornment: (
-                  <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim() || isTicketCreated}>
-                    <Send size={20} />
-                  </IconButton>
+                  <>
+                    <IconButton onClick={handleEmojiClick} size="small">
+                      <InsertEmoticonIcon />
+                    </IconButton>
+                    <Popover
+                      open={showEmojiPicker}
+                      anchorEl={anchorEl}
+                      onClose={() => { setShowEmojiPicker(false); setAnchorEl(null); }}
+                      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                      transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    >
+                      <EmojiPicker onEmojiClick={handleEmojiSelect} height={350} width={300} />
+                    </Popover>
+                    <IconButton component="label" tabIndex={-1} size="small">
+                      <AttachFileIcon />
+                      <input
+                        type="file"
+                        hidden
+                        onChange={handleFileChange}
+                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                      />
+                    </IconButton>
+                    <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim() || isTicketCreated}>
+                      <Send size={20} />
+                    </IconButton>
+                  </>
                 ),
               }}
               disabled={isTicketCreated}
