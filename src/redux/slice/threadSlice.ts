@@ -16,6 +16,8 @@ export interface Thread {
   createdAt: string;
   readed: boolean;
   assignedTo:string|null;
+  endedBy:string;
+  endedAt:Date;
   unseenCount:number|null;
   latestMessage:{content:string}
   status?: string; // Add status property to match backend
@@ -26,12 +28,14 @@ interface ThreadState {
   threads: Thread[];
   loading: boolean;
   error: string | null;
+  summaryData:{[threadId:string] :any};
 }
 
 const initialState: ThreadState = {
   threads: [],
   loading: false,
   error: null,
+  summaryData:{},
 };
 
 const token = Cookies.get("access_token");
@@ -148,6 +152,22 @@ export const readThread  = createAsyncThunk(
   }
 )
 
+export const chatSummaryData = createAsyncThunk(
+  "thread/chatSummaryData",
+  async (threadId: string, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("access_token");
+      const response = await api.get(`/chat/analyze/${threadId}/summary`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch chat summary."
+      );
+    }
+  }
+);
 
 const threadSlice = createSlice({
   name: "threads",
@@ -209,6 +229,20 @@ newMessage:(state,action:PayloadAction<{latestMessage:string,threadId:string}>)=
         state.threads = action.payload;
       })
       .addCase(searchThreads.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Handle chatSummaryData
+      .addCase(chatSummaryData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(chatSummaryData.fulfilled, (state, action) => {
+        state.loading = false;
+        const threadId = action.meta.arg;
+        state.summaryData[threadId] = action.payload;
+      })
+      .addCase(chatSummaryData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

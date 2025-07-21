@@ -1,10 +1,11 @@
-// ChatThreadItem.tsx
 import React from "react";
 import { Avatar, Chip, ListItemAvatar, ListItemText } from "@mui/material";
 import { motion } from "framer-motion";
 import { ChatListItem, TimeStamp, MessagePreview } from './chatList.styled';
 import { formatTimestamp } from "../../../utils/utils";
 import { Thread } from "../../../redux/slice/threadSlice";
+import ChatSummaryTooltip from './ChatSummaryTooltip'
+import Tooltip from "@mui/material/Tooltip";
 
 const MotionChatListItem = motion(ChatListItem);
 
@@ -26,34 +27,104 @@ const ChatThreadItem: React.FC<ChatThreadItemProps> = ({ thread, index, isActive
   const bgColor = isUnread ? "var(--theme-color)" : hasUnseen ? "var(--theme-color)" : "";
   const avatarColor = isUnread ? "var(--theme-color-dark)" : hasUnseen ? "var(--theme-color-dark)" : "";
 
-  return (
-     <MotionChatListItem
-                        sx={{bgcolor:bgColor}}
-                        key={thread.id}
-                        active={isActive}
-                        onClick={() => onClick()}
-                        variants={listItemVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ delay: index * 0.1 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <ListItemAvatar>
-                          <Avatar sx={{ bgcolor:avatarColor, width: 32, height: 32 }}>
-                            {thread.name[0]?.toUpperCase() || "U"}
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-    primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
-                          secondary={<MessagePreview>{thread?.latestMessage?.content?.substr(0,20) ? `${thread.latestMessage.content.substr(0,20)}...` : "Click to start a conversation"}</MessagePreview>}
-                          primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
-                        />
-                        <div style={{display:"flex",flexDirection:"column"}}>
-                          <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
-                          {thread.unseenCount ?  <Chip label={thread?.unseenCount|| ""} color="success" size='small' sx={{marginLeft:"5px",width:"25px"}}/>:""}
-                        </div>
-                      </MotionChatListItem>
-  );
+  if (thread.endedAt !== null) {
+    return (
+      <Tooltip
+        title={<ChatSummaryTooltip threadId={thread.id} hoverMode />}
+        placement="right"
+        arrow
+        componentsProps={{
+          tooltip: {
+            sx: {
+              bgcolor: "#fff",
+              color: "#000",
+              boxShadow: 2,
+              border: "1px solid #e0e0e0",
+              fontSize: "0.85rem",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              maxWidth: 350,
+            },
+          },
+          arrow: { sx: { color: "#fff" } },
+        }}
+      >
+        <MotionChatListItem
+          sx={{ bgcolor: bgColor }}
+          key={thread.id}
+          active={isActive}
+          onClick={() => onClick()}
+          variants={listItemVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: index * 0.1 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <ListItemAvatar>
+            <Avatar sx={{ bgcolor: avatarColor, width: 32, height: 32 }}>
+              {thread.name[0]?.toUpperCase() || "U"}
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
+            secondary={<MessagePreview>{thread?.latestMessage?.content?.substr(0, 20) ? `${thread.latestMessage.content.substr(0, 20)}...` : "Click to start a conversation"}</MessagePreview>}
+            primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
+          />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+            <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: 2 }}>
+              {thread.unseenCount ? (
+                <Chip
+                  label={thread?.unseenCount || ""}
+                  color="success"
+                  size="small"
+                  sx={{ marginLeft: "0px", width: "25px" }}
+                />
+              ) : null}
+            </div>
+          </div>
+        </MotionChatListItem>
+      </Tooltip>
+    );
+  } else {
+    return (
+      <MotionChatListItem
+        sx={{ bgcolor: bgColor }}
+        key={thread.id}
+        active={isActive}
+        onClick={() => onClick()}
+        variants={listItemVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: index * 0.1 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <ListItemAvatar>
+          <Avatar sx={{ bgcolor: avatarColor, width: 32, height: 32 }}>
+            {thread.name[0]?.toUpperCase() || "U"}
+          </Avatar>
+        </ListItemAvatar>
+        <ListItemText
+          primary={((thread?.name ?? '').charAt(0).toUpperCase() + (thread?.name ?? '').slice(1)) || 'Unknown Visitor'}
+          secondary={<MessagePreview>{thread?.latestMessage?.content?.substr(0, 20) ? `${thread.latestMessage.content.substr(0, 20)}...` : "Click to start a conversation"}</MessagePreview>}
+          primaryTypographyProps={{ variant: 'body1', fontSize: '0.9rem', fontFamily: 'var(--custom-font-family)' }}
+        />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+          <TimeStamp fontFamily={'var(--custom-font-family)'}>{formatTimestamp(thread.createdAt)}</TimeStamp>
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: 2 }}>
+            {thread.unseenCount ? (
+              <Chip
+                label={thread?.unseenCount || ""}
+                color="success"
+                size="small"
+                sx={{ marginLeft: "0px", width: "25px" }}
+              />
+            ) : null}
+          </div>
+        </div>
+      </MotionChatListItem>
+    );
+  }
 };
 
 export default React.memo(ChatThreadItem);
