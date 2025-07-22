@@ -40,8 +40,6 @@ export const ChatListItem = styled(motion.create(ListItem), {
   shouldForwardProp: (prop) => prop !== 'active',
 })<ChatListItemProps>(({ active }) => ({
   '&:hover': {
-    backgroundColor: 'var(--theme-color)',
-    
     cursor: 'pointer',
   },
   padding: '12px 16px',

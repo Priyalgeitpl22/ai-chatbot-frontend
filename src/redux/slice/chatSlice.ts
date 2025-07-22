@@ -9,6 +9,9 @@ interface Chat {
   sender: string;
   content: string;
   createdAt: string;
+  fileUrl?: string;
+  fileType?: string;
+  fileName?: string;
 }
 
 interface chatState {
@@ -123,12 +126,39 @@ export const saveConfigurations = createAsyncThunk(
   }
 );
 
+export const uploadChatFile = createAsyncThunk(
+  "chats/uploadChatFile",
+  async (file: File, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("chatFile", file);
+      const response = await api.post("/message/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Failed to upload file");
+    }
+  }
+);
+
 const chatSlice = createSlice({
   name: "chats",
   initialState,
   reducers: {
     addchat: (state, action: PayloadAction<Chat>) => {
-      state.chats.push(action.payload);
+      const msg = action.payload;
+      if (msg.fileUrl) {
+        if (
+          msg.content === msg.fileName ||
+          (msg.content && msg.content.startsWith("File Uploaded:"))
+        ) {
+          return;
+        }
+      }
+      if ((msg.content && msg.content.trim() !== "") || msg.fileUrl) {
+        state.chats.push(msg);
+      }
     },
   },
   extraReducers: (builder) => {
