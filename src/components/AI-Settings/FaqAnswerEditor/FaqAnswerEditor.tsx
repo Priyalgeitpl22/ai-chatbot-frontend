@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Box, Button, Dialog, DialogContent, IconButton } from '@mui/material';
+import { Box, Dialog, DialogContent, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import api from "../../../services/api";
 import Cookies from 'js-cookie';
