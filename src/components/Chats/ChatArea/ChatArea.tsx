@@ -81,11 +81,6 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     }
   };
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     requestAnimationFrame(scrollToBottom);
-  //   },100);
-  // }, [chats]);
 
   useLayoutEffect(() => {
     setTimeout(() => {
@@ -120,7 +115,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       if (
         data.data.sender === "User" &&
         data.data.threadId === selectedThreadId &&
-        !data.data.fileData // Only handle if not a file
+        !data.data.fileData 
       ) {
         const response = {
           id: "",
@@ -162,6 +157,32 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     };
   }, [socket, selectedThreadId, dispatch]);
 
+  const threadInfo: Thread | undefined = useSelector(
+    (state: RootState) =>
+      state.thread.threads.find((thread) => thread.id === selectedThreadId)
+  );
+  
+  const userInfo = threadInfo ? threadInfo : tasks[0];
+  const isTicketCreated = threadInfo?.status === 'ticket_created';
+
+  useEffect(() => {
+    if (!socket || !selectedThreadId) return;
+
+    const handleThreadStatusUpdated = (data: { threadId: string; status: string }) => {
+      if (data.threadId === selectedThreadId && threadInfo) {
+        dispatch(updateThread({ ...threadInfo, status: data.status }));
+      }
+    };
+
+    socket.on("threadStatusUpdated", handleThreadStatusUpdated);
+
+    socket.emit("joinThreadRoom", { threadId: selectedThreadId });
+
+    return () => {
+      socket.off("threadStatusUpdated", handleThreadStatusUpdated);
+    };
+  }, [socket, selectedThreadId, threadInfo, dispatch]);
+
   const handleTyping = useCallback(() => {
     if (!socket || !selectedThreadId) return;
 
@@ -177,7 +198,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   }, [socket, selectedThreadId, typingTimeout]);
 
   const sendMessage = useCallback(() => {
-    if (!socket || !selectedThreadId || !inputMessage.trim()) return;
+    if (!socket || !selectedThreadId || !inputMessage.trim() || isTicketCreated) return;
 
     socket.emit("stopTyping", { threadId: selectedThreadId });
 
@@ -223,6 +244,7 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isTicketCreated) return; // Prevent file upload if chat is inactive
     const file = event.target.files?.[0];
     if (!file || !selectedThreadId || !socket) return;
 
@@ -246,9 +268,6 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
 
   const isImage = (fileType?: string) => fileType?.startsWith("image/");
   const isDocument = (fileType?: string) => fileType && !fileType.startsWith("image/");
-
-  const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
-  const userInfo = threadInfo? threadInfo:tasks[0];
 
 
   return (
@@ -296,6 +315,22 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
             </IconButton>
           </ChatHeader>
           <ChatMessages id="chatMessagesContainer">
+            {isTicketCreated && (
+              <Box sx={{
+                background: '#fffbe6',
+                border: '1px solid #ffe58f',
+                color: '#ad8b00',
+                borderRadius: '8px',
+                padding: '12px',
+                margin: '12px 0',
+                textAlign: 'center',
+                fontWeight: 500,
+                fontFamily: 'var(--custom-font-family)'
+              }}>
+                The chat is no longer active for messaging.<br />
+                A support ticket has been created for follow-up.
+              </Box>
+            )}
             {delayedLoading ? (
               <Box
                 sx={{
@@ -493,7 +528,7 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
               InputProps={{
                 endAdornment: (
                   <>
-                    <IconButton onClick={handleEmojiClick} size="small">
+                    <IconButton onClick={handleEmojiClick} size="small" disabled={isTicketCreated}>
                       <InsertEmoticonIcon />
                     </IconButton>
                     <Popover
@@ -505,21 +540,23 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                     >
                       <EmojiPicker onEmojiClick={handleEmojiSelect} height={350} width={300} />
                     </Popover>
-                    <IconButton component="label" tabIndex={-1} size="small">
+                    <IconButton component="label" tabIndex={-1} size="small" disabled={isTicketCreated}>
                       <AttachFileIcon />
                       <input
                         type="file"
                         hidden
                         onChange={handleFileChange}
                         accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                        disabled={isTicketCreated}
                       />
                     </IconButton>
-                    <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim()}>
+                    <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim() || isTicketCreated}>
                       <Send size={20} />
                     </IconButton>
                   </>
                 ),
               }}
+              disabled={isTicketCreated}
             />
           </ChatInputContainer>
         </>

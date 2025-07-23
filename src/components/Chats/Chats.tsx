@@ -15,6 +15,8 @@ import { useLocation } from "react-router-dom";
 import AssignedDropDown from "../Tasks/AssignedDropDown/AssignedDropDown";
 import { fetchAgents } from "../../redux/slice/agentsSlice";
 import { DropDownPurpose } from "../../enums";
+import { updateThread } from "../../redux/slice/threadSlice";
+
 export default function Chats() {
   const dispatch = useDispatch<AppDispatch>();
   const { threads = [] } = useSelector((state: RootState) => state.thread);
@@ -48,21 +50,20 @@ export default function Chats() {
     dispatch(fetchAgents(user.orgId));
   }
 }, [dispatch, user?.orgId]);
-  // useEffect(() => {
-  //   if (threads.length > 0 && !selectedThreadId) {
-  //     setSelectedThreadId(threads[0].id);
-  //   }
-  // }, [threads, selectedThreadId]);
+  
   useEffect(() => {
-    if (!socket) return;
-    const handleAnyEvent = (eventName: string, ...args: any[]) => {
-      console.log(`:satellite_antenna: Event received: ${eventName}`, args);
+    if (!socket || !selectedThreadId) return;
+    const handleThreadStatusUpdated = (data: { threadId: string; status: string }) => {
+      if (data.threadId === selectedThreadId && selectedThread) {
+        dispatch(updateThread({ ...selectedThread, status: data.status }));
+      }
     };
-    socket.onAny(handleAnyEvent);
+    socket.on("threadStatusUpdated", handleThreadStatusUpdated);
+    socket.emit("joinThreadRoom", { threadId: selectedThreadId });
     return () => {
-      socket.offAny(handleAnyEvent);
+      socket.off("threadStatusUpdated", handleThreadStatusUpdated);
     };
-  }, [socket]);
+  }, [socket, selectedThreadId, selectedThread, dispatch]);
   if (isLoading) return <Loader />;
   return (
     <ChatContainer>

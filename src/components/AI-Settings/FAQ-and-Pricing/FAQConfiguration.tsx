@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { fetchFAQs, createFAQs } from '../../../redux/slice/faqSlice';
 import FaqAnswerEditor from '../FaqAnswerEditor/FaqAnswerEditor'
+import Papa from 'papaparse';
 
 
 export default function FAQConfiguration() {
@@ -117,6 +118,51 @@ export default function FAQConfiguration() {
 
   const hasNewFaqs = localFaqs.some(faq => typeof faq.id !== "number");
 
+  // CSV upload handler
+  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results: any) => {
+        const newFaqs = results.data
+          .filter((row: any) => row.question && row.answer)
+          .map((row: any, idx: number) => ({
+            id: `csv-${Date.now()}-${idx}`,
+            question: row.question,
+            answer: row.answer
+          }));
+        if (newFaqs.length === 0) {
+          toast.error('No valid FAQ entries found in CSV.');
+          return;
+        }
+        setLocalFaqs(prev => [...prev, ...newFaqs]);
+        toast.success('FAQs imported from CSV!');
+      },
+      error: () => toast.error('Failed to parse CSV file.')
+    });
+  };
+
+  const handleCsvImport = async (id: string, question: string, answer: string) => {
+    setLocalFaqs(prev =>
+      prev.map(faq =>
+        faq.id === id ? { ...faq, question, answer } : faq
+      )
+    );
+    if (!user || !user.orgId) return;
+    try {
+      await dispatch(createFAQs({
+        orgId: user.orgId,
+        faqs: [{ question, answer }]
+      })).unwrap();
+      toast.success('FAQ saved successfully');
+      dispatch(fetchFAQs(user.orgId));
+    } catch (error) {
+      toast.error('Failed to save FAQ to database.');
+    }
+  };
+
   return (
     <Box sx={{ position: 'relative', minHeight: 300 }}>
       {loading && (
@@ -138,11 +184,25 @@ export default function FAQConfiguration() {
         </Box>
       )}
 
+      {/* CSV Upload Button */}
+      <Button
+        variant="outlined"
+        component="label"
+        sx={{ mb: 2 }}
+      >
+        Upload FAQ CSV
+        <input
+          type="file"
+          accept=".csv"
+          hidden
+          onChange={handleCsvUpload}
+        />
+      </Button>
+
       <Box
         sx={{
           display: 'flex',
           gap: 3,
-          // p: 3,
           maxWidth: 1200,
           mx: 'auto',
         }}
@@ -154,9 +214,10 @@ export default function FAQConfiguration() {
             border: '1px solid #ccc',
             borderRadius: 2,
             p: 2,
+            width: 600,
             display: 'flex',
             flexDirection: 'column',
-            height: '400px', // Fixed height for the container
+            height: '400px', 
           }}
         >
           {/* Scrollable Content Area */}
@@ -193,10 +254,16 @@ export default function FAQConfiguration() {
                   disabled={!aiEnabled}
                 />
 
-                <FaqAnswerEditor
-                  value={faq.answer}
-                  onChange={(val:any) => handleChange(faq.id, 'answer', val)}
-                />
+                {user && user.orgId ? (
+                  <FaqAnswerEditor
+                    value={faq.answer}
+                    onChange={(val:any) => handleChange(faq.id, 'answer', val)}
+                    onCsvImport={(question, answer) => handleCsvImport(faq.id, question, answer)}
+                    toolbarId={`custom-toolbar-${faq.id}`}
+                  />
+                ) : (
+                  <Typography color="error">Organization ID not found. Please log in again.</Typography>
+                )}
               </Box>
 
             ))}
