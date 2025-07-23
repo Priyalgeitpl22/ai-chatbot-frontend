@@ -6,6 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import api from "../../../services/api";
 import Cookies from 'js-cookie';
 import toast, { Toaster } from 'react-hot-toast';
+import Papa from 'papaparse';
 
 const Link = Quill.import('formats/link');
 const originalSanitize = Link.sanitize;
@@ -27,16 +28,19 @@ Quill.register(Link, true);
 interface FaqAnswerEditorProps {
   value: string;
   onChange: (value: string) => void;
+  onCsvImport?: (question: string, answer: string) => void;
+  toolbarId: string;
 }
 
-const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) => {
+const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange, onCsvImport, toolbarId }) => {
   const quillRef = useRef<ReactQuill | null>(null);
+  const fileInputRefCsv = useRef<HTMLInputElement | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewType, setPreviewType] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -53,7 +57,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
         }
       });
 
-      
+
       const { fileName, fileUrl: fileKey, fileContent, type } = res.data.file;
 
       const presignedRes = await api.get(`/faq/faq-files/presigned-url/${encodeURIComponent(fileKey)}`, {
@@ -71,7 +75,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
       setPreviewUrl(presignedUrl);
       setPreviewType(type);
       setPreviewContent(fileContent);
-      setShowModal(true); 
+      setShowModal(true);
 
       toast.success(res.data.message || 'File uploaded!');
     } catch (error: any) {
@@ -80,7 +84,41 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
     }
   };
 
-  
+  const handleCsvUploadClick = () => {
+    fileInputRefCsv.current?.click();
+  };
+  const handleCsvFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const fileExt = file.name.split('.').pop()?.toLowerCase();
+
+  if (fileExt === 'csv') {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results: any) => {
+        const first = results.data.find((row: any) => row.question && row.answer);
+        if (!first) {
+          toast.error('No valid FAQ entries found in CSV.');
+        } else {
+          if (onCsvImport) onCsvImport(first.question, first.answer);
+        }
+        if (fileInputRefCsv.current) fileInputRefCsv.current.value = '';
+      },
+      error: () => {
+        toast.error('Failed to parse CSV file.');
+      }
+    });
+  } else if (['pdf', 'doc', 'docx'].includes(fileExt || '')) {
+    handleFileUpload(event);
+  } else {
+    toast.error('Unsupported file type. Please upload a CSV, PDF, DOC, or DOCX file.');
+  }
+};
+
+
+
   useEffect(() => {
     const quillEditor = quillRef.current?.editor?.root;
     if (!quillEditor) return;
@@ -104,7 +142,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
                 : 'link'
           );
           setPreviewContent(null);
-          setShowModal(true); 
+          setShowModal(true);
         }
       }
     };
@@ -115,15 +153,22 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
     };
   }, []);
 
+  useEffect(() => {
+    const toolbar = document.querySelector(`#${toolbarId}`);
+    if (toolbar && !toolbar.querySelector('.ql-upload-csv')) {
+      const button = document.createElement('button');
+      button.className = 'ql-upload-csv';
+      button.type = 'button';
+      button.title = 'Upload File';
+      button.innerHTML = `<svg viewBox="0 0 18 18" width="18" height="18"><path d="M9 1v12M9 1l-4 4M9 1l4 4M1 17h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>`;
+      button.onclick = handleCsvUploadClick;
+      toolbar.appendChild(button);
+    }
+  }, [toolbarId]);
+
   const modules = {
     toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link'],
-        ['clean']
-      ]
+      container: `#${toolbarId}`
     }
   };
 
@@ -141,25 +186,42 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange }) =>
   return (
     <>
       <Box>
+        {/* Custom Toolbar */}
+        <div id={toolbarId}>
+          <select className="ql-header" defaultValue="">
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+            <option value=""></option>
+          </select>
+          <button className="ql-bold"></button>
+          <button className="ql-italic"></button>
+          <button className="ql-underline"></button>
+          <button className="ql-strike"></button>
+          <button className="ql-list" value="ordered"></button>
+          <button className="ql-list" value="bullet"></button>
+          <button className="ql-link"></button>
+          {/* The upload icon will be injected here by useEffect */}
+          <button className="ql-clean"></button>
+        </div>
         <ReactQuill
           ref={quillRef}
           theme="snow"
-          value={value}
+          value={value || ""}
           onChange={onChange}
           modules={modules}
           formats={formats}
           placeholder="Write the FAQ answer here..."
           style={{ height: '140px' }}
         />
-        <Button variant="outlined" component="label" sx={{ mt: 1, height: "35px" }}>
-          Upload File (PDF/DOCX)
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            hidden
-            onChange={handleFileUpload}
-          />
-        </Button>
+        {/* Hidden file input for CSV upload (toolbar icon) */}
+        <input
+          type="file"
+          accept=".csv,.pdf,.doc,.docx"
+          hidden
+          ref={fileInputRefCsv}
+          onChange={handleCsvFileUpload}
+        />
         <Toaster />
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="md" fullWidth>
           <DialogContent>
