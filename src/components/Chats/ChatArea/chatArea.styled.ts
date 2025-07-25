@@ -116,8 +116,6 @@ export const UserMessageBubble = styled(Box)({
   wordWrap: 'break-word',
   fontFamily: 'var(--custom-font-family)',
 });
-
-
 export const OptionSelect = styled(MenuItem)({
   width:"17rem",
   display:"flex",

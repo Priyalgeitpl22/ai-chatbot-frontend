@@ -71,19 +71,19 @@ const motionVariants = {
 
 const MoreOptions= [
   {
-    icon:<EmailIcon/>,
+    icon:<EmailIcon color="primary"/>,
     message:"Email Chat Tansacript"
   },
    {
-    icon:<DeleteOutlineIcon/>,
+    icon:<DeleteOutlineIcon color="primary"/>,
     message:"Move to trash"
   },
    {
-    icon:<BlockIcon/>,
+    icon:<BlockIcon color="primary"/>,
     message:"Block Sender"
   },
    {
-    icon:<ErrorIcon/>,
+    icon:<ErrorIcon color="primary"/>,
     message:"Mark as spam"
   }
 ]
@@ -406,7 +406,6 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                     )
                   })}
                 </Popover>
-                 {/* <Typography>{""}</Typography> */}
               </Box>
             <IconButton onClick={onClose} sx={{ padding: 0 }}>
               <X size={24} />
