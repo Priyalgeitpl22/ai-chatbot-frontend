@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef,useLayoutEffect } from "react";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
 import {
   Avatar,
   Box,
@@ -6,6 +6,7 @@ import {
   TextField,
   IconButton,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import { Send, X } from "lucide-react";  
 import { motion } from "framer-motion";
@@ -13,6 +14,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getChats, addchat, uploadChatFile } from "../../../redux/slice/chatSlice";
 import { useSocket } from "../../../context/SocketContext";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { toast } from "react-toastify";
 import {
   ChatContainer,
   ChatHeader,
@@ -23,10 +26,11 @@ import {
   BotMessageBubble,
   UserMessage,
   UserMessageBubble,
+  OptionSelect
 } from "./chatArea.styled";
 import { ChatListHeader, TimeStamp } from "../ChatList/chatList.styled";
 import { formatTimestamp } from "../../../utils/utils";
-import { Thread, updateThread } from "../../../redux/slice/threadSlice";
+import { Thread, updateThread, assignThread } from "../../../redux/slice/threadSlice";
 import { Task } from "../../../redux/slice/taskSlice";
 import { ThreadType } from "../../../enums";
 import EmojiPicker from 'emoji-picker-react';
@@ -36,6 +40,12 @@ import Popover from '@mui/material/Popover';
 import Modal from "@mui/material/Modal";
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
+import AssignedDropDown from '../../Tasks/AssignedDropDown/AssignedDropDown';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EmailIcon from '@mui/icons-material/Email';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ErrorIcon from '@mui/icons-material/Error';
+import BlockIcon from '@mui/icons-material/Block';
 
 interface ChatData {
   id: string;
@@ -59,7 +69,26 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClose, assignedDropdown }: ChatAreaProps) {
+const MoreOptions= [
+  {
+    icon:<EmailIcon/>,
+    message:"Email Chat Tansacript"
+  },
+   {
+    icon:<DeleteOutlineIcon/>,
+    message:"Move to trash"
+  },
+   {
+    icon:<BlockIcon/>,
+    message:"Block Sender"
+  },
+   {
+    icon:<ErrorIcon/>,
+    message:"Mark as spam"
+  }
+]
+
+export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClose }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
@@ -74,18 +103,37 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openImage, setOpenImage] = useState<string | null>(null);
-  
+  const { data: agents } = useSelector((state: RootState) => state.agents);
+  const [assignPopoverOpen, setAssignPopoverOpen] = useState(false);
+  const [assignAnchorEl, setAssignAnchorEl] = useState<null | HTMLElement>(null);
+  const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
+  const userInfo = threadInfo ? threadInfo : tasks[0];
+  const assignedAgentId = threadInfo?.assignedTo || '';
+  const assignedAgent = agents?.find(agent => agent.id === assignedAgentId);
+  const [moreDetailAnchorEl, setMoreDetailAnchorEl] = useState<HTMLElement | null>(null);
+
+  const [assignedValue, setAssignedValue] = useState<string>("");
+
+  useEffect(() => {
+    setAssignedValue(threadInfo?.assignedTo || "");
+  }, [threadInfo?.assignedTo]);
+
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     requestAnimationFrame(scrollToBottom);
-  //   },100);
-  // }, [chats]);
+  const handleMoreDetailClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setMoreDetailAnchorEl(event.currentTarget);
+  };
+
+  const handleMoreDetailClose = () => {
+    setMoreDetailAnchorEl(null);
+  };
+
+  const openMoreDetail = Boolean(moreDetailAnchorEl);
+  const id = openMoreDetail ? 'simple-popover' : undefined;
 
   useLayoutEffect(() => {
     setTimeout(() => {
@@ -247,9 +295,36 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
   const isImage = (fileType?: string) => fileType?.startsWith("image/");
   const isDocument = (fileType?: string) => fileType && !fileType.startsWith("image/");
 
-  const threadInfo = threads?.find(thread => thread.id === selectedThreadId);
-  const userInfo = threadInfo? threadInfo:tasks[0];
+  const mappedAgents = (agents || []).map(agent => ({
+    ...agent,
+    profilePicture: typeof agent.profilePicture === 'string' ? agent.profilePicture : undefined,
+  }));
 
+  const handleOpenAssignPopover = (event: React.MouseEvent<HTMLElement>) => {
+    setAssignAnchorEl(event.currentTarget);
+    setAssignPopoverOpen(true);
+  };
+  const handleCloseAssignPopover = () => {
+    setAssignPopoverOpen(false);
+    setAssignAnchorEl(null);
+  };
+  const handleAssignAgent = (agentId: string) => {
+    if (!selectedThreadId) return;
+    setAssignedValue(agentId);
+    dispatch(assignThread({ id: selectedThreadId, assignedTo: agentId }))
+    .unwrap()
+    .then((res) => {
+      if (res) {
+        toast.success("Thread assigned successfully");
+      }
+    })
+    .catch((error: any) => {
+      console.error("Error assigning thread:", error);
+      toast.error(error || "Failed to assign thread");
+      setAssignedValue(threadInfo?.assignedTo || ""); 
+    });
+    handleCloseAssignPopover();
+  };
 
   return (
     <ChatContainer>
@@ -285,12 +360,54 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                 {(userInfo?.name?.charAt(0).toUpperCase() + userInfo?.name?.slice(1)) || 'Unkown Visitor'}
               </Typography>
             </Box>
-            {assignedDropdown &&
-              <Box mr={2} style={{fontFamily: "var(--custom-font-family)", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Typography> Assigned to: </Typography>
-                <Typography>{assignedDropdown}</Typography>
+            {/* Assigned User Popover Button */}
+            <Box mr={2} style={{fontFamily: "var(--custom-font-family)", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', marginBottom: '10px' }} onClick={handleOpenAssignPopover}>
+                <Avatar src={typeof assignedAgent?.profilePicture === 'string' ? assignedAgent?.profilePicture : undefined}>
+                {typeof assignedAgent?.profilePicture === 'string' ? null : <AccountCircleIcon />}
+                </Avatar>
+              {assignedValue && (
+                <Typography sx={{ color: '#35495c', fontWeight: assignedValue ? 700 : 400 }}>
+                  {agents?.find(agent => agent.id === assignedValue)?.fullName }
+                </Typography>
+              )}
+            </Box>
+            <AssignedDropDown
+              open={assignPopoverOpen}
+              anchorEl={assignAnchorEl}
+              onClose={handleCloseAssignPopover}
+              agents={mappedAgents}
+              assignedTo={assignedValue}
+              onAssign={handleAssignAgent}
+            />
+            <Box mr={2} style={{fontFamily: "var(--custom-font-family)", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Button variant="outlined" color="primary" onClick={handleMoreDetailClick}>
+                <MoreHorizIcon/>
+              </Button>
+              <Popover
+                id={id}
+                open={openMoreDetail}
+                anchorEl={moreDetailAnchorEl}
+                onClose={handleMoreDetailClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                >
+                  {MoreOptions && MoreOptions.map((option)=>{
+                    return(
+                      <OptionSelect>
+                        {option.icon}
+                        {option.message}
+                      </OptionSelect>
+                    )
+                  })}
+                </Popover>
+                 {/* <Typography>{""}</Typography> */}
               </Box>
-            }
             <IconButton onClick={onClose} sx={{ padding: 0 }}>
               <X size={24} />
             </IconButton>
