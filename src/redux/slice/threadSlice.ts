@@ -18,7 +18,6 @@ export interface Thread {
   assignedTo:string|null;
   endedBy:string;
   endedAt:Date;
-  status:string;
   unseenCount:number|null;
   latestMessage:{content:string}
   status?: string; // Add status property to match backend

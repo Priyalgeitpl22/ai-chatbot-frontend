@@ -3,8 +3,8 @@ import { io, Socket } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store/store";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
-// const SOCKET_URL = 'http://localhost:5003';
+// const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const SOCKET_URL = 'http://localhost:5003';
 
 interface SocketContextType {
   socket: Socket | null;
