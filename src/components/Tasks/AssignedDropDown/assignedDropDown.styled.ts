@@ -1,50 +1,67 @@
-import { FormControl, Select, MenuItem, SelectProps } from "@mui/material";
-import styled from "@emotion/styled";
+import { Badge, ListItem, Typography, ListItemButton, List, TextField } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-export const StyledFormControl = styled(FormControl)({
-  minWidth: 150,
-  margin: "0.5rem 0",
-});
-
-export type CustomSelectProps = SelectProps<string> & {
-    hasValue?: boolean;
-  };
-  
-
-export const StyledSelect = styled(Select)<CustomSelectProps>(({ hasValue }) => ({
-  "& .MuiOutlinedInput-root": {
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    transition: "box-shadow 0.2s, border-color 0.2s",
+export const StatusBadge = styled(Badge)<{ online: boolean }>(({ theme, online }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: online ? '#4caf50' : '#f44336',
+    color: online ? '#4caf50' : '#f44336',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    borderRadius: '50%',
+    height: 8,
+    width: 8,
+    minWidth: 0,
   },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#ccc",
-  },
-  "&:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#999",
-  },
-  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#555",
-    boxShadow: "0 0 0 2px rgba(85, 85, 85, 0.2)",
-  },
-  "& .MuiSvgIcon-root": {
-    color: "#555",
-  },
-
-  ...(hasValue && {
-
-    backgroundColor: 'var(--theme-color)',
-    color: '#000',
-    fontWeight: "bold",
-
-  }),
 }));
 
-export const StyledMenuItem = styled(MenuItem)({
-  "&.Mui-selected": {
-    backgroundColor: "#f5f5f5",
+export const SearchTextField = styled(TextField)({
+  marginBottom: '16px',
+  fontFamily: 'var(--custom-font-family)',
+});
+
+export const SectionTitle = styled(Typography)({
+  marginBottom: '8px',
+  color: '#888',
+  fontWeight: 600,
+  fontFamily: 'var(--custom-font-family)',
+});
+
+export const StyledAssignedItem = styled(ListItem)({
+  padding: '8px',
+  marginBottom: '8px',
+  borderRadius: '16px',
+  backgroundColor: '#f5f5f5',
+});
+
+export const AgentStatusText = styled('span')({
+  color: '#898989',
+  fontSize: 12,
+});
+
+export const AgentName = styled('span')({
+  fontWeight: 700,
+  fontFamily: 'var(--custom-font-family)',
+});
+
+export const StyledListItemButton = styled(ListItemButton)<{ isOnline: boolean }>(({ isOnline }) => ({
+  borderRadius: 16,
+  marginBottom: 4,
+  opacity: isOnline ? 1 : 0.5,
+  cursor: isOnline ? 'pointer' : 'not-allowed',
+  '&.Mui-selected': {
+    background: 'var(--theme-color)',
+    color: '#fff',
   },
-  "&.Mui-selected:hover": {
-    backgroundColor: "#e0e0e0",
-  },
+}));
+
+export const ScrollableAgentList = styled(List)({
+  maxHeight: 300,
+  overflowY: 'auto',
+  padding: 0,
+});
+
+export const NoAgentsFoundText = styled(Typography)({
+  color: '#aaa',
+  textAlign: 'center',
+  paddingTop: '16px',
+  paddingBottom: '16px',
 });

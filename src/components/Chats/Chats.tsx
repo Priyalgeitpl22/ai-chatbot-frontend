@@ -12,9 +12,7 @@ import { ThreadType } from "../../enums";
 import { PlaceholderContainer } from "./ChatArea/chatArea.styled";
 import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
-import AssignedDropDown from "../Tasks/AssignedDropDown/AssignedDropDown";
 import { fetchAgents } from "../../redux/slice/agentsSlice";
-import { DropDownPurpose } from "../../enums";
 import { updateThread } from "../../redux/slice/threadSlice";
 
 export default function Chats() {
@@ -28,7 +26,7 @@ export default function Chats() {
   const [isLoading, setIsLoading] = useState(true);
   const {user} = useSelector((state: RootState) => state.user);
   const selectedThread = threads.find((thread)=> selectedThreadId === thread.id)
-  const [isUpdated,setIsUpdated] = useState<boolean>(false)
+  // const [isUpdated,setIsUpdated] = useState<boolean>(false)
   useEffect(() => {
     setIsLoading(true);
     dispatch(getAllThreads()).then((res: any) => {
@@ -44,7 +42,7 @@ export default function Chats() {
       setIsLoading(false);
       window.history.replaceState({}, document.title);
     });
-  }, [dispatch, notificationThreadId,isUpdated,selectedThreadId]);
+  }, [dispatch, notificationThreadId,selectedThreadId]);
   useEffect(() => {
   if (user?.orgId) {
     dispatch(fetchAgents(user.orgId));
@@ -100,15 +98,6 @@ export default function Chats() {
             return thread.type === selectedThreadType;
           })}
           onClose={()=>setSelectedThreadId(null)}
-          assignedDropdown={
-  selectedThread ? (
-    <AssignedDropDown
-      taskId={selectedThread.id}
-      assignedTo={selectedThread.assignedTo||""}
-      purpose={DropDownPurpose.Thread}
-      setIsUpdated={setIsUpdated}
-    />
-  ) : null}
         />
         </>
       ) : (

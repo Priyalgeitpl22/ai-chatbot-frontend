@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, MenuItem } from '@mui/material';
 
 export const ChatContainer = styled(Box)({
   flex: 1,
@@ -116,3 +116,17 @@ export const UserMessageBubble = styled(Box)({
   wordWrap: 'break-word',
   fontFamily: 'var(--custom-font-family)',
 });
+export const OptionSelect = styled(MenuItem)({
+  width:"17rem",
+  display:"flex",
+  gap:"1rem",
+  cursor:"pointer",
+  height:"3rem",
+   "&.Mui-selected": {
+    backgroundColor: "#f5f5f5",
+  },
+  "&.Mui-selected:hover": {
+    
+    backgroundColor: "#e0e0e0",
+  },
+})
