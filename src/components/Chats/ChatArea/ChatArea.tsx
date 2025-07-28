@@ -6,15 +6,13 @@ import {
   TextField,
   IconButton,
   CircularProgress,
-  Button,
 } from "@mui/material";
-import { Send, X } from "lucide-react";  
+import { Send } from "lucide-react";  
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getChats, addchat, uploadChatFile } from "../../../redux/slice/chatSlice";
 import { useSocket } from "../../../context/SocketContext";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { toast } from "react-toastify";
 import {
   ChatContainer,
@@ -26,7 +24,12 @@ import {
   BotMessageBubble,
   UserMessage,
   UserMessageBubble,
-  OptionSelect
+  OptionSelect,
+  AgentsListDropDown,
+  CloseConvButton,
+  MoreDetailVerticalIcon,
+  MoreInfoIconDetail,
+  InfoDetail
 } from "./chatArea.styled";
 import { ChatListHeader, TimeStamp } from "../ChatList/chatList.styled";
 import { formatTimestamp } from "../../../utils/utils";
@@ -41,11 +44,13 @@ import Modal from "@mui/material/Modal";
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import AssignedDropDown from '../../Tasks/AssignedDropDown/AssignedDropDown';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EmailIcon from '@mui/icons-material/Email';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ErrorIcon from '@mui/icons-material/Error';
 import BlockIcon from '@mui/icons-material/Block';
+import InfoIcon from '@mui/icons-material/Info';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface ChatData {
   id: string;
@@ -381,29 +386,17 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                 {(userInfo?.name?.charAt(0).toUpperCase() + userInfo?.name?.slice(1)) || 'Unkown Visitor'}
               </Typography>
             </Box>
-            {/* Assigned User Popover Button */}
-            <Box mr={2} style={{fontFamily: "var(--custom-font-family)", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', marginBottom: '10px' }} onClick={handleOpenAssignPopover}>
-                <Avatar src={typeof assignedAgent?.profilePicture === 'string' ? assignedAgent?.profilePicture : undefined}>
-                {typeof assignedAgent?.profilePicture === 'string' ? null : <AccountCircleIcon />}
-                </Avatar>
-              {assignedValue && (
-                <Typography sx={{ color: '#35495c', fontWeight: assignedValue ? 700 : 400 }}>
-                  {agents?.find(agent => agent.id === assignedValue)?.fullName }
-                </Typography>
-              )}
-            </Box>
-            <AssignedDropDown
-              open={assignPopoverOpen}
-              anchorEl={assignAnchorEl}
-              onClose={handleCloseAssignPopover}
-              agents={mappedAgents}
-              assignedTo={assignedValue}
-              onAssign={handleAssignAgent}
-            />
-            <Box mr={2} style={{fontFamily: "var(--custom-font-family)", fontSize: "1rem", color: "#35495c", display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Button variant="outlined" color="primary" onClick={handleMoreDetailClick}>
-                <MoreHorizIcon/>
-              </Button>
+           
+            <InfoDetail>
+              <CloseConvButton onClick={onClose}>
+                Close Conversation
+              </CloseConvButton>
+              <MoreDetailVerticalIcon color="primary" onClick={handleMoreDetailClick}>
+                <MoreVertIcon/>
+              </MoreDetailVerticalIcon>
+              <MoreInfoIconDetail color="primary" >
+                <InfoIcon />
+              </MoreInfoIconDetail>
               <Popover
                 id={id}
                 open={openMoreDetail}
@@ -417,6 +410,9 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                   vertical: 'top',
                   horizontal: 'right',
                 }}
+                PaperProps={{
+                  sx: { p: 2, borderRadius: 1, boxShadow: 3 , marginTop: 1},
+                }}
                 >
                   {MoreOptions && MoreOptions.map((option)=>{
                     return(
@@ -426,12 +422,30 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                       </OptionSelect>
                     )
                   })}
-                </Popover>
-              </Box>
-            <IconButton onClick={onClose} sx={{ padding: 0 }}>
-              <X size={24} />
-            </IconButton>
+              </Popover>
+            </InfoDetail>
           </ChatHeader>
+            <AgentsListDropDown >
+                <Typography sx={{ color: '#252525', fontWeight: 700, fontFamily: "var(--custom-font-family)",}}>
+                  Owner
+                </Typography>
+                <Box sx={{display:'flex', alignItems:'center' , gap:'10px'}}>
+                <Avatar sx={{color:"#ababab", bgcolor:"#d2d2d26b"}} src={typeof assignedAgent?.profilePicture === 'string' ? assignedAgent?.profilePicture : undefined}>
+                {typeof assignedAgent?.profilePicture === 'string' ? null : <PersonIcon />}
+                </Avatar>
+                <Typography sx={{ color: '#4b667f', textAlign:'end', fontWeight: 700, cursor:'pointer'}} onClick={handleOpenAssignPopover}>
+                  {agents?.find(agent => agent.id === assignedValue)?.fullName || 'User'}
+                </Typography>
+                </Box>
+            </AgentsListDropDown>
+            <AssignedDropDown
+              open={assignPopoverOpen}
+              anchorEl={assignAnchorEl}
+              onClose={handleCloseAssignPopover}
+              agents={mappedAgents}
+              assignedTo={assignedValue}
+              onAssign={handleAssignAgent}
+            />
           <ChatMessages id="chatMessagesContainer">
             {isTicketCreated && (
               <Box sx={{
@@ -624,7 +638,6 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
               </Typography>
             )}
           </ChatMessages>
-
           <ChatInputContainer>
             <TextField
               fullWidth

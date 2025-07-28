@@ -130,3 +130,47 @@ export const OptionSelect = styled(MenuItem)({
     backgroundColor: "#e0e0e0",
   },
 })
+
+export const AgentsListDropDown = styled(Box)({
+  fontFamily: "var(--custom-font-family)", 
+  fontSize: "1rem",
+  display: 'flex', 
+  flexDirection:'column',
+  gap: '2px', 
+  padding:'5px 10px',
+  boxShadow:'0px 1px 0px #ababab',
+})
+
+export const InfoDetail = styled(Box)({
+  fontFamily: "var(--custom-font-family)", 
+  fontSize: "1rem", 
+  color: "#35495c", 
+  display: 'flex', 
+  alignItems: 'center', 
+  gap: '2px',
+})
+
+export const CloseConvButton = styled(Button)({
+  textTransform: 'none',
+  fontWeight: 500,
+  fontSize: '14px',
+  color: '#35495c',
+  fontFamily: 'var(--custom-font-family)',
+  padding: '6px 12px',
+  borderRadius: '4px',
+  backgroundColor: '#f5f8fa',
+  border: '1px solid #dce3e8',
+  '&:hover': {
+    backgroundColor: '#e6eff5',
+  },
+})
+
+export const MoreDetailVerticalIcon = styled(Button)({
+  minWidth: 0,
+  padding: 6,
+  borderRadius: 8,
+  color: '#35495c',
+  backgroundColor: 'transparent',
+})
+
+export const MoreInfoIconDetail = styled(MoreDetailVerticalIcon)();
