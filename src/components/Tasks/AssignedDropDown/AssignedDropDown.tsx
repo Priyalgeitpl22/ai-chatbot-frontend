@@ -1,146 +1,173 @@
-import React, { useEffect, useState } from "react";
-import { Button, InputLabel, SelectChangeEvent } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { assignTask } from "../../../redux/slice/taskSlice";
-import { assignThread } from "../../../redux/slice/threadSlice";
-import { AppDispatch, RootState } from "../../../redux/store/store";
-import toast from "react-hot-toast";
+import React, { useState, useMemo } from 'react';
 import {
-  StyledFormControl,
-  StyledSelect,
-  StyledMenuItem,
-} from "./assignedDropDown.styled";
-import { unassignThread } from "../../../redux/slice/threadSlice";
-import { unassignTask } from "../../../redux/slice/taskSlice";
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import { DropDownPurpose } from "../../../enums";
+  Popover,
+  Box,
+  Avatar,
+  ListItemAvatar,
+  ListItemText,
+} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import {
+  StatusBadge,
+  SearchTextField,
+  SectionTitle,
+  StyledAssignedItem,
+  AgentStatusText,
+  AgentName,
+  StyledListItemButton,
+  ScrollableAgentList,
+  NoAgentsFoundText,
+} from './assignedDropDown.styled';
 
-interface AssignedDropDownProps {
-  taskId: string;
-  assignedTo?: string;
-  purpose:DropDownPurpose;
-  setIsUpdated:React.Dispatch<React.SetStateAction<boolean>>;
+interface Agent {
+  id: string;
+  fullName: string;
+  profilePicture?: File | string | null;
+  online?: boolean;
 }
 
-const AssignedDropDown: React.FC<AssignedDropDownProps> = ({ taskId, assignedTo ,purpose ,setIsUpdated}) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { data } = useSelector((state: RootState) => state.agents);
-  const [assignedValue, setAssignedValue] = useState<string>(assignedTo || "");
- 
-  useEffect(() => {
-    setAssignedValue(assignedTo || "");
-  }, [assignedTo]);
+interface AssignAgentPopoverProps {
+  open: boolean;
+  anchorEl: HTMLElement | null;
+  onClose: () => void;
+  agents: Agent[];
+  assignedTo?: string;
+  onAssign: (agentId: string) => void;
+}
 
-  const handleChangeTask = async (event: SelectChangeEvent<unknown>) => {
-    const newValue = event.target.value as string;
-    setAssignedValue(newValue);
-    try {
-      await dispatch(assignTask({ id: taskId, assignedTo: newValue })).unwrap().then((res) => {
-        if (res) {
-          toast.success("Task assigned successfully");
-          setIsUpdated((data)=>data=!data)
-        }
-      });
-    } catch (error: any) {
-      console.error("Error assigning task:", error);
-      toast.error(error || "Failed to assign task");
-    }
-  };
-  const handleChangeThread = async (event: SelectChangeEvent<unknown>) => {
-    const newValue = event.target.value as string;
-    setAssignedValue(newValue);
-    try {
-      await dispatch(assignThread({ id: taskId, assignedTo: newValue })).unwrap().then((res) => {
-        if (res) {
-          toast.success("Thread assigned successfully");
-          setIsUpdated((data)=>data=!data)
-          
-        }
-      });
-      
-    } catch (error: any) {
-      console.error("Error assigning Thread:", error);
-      toast.error(error || "Failed to assign Thread");
-    }
-  };
+const AssignedDropDown: React.FC<AssignAgentPopoverProps> = ({
+  open,
+  anchorEl,
+  onClose,
+  agents,
+  assignedTo,
+  onAssign,
+}) => {
+  const [search, setSearch] = useState('');
 
-  const handleUnassignThread = async()=>{
-    setAssignedValue(assignedTo||"")
-    try{
+  const assignedAgent = useMemo(
+    () => agents.find((a) => a.id === assignedTo),
+    [agents, assignedTo]
+  );
 
-      await dispatch(unassignThread({id:taskId})).unwrap().then((res)=>{
-        if(res){
-          toast.success("Thread unassigned successfully");
-          setIsUpdated((data)=>data=!data)
-        }
-      });
-
-    }catch(error:any){
-      console.error("Error unassigning Thread:", error);
-      toast.error(error || "Failed to unassign Thread");
-    }
-
-  }
-  const handleUnassignTask = async()=>{
-    setAssignedValue("Assigned")
-    try{
-
-      await dispatch(unassignTask({id:taskId})).unwrap().then((res)=>{
-        if(res){
-          toast.success("Task unassigned successfully");
-          setIsUpdated((data)=>data=!data)
-        }
-      });
-
-    }catch(error:any){
-      console.error("Error unassigning Task:", error);
-      toast.error(error || "Failed to unassign Task");
-    }
-
-  }
+  const filteredAgents = useMemo(() => {
+    return agents
+      .filter((agent) => agent.id !== assignedTo)
+      .filter((agent) =>
+        agent.fullName.toLowerCase().includes(search.toLowerCase())
+      );
+  }, [search, agents, assignedTo]);
 
   return (
-    <StyledFormControl variant="outlined" size="small" >
-      {!assignedValue && <InputLabel id="assigned-label">Assigned</InputLabel>}
-      <StyledSelect
-        labelId="assigned-label"
-        id="assigned-select"
-        value={assignedValue}
-        onChange={purpose===DropDownPurpose.Thread?handleChangeThread:handleChangeTask}
-        label={assignedValue ? "" : "Assigned"}
-        hasValue={Boolean(assignedValue)}
-        renderValue={(selected) => {
-          const selectedStr = typeof selected === "string" ? selected : String(selected);
-          if (!selectedStr) {
-            return <em>Assigned</em>;
-          }
-          const selectedAgent = data?.find((agent) => agent.id === selectedStr);
-          return <span>{selectedAgent ? selectedAgent.fullName : selectedStr}</span>;
-        }}
-      > 
-       {data &&
-  data.map((agent) => (
-    <StyledMenuItem key={agent.id} value={agent.id}>
-      {agent.fullName}
-      {assignedValue === agent.id && purpose === DropDownPurpose.Thread && (
-        <Button color="error" onClick={(e: React.MouseEvent<HTMLButtonElement>)=>{
-          e.stopPropagation()
-          handleUnassignThread()}}>
-          <CancelOutlinedIcon fontSize="small" />
-        </Button> 
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      PaperProps={{
+        sx: { width: 340, p: 2, borderRadius: 3, boxShadow: 3 , marginTop: 1},
+      }}
+    >
+      <SearchTextField
+        fullWidth
+        size="small"
+        placeholder="Search for a specific user"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {assignedAgent && (
+        <>
+          <SectionTitle variant="subtitle2">Currently assigned to</SectionTitle>
+          <StyledAssignedItem
+            secondaryAction={
+              <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />
+            }
+          >
+            <ListItemAvatar>
+              <StatusBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                variant="dot"
+                online={assignedAgent.online ?? false}
+              >
+                <Avatar
+                  src={
+                    typeof assignedAgent.profilePicture === 'string'
+                      ? assignedAgent.profilePicture
+                      : undefined
+                  }
+                >
+                  {!assignedAgent.profilePicture && <AccountCircleIcon />}
+                </Avatar>
+              </StatusBadge>
+            </ListItemAvatar>
+            <ListItemText
+              primary={
+                <Box display="flex" alignItems="center" gap={1}>
+                  <AgentName>{assignedAgent.fullName}</AgentName>
+                </Box>
+              }
+              secondary={
+                <AgentStatusText>
+                  {assignedAgent.online ? 'Available' : 'Not Available'}
+                </AgentStatusText>
+              }
+            />
+          </StyledAssignedItem>
+        </>
       )}
-      {assignedValue === agent.id && purpose === DropDownPurpose.Task && (
-        <Button color="error" onClick={(e: React.MouseEvent<HTMLButtonElement>)=>{
-          e.stopPropagation()
-          handleUnassignTask()}}>
-          <CancelOutlinedIcon fontSize="small" />
-        </Button> 
-      )}
-    </StyledMenuItem>
-  ))}   
-      </StyledSelect>
-      
-    </StyledFormControl>
+
+      <SectionTitle variant="subtitle2">
+        Assign to another user
+      </SectionTitle>
+
+      <ScrollableAgentList>
+        {filteredAgents.length === 0 && (
+          <NoAgentsFoundText>No agents found</NoAgentsFoundText>
+        )}
+        {filteredAgents.map((agent) => {
+          const isOnline = agent.online ?? false;
+          return (
+            <StyledListItemButton
+              key={agent.id}
+              onClick={() => isOnline && onAssign(agent.id)}
+              disabled={!isOnline}
+              isOnline={isOnline}
+            >
+              <ListItemAvatar>
+                <StatusBadge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  variant="dot"
+                  online={isOnline}
+                >
+                  <Avatar
+                    src={
+                      typeof agent.profilePicture === 'string'
+                        ? agent.profilePicture
+                        : undefined
+                    }
+                  >
+                    {!agent.profilePicture && <AccountCircleIcon />}
+                  </Avatar>
+                </StatusBadge>
+              </ListItemAvatar>
+              <ListItemText
+                primary={<AgentName>{agent.fullName}</AgentName>}
+                secondary={
+                  <AgentStatusText>
+                    {isOnline ? 'Available' : 'Not Available'}
+                  </AgentStatusText>
+                }
+              />
+            </StyledListItemButton>
+          );
+        })}
+      </ScrollableAgentList>
+    </Popover>
   );
 };
 
