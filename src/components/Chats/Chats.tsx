@@ -59,7 +59,6 @@ export default function Chats() {
     
 
     socket.on("threadAssigned",({threadId,agentId}:{threadId:string,agentId:string})=>{
-      console.log("hello")
       const IsThread = threads.find((thread)=>thread.id === threadId)
       if (IsThread) {
         console.log({...IsThread,assignedTo:agentId })
