@@ -268,7 +268,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       threadId: selectedThreadId,
       agentId:user?.id
     });
-
+    socket.emit("assignThread",{threadId:selectedThreadId,agentId:user?.id,orgId:user?.orgId})
     const tempThread = threads.find(thread => thread.id === selectedThreadId);
 
 if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assignedTo !== user?.id)) {
@@ -341,6 +341,10 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
     .unwrap()
     .then((res) => {
       if (res) {
+        // now send assigned via socket 
+        if(socket){
+          socket.emit("assignThread",{threadId:selectedThreadId,agentId,orgId:user?.orgId})
+        }
         toast.success("Thread assigned successfully");
       }
     })
