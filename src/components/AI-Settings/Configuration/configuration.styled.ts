@@ -7,6 +7,7 @@ export const SettingsContainer = styled.div`
   display: flex;
   padding: 10px 20px;
   justify-content: space-between;
+  width: 100%
 `;
 
 export const Section = styled.section`
