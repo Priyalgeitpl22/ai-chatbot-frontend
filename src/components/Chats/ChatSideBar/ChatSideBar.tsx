@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/store";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { Trash2 } from "lucide-react";
 interface MenuItem {
   text: string;
   icon: JSX.Element;
@@ -45,6 +46,7 @@ const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
     { text: "All open", icon: <MessageSquare size={20} />, count: threadCounts["open"] || 0, threadType: "open" },
     { text: "Chat", icon: <MessageCircle size={20} />, count: threadCounts["chat"] || 0, threadType: "chat" },
     { text: "Bots", icon: <Bot size={20} />, count: threadCounts["bots"] || 0, threadType: "bots" },
+    { text: "Trash", icon: <Trash2 size={20} />, count: threadCounts["trash"] || 0, threadType: "trash" },
   ];
   return (
     <SidebarContainer>

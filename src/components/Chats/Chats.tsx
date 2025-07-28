@@ -42,7 +42,7 @@ export default function Chats() {
       setIsLoading(false);
       window.history.replaceState({}, document.title);
     });
-  }, [dispatch, notificationThreadId,selectedThreadId]);
+  }, [dispatch, notificationThreadId]);
   useEffect(() => {
   if (user?.orgId) {
     dispatch(fetchAgents(user.orgId));
@@ -56,10 +56,20 @@ export default function Chats() {
         dispatch(updateThread({ ...selectedThread, status: data.status }));
       }
     };
+    
+
+    socket.on("threadAssigned",({threadId,agentId}:{threadId:string,agentId:string})=>{
+      const IsThread = threads.find((thread)=>thread.id === threadId)
+      if (IsThread) {
+        console.log({...IsThread,assignedTo:agentId })
+        dispatch(updateThread({...IsThread,assignedTo:agentId,type:ThreadType.ASSIGNED}));
+      }
+    })
     socket.on("threadStatusUpdated", handleThreadStatusUpdated);
     socket.emit("joinThreadRoom", { threadId: selectedThreadId });
     return () => {
       socket.off("threadStatusUpdated", handleThreadStatusUpdated);
+      socket.off("threadAssigned")
     };
   }, [socket, selectedThreadId, selectedThread, dispatch]);
   if (isLoading) return <Loader />;

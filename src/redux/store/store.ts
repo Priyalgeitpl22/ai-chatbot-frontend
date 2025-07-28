@@ -10,6 +10,7 @@ import settingsReducer from "../slice/settingsSlice";
 import faqReducer from "../slice/faqSlice";
 import notificationReducer from "../slice/notificationSlice";
 import securityReducer from "../slice/securitySlice";
+import selectedThreadReducer from "../slice/selectedThread";
 
 export const store = configureStore({
   reducer: {
@@ -23,7 +24,8 @@ export const store = configureStore({
     settings: settingsReducer,
     faq: faqReducer,
     notification:notificationReducer,
-    security: securityReducer
+    security: securityReducer,
+    selectedThread:selectedThreadReducer
   },
 });
 

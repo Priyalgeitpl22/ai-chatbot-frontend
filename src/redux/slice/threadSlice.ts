@@ -177,7 +177,7 @@ const threadSlice = createSlice({
   const updated = action.payload;
   const index = state.threads.findIndex((t) => t.id === updated.id);
   if (index !== -1) {
-    state.threads[index] = updated;
+    state.threads[index] = updated; 
   }
 },
    readThreads: (state, action: PayloadAction<string>) => {
@@ -192,14 +192,16 @@ const threadSlice = createSlice({
 },
 addThread: (state, action: PayloadAction<Thread>) => {
   const threadData = action.payload
-  threadData.unseenCount=2
+  threadData.unseenCount=0
   state.threads.unshift(action.payload);
 },
 newMessage:(state,action:PayloadAction<{latestMessage:string,threadId:string}>)=>{
   const updated = action.payload.threadId;
   const index = state.threads.findIndex((t) => t.id === updated);
-  if(state.threads[index].unseenCount != null) {
+  if(state.threads[index].unseenCount != null && state.threads[index].unseenCount === 0) {
     state.threads[index].unseenCount+=1
+  }else if(state.threads[index].unseenCount != null ){
+     state.threads[index].unseenCount+=2
   }
   state.threads[index].latestMessage={content:action.payload.latestMessage}
 }
