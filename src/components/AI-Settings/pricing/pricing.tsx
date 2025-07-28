@@ -17,7 +17,7 @@ export default function PricingConfiguration() {
   const { data: organizationData } = useSelector((state: RootState) => state.organization);
 
   const [openAiKey, setOpenAiKey] = useState<string>('');
-  const [aiEnabled, setAiEnabled] = useState<boolean>(true); // Or fetch from actual state
+  const [aiEnabled] = useState<boolean>(true); 
 
   const handleCreate = async () => {
     if (!user?.orgId || !openAiKey.trim()) {

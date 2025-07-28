@@ -3,13 +3,12 @@ import {
   Typography,
   TextField,
   Button,
-  Alert,
   Stack,
   CircularProgress,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store/store';
-import { getAIChatbotSettingsData, updateOrganization } from '../../../redux/slice/organizationSlice';
+import { getAIChatbotSettingsData } from '../../../redux/slice/organizationSlice';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { fetchFAQs, createFAQs } from '../../../redux/slice/faqSlice';
@@ -26,7 +25,6 @@ export default function FAQConfiguration() {
   const [localFaqs, setLocalFaqs] = useState<{ id: string; question: string; answer: string }[]>([
     { id: '1', question: '', answer: '' }
   ]);
-  const [openAiKey, setOpenAiKey] = useState<string>('');
   const [aiEnabled, setAiEnabled] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
 
@@ -91,28 +89,6 @@ export default function FAQConfiguration() {
   const handleRemoveFaq = (id: string) => {
     if (localFaqs.length > 1) {
       setLocalFaqs(prev => prev.filter(faq => faq.id !== id));
-    }
-  };
-
-  const handleCreate = async () => {
-    if (!user?.orgId || !openAiKey.trim()) {
-      toast.error("Please enter your OpenAI key");
-      return;
-    }
-
-    try {
-      await dispatch(updateOrganization({
-        orgId: user.orgId,
-        data: {
-          ...organizationData,
-          openAiKey: openAiKey.trim()
-        }
-      })).unwrap();
-      toast.success("OpenAI key updated successfully!");
-      setOpenAiKey('');
-    } catch (error: unknown) {
-      const errorMessage = typeof error === 'string' ? error : "Failed to update OpenAI key";
-      toast.error(errorMessage);
     }
   };
 
