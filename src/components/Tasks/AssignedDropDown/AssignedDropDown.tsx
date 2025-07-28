@@ -7,7 +7,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import PersonIcon from '@mui/icons-material/Person';
 import {
   StatusBadge,
   SearchTextField,
@@ -67,7 +67,7 @@ const AssignedDropDown: React.FC<AssignAgentPopoverProps> = ({
       anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       PaperProps={{
-        sx: { width: 340, p: 2, borderRadius: 3, boxShadow: 3 , marginTop: 1},
+        sx: { width: 340, p: 2, borderRadius: 3, boxShadow: 3 , marginTop: 2},
       }}
     >
       <SearchTextField
@@ -99,8 +99,9 @@ const AssignedDropDown: React.FC<AssignAgentPopoverProps> = ({
                       ? assignedAgent.profilePicture
                       : undefined
                   }
+                  sx={{color:"#ababab", bgcolor:"#d2d2d26b"}}
                 >
-                  {!assignedAgent.profilePicture && <AccountCircleIcon />}
+                  {!assignedAgent.profilePicture && <PersonIcon />}
                 </Avatar>
               </StatusBadge>
             </ListItemAvatar>
@@ -150,8 +151,9 @@ const AssignedDropDown: React.FC<AssignAgentPopoverProps> = ({
                         ? agent.profilePicture
                         : undefined
                     }
+                    sx={{color:"#ababab", bgcolor:"#d2d2d26b"}}
                   >
-                    {!agent.profilePicture && <AccountCircleIcon />}
+                    {!agent.profilePicture && <PersonIcon />}
                   </Avatar>
                 </StatusBadge>
               </ListItemAvatar>
