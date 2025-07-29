@@ -4,6 +4,13 @@ export enum ThreadType {
   OPEN = "open",
   CHAT = "chat",
   BOTS = "bots",
+  TRASH= "trash",
+  COMPLETED = "completed"
+}
+
+export enum ThreadStatus{
+  ACTIVE="active",
+  ENDED="ended"
 }
 
 export enum Priority {

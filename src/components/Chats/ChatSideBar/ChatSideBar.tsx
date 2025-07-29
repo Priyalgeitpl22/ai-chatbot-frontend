@@ -6,6 +6,7 @@ import { RootState } from "../../../redux/store/store";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
+import { MessageSquareDot } from "lucide-react";
 interface MenuItem {
   text: string;
   icon: JSX.Element;
@@ -43,10 +44,11 @@ const ChatSideBar = ({ selectedType, onSelectType }: ChatSideBarProps) => {
   const menuItems: MenuItem[] = [
     { text: "Unassigned", icon: <Users size={20} />, count: threadCounts["unassigned"] || 0, threadType: "unassigned" },
     { text: "Assigned to me", icon: <UserCheck size={20} />, count: threadCounts["assigned"] || 0, threadType: "assigned" },
-    { text: "All open", icon: <MessageSquare size={20} />, count: threadCounts["open"] || 0, threadType: "open" },
+    { text: "Open Chats", icon: <MessageSquare size={20} />, count: threadCounts["open"] || 0, threadType: "open" },
     { text: "Chat", icon: <MessageCircle size={20} />, count: threadCounts["chat"] || 0, threadType: "chat" },
+    { text: "Completed Chats", icon: <MessageSquareDot size={20} />, count: threadCounts["completed"] || 0, threadType: "completed"},
     { text: "Bots", icon: <Bot size={20} />, count: threadCounts["bots"] || 0, threadType: "bots" },
-    { text: "Trash", icon: <Trash2 size={20} />, count: threadCounts["trash"] || 0, threadType: "trash" },
+    { text: "Trashed Chats", icon: <Trash2 size={20} />, count: threadCounts["trash"] || 0, threadType: "trash" },
   ];
   return (
     <SidebarContainer>

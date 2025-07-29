@@ -56,13 +56,23 @@ export default function Chats() {
         dispatch(updateThread({ ...selectedThread, status: data.status }));
       }
     };
-    
+    socket.on("trashThread",({ThreadId})=>{
+      const IsThread =  threads.find((thread)=>thread.id === ThreadId)
+      if(IsThread){
+        dispatch(updateThread({...IsThread,type:ThreadType.TRASH}));
+      }
+    })
 
     socket.on("threadAssigned",({threadId,agentId}:{threadId:string,agentId:string})=>{
       const IsThread = threads.find((thread)=>thread.id === threadId)
       if (IsThread) {
-        console.log({...IsThread,assignedTo:agentId })
         dispatch(updateThread({...IsThread,assignedTo:agentId,type:ThreadType.ASSIGNED}));
+      }
+    })
+    socket.on("threadEnded",({threadId,ended_by}:{threadId:string,ended_by:string})=>{
+      const IsThread = threads.find((thread)=>thread.id === threadId)
+      if(IsThread){
+        dispatch(updateThread({...IsThread,status:"ended",type:ThreadType.COMPLETED,endedBy:ended_by}))
       }
     })
     socket.on("threadStatusUpdated", handleThreadStatusUpdated);
@@ -88,6 +98,12 @@ export default function Chats() {
           }
           if (selectedThreadType === "open") {
             return true;
+          }
+          if(selectedThreadType === "trash"){
+            return thread.type === selectedThreadType && thread.type === "trash";
+          }
+          if(selectedThreadType === ThreadType.COMPLETED){
+            return thread.type === selectedThreadType && thread.type === "completed"
           }
           return thread.type === selectedThreadType;
         })}
