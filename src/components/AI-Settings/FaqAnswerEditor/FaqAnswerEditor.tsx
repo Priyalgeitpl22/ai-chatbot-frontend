@@ -85,13 +85,10 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange, onCs
   };
 
   const handleCsvUploadClick = () => {
-    console.log('Upload button clicked!')
     fileInputRefCsv.current?.click();
   };
   const handleCsvFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log('File selected for upload:', event.target.files?.[0]);
-
     if (!file) return;
 
     const fileExt = file.name.split('.').pop()?.toLowerCase();
@@ -101,7 +98,6 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange, onCs
         header: true,
         skipEmptyLines: true,
         complete: (results: any) => {
-          console.log('Parsed CSV:', results);
           const first = results.data.find((row: any) => row.question && row.answer);
           if (!first) {
             toast.error('No valid FAQ entries found in CSV.');

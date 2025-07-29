@@ -19,10 +19,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store/store';
 import { getAIChatbotSettingsData } from '../../../redux/slice/organizationSlice';
 import toast from 'react-hot-toast';
-import api from '../../../services/api';
-import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
-import { fetchFAQs, createFAQs } from '../../../redux/slice/faqSlice';
+import { fetchFAQs, createFAQs, updateFAQStatus } from '../../../redux/slice/faqSlice';
 import FaqAnswerEditor from '../FaqAnswerEditor/FaqAnswerEditor'
 import Papa from 'papaparse';
 
@@ -119,33 +117,14 @@ export default function FAQConfiguration() {
   };
 
   const handleToggleFAQ = async (faqId: string, enabled: boolean) => {
-    const token = Cookies.get('access_token');
-    if (!token) {
-      toast.error('You are not logged in. Please log in and try again.');
-      return;
-    }
     try {
-      const res = await api.put(
-        `/faq/${faqId}`,
-        { enabled: !enabled },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      setLocalFaqs(prev =>
-        prev.map(faq =>
-          faq.id === faqId ? { ...faq, enabled: !enabled } : faq
-        )
-      );
-      toast.success(res.data.message || 'FAQ status updated!');
+      await dispatch(updateFAQStatus({ faqId, enabled: !enabled })).unwrap();
+      toast.success('FAQ status updated!');
     } catch (error: any) {
-      console.error('FAQ toggle failed:', error);
-      toast.error(error?.response?.data?.message || 'Failed to update FAQ status!');
+      toast.error(error?.message || 'Failed to update FAQ status!');
     }
   };
+
   return (
     <Box sx={{ position: 'relative', minHeight: 300 }}>
       {loading && (
