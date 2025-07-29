@@ -8,7 +8,7 @@ export const ChatContainer = styled(Box)`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   background: white;
   position: relative;
-  height: 95%;
+  height: 520px;
 `;
 
 export const Header = styled(Box)<{ bgcolor: string }>`

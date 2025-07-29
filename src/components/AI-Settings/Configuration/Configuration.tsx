@@ -18,7 +18,7 @@ import {
   PreviewImage,
   UploadBtn,
   CustomFormControlLabel,
-  ContentScroll,
+  SubTabContainer,
 } from "./configuration.styled";
 import {
   FormControl,
@@ -31,6 +31,8 @@ import {
   TextField,
   MenuItem,
   Select,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { ContentCopy } from "@mui/icons-material";
 import ChatBot from "../../../components/ChatBot/ChatBot";
@@ -109,6 +111,7 @@ const Configuration = () => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [logoPriviewURL, setLogoPriviewURL] = useState<string>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [subTab, setSubTab]= useState("basic");
 
   useEffect(() => {
     if(user?.orgId){
@@ -277,11 +280,43 @@ const Configuration = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{ fontFamily: 'var(--custom-font-family)', border: '1px solid #e0e0e0', width: '50%', height: '500px', borderRadius: '8px', padding: '1rem', overflowY: 'auto' }}
           >
-            <ContentScroll>
-            <SectionTitle>Display</SectionTitle>
-            <Section>
+            <SubTabContainer>
+                <Tabs
+                  value={subTab}
+                  onChange={(_, newValue) => setSubTab(newValue)}
+                  variant="fullWidth"
+                  TabIndicatorProps={{
+                    style: {
+                      height: '3px',
+                      backgroundColor: '#33465b',     
+                      borderRadius: '2px',
+                    },
+                  }}
+                  sx={{
+                    minHeight: '40px',
+                  }}
+                >
+                  {['basic', 'styling', 'chat'].map((tabKey) => (
+                    <Tab
+                      key={tabKey}
+                      value={tabKey}
+                      label={tabKey.charAt(0).toUpperCase() + tabKey.slice(1)}
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: subTab === tabKey ? 600 : 500,
+                        fontSize: '15px',
+                        color: subTab === tabKey ? '#33465b !important' : '#5f6b7a',
+                        padding: '12px 20px',
+                        minHeight: '40px',
+                      }}
+                    />
+                  ))}
+                </Tabs>
+            </SubTabContainer>
+            
+            {subTab === 'chat' && (
+              <Section>
               <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
                 Add your Initial Popup Text
               </Typography>
@@ -338,44 +373,46 @@ const Configuration = () => {
                 sx={{ width: '50%', mt: 2, mb: 2 }}
               />
             </Section>
-            <Section>
-              <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
-                Color
-              </Typography>
-              <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164", mb: 2 }}>
-                Choose an accent color
-              </Typography>
-              <ColorGrid>
-                {colors.map((color) =>
-                  color === "custom" ? (
-                    null
-                  ) : (
-                    <ColorOption
-                      key={color}
-                      color={color}
-                      isSelected={settings.iconColor === color}
-                      onClick={() => handleChange("iconColor", color)}
+            )}
+            {subTab === 'styling' && (
+              <>
+              <SectionTitle>Display</SectionTitle>
+              <Section>
+                <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+                  Color
+                </Typography>
+                <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164", mb: 2 }}>
+                  Choose an accent color
+                </Typography>
+                <ColorGrid>
+                  {colors.map((color) =>
+                    color === "custom" ? (
+                      null
+                    ) : (
+                      <ColorOption
+                        key={color}
+                        color={color}
+                        isSelected={settings.iconColor === color}
+                        onClick={() => handleChange("iconColor", color)}
+                      />
+                    )
+                  )}
+                </ColorGrid>
+                {colors.includes("custom") && (
+                  <CustomColorPicker>
+                    <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164" }}>
+                      Custom Color Picker
+                    </Typography>
+                    <ColorPicker
+                      type="color"
+                    value={settings.iconColor || "#c0dbf9"}
+                      onChange={(e) => {
+                        handleChange("iconColor", e.target.value);
+                      }}
                     />
-                  )
+                  </CustomColorPicker>
                 )}
-              </ColorGrid>
-              {colors.includes("custom") && (
-                <CustomColorPicker>
-                  <Typography fontFamily={'var(--custom-font-family)'} sx={{ color: "#3e5164" }}>
-                    Custom Color Picker
-                  </Typography>
-                  <ColorPicker
-                    type="color"
-                  value={settings.iconColor || "#c0dbf9"}
-                    onChange={(e) => {
-                      handleChange("iconColor", e.target.value);
-                    }}
-                  />
-                </CustomColorPicker>
-              )}
-
             </Section>
-
             <Section style={{ marginTop: '1.2rem' }}>
               <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c", mt: 1 }}>
                 Chat widget placement
@@ -394,8 +431,23 @@ const Configuration = () => {
                 </RadioGroup>
               </FormControl>
             </Section>
-            {/* Additional settings */}
-            <Section style={{ marginTop: '1rem' }}>
+            <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
+              <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+                Chat Window Color
+              </Typography>
+              <CustomMuiColorInput format="hex" value={settings.chatWindowColor || '#FFFFFF'} onChange={(newValue: string) => handleChange("chatWindowColor", newValue)} />
+            </Section>
+
+            <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
+              <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
+                Font Color
+              </Typography>
+              <CustomMuiColorInput format="hex" value={settings.fontColor || '#333333'} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
+            </Section>
+            </>
+            )}
+            {subTab === 'basic' && (
+              <Section style={{ marginTop: '1rem' }}>
               <Typography variant="h6" fontFamily={'var(--custom-font-family)'} fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
                 Additional Settings
               </Typography>
@@ -484,21 +536,8 @@ const Configuration = () => {
                 )}
               </FormControl>
             </Section>
-
-            <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
-                Chat Window Color
-              </Typography>
-              <CustomMuiColorInput format="hex" value={settings.chatWindowColor || '#FFFFFF'} onChange={(newValue: string) => handleChange("chatWindowColor", newValue)} />
-            </Section>
-
-            <Section style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Typography fontFamily={'var(--custom-font-family)'} variant="h6" fontSize={16} fontWeight={600} sx={{ color: "#35495c" }}>
-                Font Color
-              </Typography>
-              <CustomMuiColorInput format="hex" value={settings.fontColor || '#333333'} onChange={(newValue: string) => handleChange("fontColor", newValue)} />
-            </Section>
-            </ContentScroll>
+            )}
+            
             <Section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '0.5rem' }}>
               <Button onClick={handleSave}>
                 Save
