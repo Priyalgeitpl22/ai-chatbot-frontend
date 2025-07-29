@@ -7,7 +7,7 @@ export const SettingsContainer = styled.div`
   display: flex;
   padding: 10px 20px;
   justify-content: space-between;
-  width: 100%
+  height:100%;
 `;
 
 export const Section = styled.section`
@@ -17,10 +17,6 @@ export const Section = styled.section`
   border: 1px solid var(--border);
 `;
 
-export const ContentScroll = styled.div`
-  overflow-y: auto;
-  max-height: 460px;
-`;
 
 export const SectionTitle = styled.h2`
   font-size: 18px;
@@ -183,14 +179,11 @@ export const ContentContainer = styled(Box)`
   background: white;
   position: relative;
   flex-direction: column;
+  height:100%;
 `;
 
 export const ScrollableDiv = styled(motion.div)`
-border: 1px solid #e0e0e0;
-width: 97%;
-height: 500px;
-border-radius: 8px;
-padding: 1rem;
+width: 50%;
 overflow-y: auto;
 `;
 
@@ -241,3 +234,10 @@ export const CustomFormControlLabel = styled(FormControlLabel)`
     font-family: 'var(--custom-font-family)';
   }
 `;
+
+export const SubTabContainer = styled(Box)({
+  mb: 2,
+  display: 'flex',
+  borderBottom: '1px solid #e0e0e0', 
+  backgroundColor: '#fff'
+})
