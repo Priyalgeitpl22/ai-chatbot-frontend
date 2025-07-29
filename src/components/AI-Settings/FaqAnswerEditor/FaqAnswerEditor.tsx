@@ -85,39 +85,41 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange, onCs
   };
 
   const handleCsvUploadClick = () => {
+    console.log('Upload button clicked!')
     fileInputRefCsv.current?.click();
   };
   const handleCsvFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+    const file = event.target.files?.[0];
+    console.log('File selected for upload:', event.target.files?.[0]);
 
-  const fileExt = file.name.split('.').pop()?.toLowerCase();
+    if (!file) return;
 
-  if (fileExt === 'csv') {
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results: any) => {
-        const first = results.data.find((row: any) => row.question && row.answer);
-        if (!first) {
-          toast.error('No valid FAQ entries found in CSV.');
-        } else {
-          if (onCsvImport) onCsvImport(first.question, first.answer);
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+
+    if (fileExt === 'csv') {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results: any) => {
+          console.log('Parsed CSV:', results);
+          const first = results.data.find((row: any) => row.question && row.answer);
+          if (!first) {
+            toast.error('No valid FAQ entries found in CSV.');
+          } else {
+            if (onCsvImport) onCsvImport(first.question, first.answer);
+          }
+          if (fileInputRefCsv.current) fileInputRefCsv.current.value = '';
+        },
+        error: () => {
+          toast.error('Failed to parse CSV file.');
         }
-        if (fileInputRefCsv.current) fileInputRefCsv.current.value = '';
-      },
-      error: () => {
-        toast.error('Failed to parse CSV file.');
-      }
-    });
-  } else if (['pdf', 'doc', 'docx'].includes(fileExt || '')) {
-    handleFileUpload(event);
-  } else {
-    toast.error('Unsupported file type. Please upload a CSV, PDF, DOC, or DOCX file.');
-  }
-};
-
-
+      });
+    } else if (['pdf', 'doc', 'docx'].includes(fileExt || '')) {
+      handleFileUpload(event);
+    } else {
+      toast.error('Unsupported file type. Please upload a CSV, PDF, DOC, or DOCX file.');
+    }
+  };
 
   useEffect(() => {
     const quillEditor = quillRef.current?.editor?.root;
