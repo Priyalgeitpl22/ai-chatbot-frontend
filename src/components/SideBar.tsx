@@ -52,7 +52,7 @@ const Sidebar = () => {
           className={location.pathname.startsWith("/chats") ? "active" : ""}
         >
           <MessageSquare size={20} />
-          Chats
+          All Chat
         </NavItem>
 
         <NavItem
