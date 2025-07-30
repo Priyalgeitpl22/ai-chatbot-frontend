@@ -51,6 +51,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import BlockIcon from '@mui/icons-material/Block';
 import InfoIcon from '@mui/icons-material/Info';
 import PersonIcon from '@mui/icons-material/Person';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
 interface ChatData {
   id: string;
@@ -74,24 +75,6 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const MoreOptions= [
-  {
-    icon:<EmailIcon color="primary"/>,
-    message:"Email Chat Tansacript"
-  },
-   {
-    icon:<DeleteOutlineIcon color="primary"/>,
-    message:"Move to trash"
-  },
-   {
-    icon:<BlockIcon color="primary"/>,
-    message:"Block Sender"
-  },
-   {
-    icon:<ErrorIcon color="primary"/>,
-    message:"Mark as spam"
-  }
-]
 
 export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClose }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
@@ -118,6 +101,46 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   const [moreDetailAnchorEl, setMoreDetailAnchorEl] = useState<HTMLElement | null>(null);
 
   const [assignedValue, setAssignedValue] = useState<string>("");
+  const MoreOptions= [
+  {
+    icon:<EmailIcon color="primary"/>,
+    message:"Email Chat Tansacript",
+    handler:()=>{
+      return
+    }
+  },
+   {
+    icon:threadInfo?.type === ThreadType.TRASH?< RestoreFromTrashIcon color="primary" fontSize="medium"/>:<DeleteOutlineIcon color="primary"/>,
+    message:`${threadInfo?.type === ThreadType.TRASH?"Recover":"Move to trash"}`,
+    handler:()=>{
+      if(socket){
+        socket.emit("threadTrash",{ThreadId:selectedThreadId,trash:ThreadType.TRASH,orgId:user?.orgId})
+      }else{
+        return
+      }
+    }
+  },
+   {
+    icon:<BlockIcon color="primary"/>,
+    message:"Block Sender",
+    handler:()=>{
+      return
+    }
+  },
+   {
+    icon:<ErrorIcon color="primary"/>,
+    message:"End Chat",
+    handler:()=>{
+       if(socket){
+        console.log({threadId:selectedThreadId,orgId:user?.orgId,ended_by:"bot"})
+        socket.emit("endThread",{threadId:selectedThreadId,orgId:user?.orgId,ended_by:"bot"})
+      }else{
+        return
+      }
+      return
+    }
+  }
+]
 
   useEffect(() => {
     setAssignedValue(threadInfo?.assignedTo || "");
@@ -420,7 +443,9 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                 >
                   {MoreOptions && MoreOptions.map((option)=>{
                     return(
-                      <OptionSelect>
+                      <OptionSelect onClick={()=>{option.handler()
+                        handleMoreDetailClose()
+                      }}>
                         {option.icon}
                         {option.message}
                       </OptionSelect>
