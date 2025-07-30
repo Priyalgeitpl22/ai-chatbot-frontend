@@ -64,21 +64,22 @@ export default function FAQConfiguration() {
 
   // Sync local state with Redux FAQs
   useEffect(() => {
-    setLocalFaqs(faqs.length ? faqs : [{ id: "1", question: "", answer: "", enabled: true }]);
-  }, [faqs]);
+  setLocalFaqs(faqs.length ? faqs : []);
+}, [faqs]);
+
 
   const handleSave = async () => {
     if (!user?.orgId) return;
     setSaving(true);
     try {
-      // Only send FAQs that don't have a numeric id
+      
       const newFaqs = localFaqs.filter(
         faq => typeof faq.id !== "number"
       );
       if (newFaqs.length > 0) {
         await dispatch(createFAQs({ orgId: user.orgId, faqs: newFaqs.map(({ question, answer }) => ({ question, answer })) })).unwrap();
       }
-      // Always fetch the updated list after saving
+      
       await dispatch(fetchFAQs(user.orgId));
       toast.success("FAQs saved successfully!");
     } catch (error: any) {
@@ -187,32 +188,38 @@ export default function FAQConfiguration() {
               FAQs
             </Typography>
 
-            {localFaqs.map((faq, index) => (
-              <Accordion key={faq.id || index} disabled={user?.role !== 'Admin' && !faq.enabled}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography sx={{ flexGrow: 1 }}>{faq.question || `FAQ #${index + 1}`}</Typography>
-                  {user?.role === 'Admin' && (
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={faq.enabled}
-                          onChange={() => handleToggleFAQ(faq.id, faq.enabled)}
-                          color="primary"
-                          disabled={saving}
-                        />
-                      }
-                      label={faq.enabled ? 'Enabled' : 'Disabled'}
-                      onClick={e => e.stopPropagation()}
-                      sx={{ marginLeft: 2 }}
-                    />
-                  )}
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography dangerouslySetInnerHTML={{ __html: faq.answer }} />
-                  {/* Optionally, show edit/delete buttons here for Admins */}
-                </AccordionDetails>
-              </Accordion>
-            ))}
+           {localFaqs.length > 0 ? (
+  localFaqs.map((faq, index) => (
+    <Accordion key={faq.id || index} disabled={user?.role !== 'Admin' && !faq.enabled}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ flexGrow: 1 }}>{faq.question || `FAQ #${index + 1}`}</Typography>
+        {user?.role === 'Admin' && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={faq.enabled}
+                onChange={() => handleToggleFAQ(faq.id, faq.enabled)}
+                color="primary"
+                disabled={saving}
+              />
+            }
+            label={faq.enabled ? 'Enabled' : 'Disabled'}
+            onClick={e => e.stopPropagation()}
+            sx={{ marginLeft: 2 }}
+          />
+        )}
+      </AccordionSummary>
+      <AccordionDetails>
+        <Typography dangerouslySetInnerHTML={{ __html: faq.answer }} />
+      </AccordionDetails>
+    </Accordion>
+  ))
+) : (
+  <Typography sx={{ mt: 2, textAlign: 'center', color: '#888' }}>
+    No FAQs available. Please upload a CSV or add a new FAQ to get started.
+  </Typography>
+)}
+
           </Box>
 
 

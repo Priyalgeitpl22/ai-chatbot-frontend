@@ -270,8 +270,6 @@ const Configuration = () => {
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
         <CustomTab label="Ai Chatbot" value="ai chatbot" />
-        <CustomTab label="FAQ" value="FAQ" />
-        <CustomTab label="Pricing" value="Pricing" />
       </CustomTabs>
 
       {activeTab === "configure" && (
