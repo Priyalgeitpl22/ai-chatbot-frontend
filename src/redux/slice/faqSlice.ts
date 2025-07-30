@@ -8,6 +8,7 @@ export interface FAQ {
   id: string;
   question: string;
   answer: string;
+  enabled: boolean
   createdAt?: string;
   updatedAt?: string;
 }
@@ -62,6 +63,29 @@ export const createFAQs = createAsyncThunk<
   }
 });
 
+// PUT: Update FAQ enabled status
+export const updateFAQStatus = createAsyncThunk<
+  FAQ,
+  { faqId: string; enabled: boolean },
+  { rejectValue: string }
+>("faq/updateFAQStatus", async ({ faqId, enabled }, { rejectWithValue }) => {
+  const token = Cookies.get("access_token");
+  try {
+    const response = await api.put(
+      `/faq/${faqId}`,
+      { enabled },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data.faq; 
+  } catch (error: any) {
+    let errorMessage = "Failed to update FAQ status";
+    if (error instanceof AxiosError) {
+      errorMessage = error.response?.data?.message || errorMessage;
+    }
+    return rejectWithValue(errorMessage);
+  }
+});
+
 const initialState: FAQState = {
   faqs: [],
   loading: false,
@@ -97,6 +121,15 @@ const faqSlice = createSlice({
       .addCase(createFAQs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to create FAQs";
+      })
+      .addCase(updateFAQStatus.fulfilled, (state, action: PayloadAction<FAQ>) => {
+        const idx = state.faqs.findIndex(faq => faq.id === action.payload.id);
+        if (idx !== -1) {
+          state.faqs[idx] = action.payload;
+        }
+      })
+      .addCase(updateFAQStatus.rejected, (state, action) => {
+        state.error = action.payload || "Failed to update FAQ status";
       });
   },
 });

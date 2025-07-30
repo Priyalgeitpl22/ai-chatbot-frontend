@@ -1,4 +1,13 @@
 import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Switch,
+  FormControlLabel,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
   Box,
   Typography,
   TextField,
@@ -11,7 +20,7 @@ import { AppDispatch, RootState } from '../../../redux/store/store';
 import { getAIChatbotSettingsData } from '../../../redux/slice/organizationSlice';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
-import { fetchFAQs, createFAQs } from '../../../redux/slice/faqSlice';
+import { fetchFAQs, createFAQs, updateFAQStatus } from '../../../redux/slice/faqSlice';
 import FaqAnswerEditor from '../FaqAnswerEditor/FaqAnswerEditor'
 import Papa from 'papaparse';
 
@@ -22,8 +31,12 @@ export default function FAQConfiguration() {
   const { data: organizationData } = useSelector((state: RootState) => state.organization);
   const { faqs, loading } = useSelector((state: RootState) => state.faq);
 
-  const [localFaqs, setLocalFaqs] = useState<{ id: string; question: string; answer: string }[]>([
-    { id: '1', question: '', answer: '' }
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [newQuestion, setNewQuestion] = useState('');
+  const [newAnswer, setNewAnswer] = useState('');
+
+  const [localFaqs, setLocalFaqs] = useState<{ id: string; question: string; answer: string; enabled: boolean }[]>([
+    { id: '1', question: '', answer: '', enabled: true }
   ]);
   const [aiEnabled, setAiEnabled] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
@@ -51,14 +64,8 @@ export default function FAQConfiguration() {
 
   // Sync local state with Redux FAQs
   useEffect(() => {
-    setLocalFaqs(faqs.length ? faqs : [{ id: "1", question: "", answer: "" }]);
+    setLocalFaqs(faqs.length ? faqs : [{ id: "1", question: "", answer: "", enabled: true }]);
   }, [faqs]);
-
-  const handleChange = (id: string, field: 'question' | 'answer', value: string) => {
-    setLocalFaqs(prev =>
-      prev.map(faq => (faq.id === id ? { ...faq, [field]: value } : faq))
-    );
-  };
 
   const handleSave = async () => {
     if (!user?.orgId) return;
@@ -78,17 +85,6 @@ export default function FAQConfiguration() {
       toast.error(error.message || "Failed to save FAQs");
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleAddNew = () => {
-    const newId = `temp-${Date.now()}`;
-    setLocalFaqs(prevFaqs => [...prevFaqs, { id: newId, question: '', answer: '' }]);
-  };
-
-  const handleRemoveFaq = (id: string) => {
-    if (localFaqs.length > 1) {
-      setLocalFaqs(prev => prev.filter(faq => faq.id !== id));
     }
   };
 
@@ -120,22 +116,12 @@ export default function FAQConfiguration() {
     });
   };
 
-  const handleCsvImport = async (id: string, question: string, answer: string) => {
-    setLocalFaqs(prev =>
-      prev.map(faq =>
-        faq.id === id ? { ...faq, question, answer } : faq
-      )
-    );
-    if (!user || !user.orgId) return;
+  const handleToggleFAQ = async (faqId: string, enabled: boolean) => {
     try {
-      await dispatch(createFAQs({
-        orgId: user.orgId,
-        faqs: [{ question, answer }]
-      })).unwrap();
-      toast.success('FAQ saved successfully');
-      dispatch(fetchFAQs(user.orgId));
-    } catch (error) {
-      toast.error('Failed to save FAQ to database.');
+      await dispatch(updateFAQStatus({ faqId, enabled: !enabled })).unwrap();
+      toast.success('FAQ status updated!');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update FAQ status!');
     }
   };
 
@@ -176,25 +162,25 @@ export default function FAQConfiguration() {
       </Button>
 
       <Box
-  sx={{
-    display: 'flex',
+        sx={{
+          display: 'flex',
           gap: 3,
           maxWidth: 1200,
           mx: 'auto',
-  }}
->
-  <Box
-    sx={{
-     flex: 1,
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
             border: '1px solid #ccc',
             borderRadius: 2,
             p: 2,
             width: 600,
             display: 'flex',
             flexDirection: 'column',
-            height: '400px', 
-    }}
-  >
+            height: '400px',
+          }}
+        >
           {/* Scrollable Content Area */}
           <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
             <Typography variant="h6" sx={{ mt: 2 }}>
@@ -202,49 +188,34 @@ export default function FAQConfiguration() {
             </Typography>
 
             {localFaqs.map((faq, index) => (
-              <Box key={faq.id || index} sx={{ mt: 2, p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    FAQ #{index + 1}
-                  </Typography>
-                  {localFaqs.length > 1 && (
-                    <Button
-                      size="small"
-                      color="error"
-                      onClick={() => handleRemoveFaq(faq.id)}
-                      sx={{ minWidth: "auto", p: 0.5 }}
-                      disabled={!aiEnabled}
-                    >
-                      ✕
-                    </Button>
+              <Accordion key={faq.id || index} disabled={user?.role !== 'Admin' && !faq.enabled}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography sx={{ flexGrow: 1 }}>{faq.question || `FAQ #${index + 1}`}</Typography>
+                  {user?.role === 'Admin' && (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={faq.enabled}
+                          onChange={() => handleToggleFAQ(faq.id, faq.enabled)}
+                          color="primary"
+                          disabled={saving}
+                        />
+                      }
+                      label={faq.enabled ? 'Enabled' : 'Disabled'}
+                      onClick={e => e.stopPropagation()}
+                      sx={{ marginLeft: 2 }}
+                    />
                   )}
-                </Box>
-
-                <TextField
-                  label="Question"
-                  value={faq.question}
-                  onChange={e => handleChange(faq.id, "question", e.target.value)}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  disabled={!aiEnabled}
-                />
-
-                {user && user.orgId ? (
-                  <FaqAnswerEditor
-                    value={faq.answer}
-                    onChange={(val:any) => handleChange(faq.id, 'answer', val)}
-                    onCsvImport={(question, answer) => handleCsvImport(faq.id, question, answer)}
-                    toolbarId={`custom-toolbar-${faq.id}`}
-                  />
-                ) : (
-                  <Typography color="error">Organization ID not found. Please log in again.</Typography>
-                )}
-              </Box>
-
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                  {/* Optionally, show edit/delete buttons here for Admins */}
+                </AccordionDetails>
+              </Accordion>
             ))}
           </Box>
 
-          
+
           <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: "1px solid #e0e0e0", justifyContent: "space-between" }}>
             <Button
               variant="contained"
@@ -256,16 +227,71 @@ export default function FAQConfiguration() {
             </Button>
             <Button
               variant="outlined"
-              onClick={handleAddNew}
-              sx={{ width: "50%" }}
-              disabled={!aiEnabled}
+              onClick={() => setAddModalOpen(true)}
             >
-              Add New FAQ
+              ADD NEW FAQ
             </Button>
           </Stack>
         </Box>
 
       </Box>
+      <Dialog open={addModalOpen} onClose={() => setAddModalOpen(false)}
+        PaperProps={{
+          sx: {
+            width: '600px',
+            maxWidth: '90%',
+            padding: 2,
+          }
+        }}
+      >
+        <DialogTitle>Add New FAQ</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Question"
+            value={newQuestion}
+            onChange={e => setNewQuestion(e.target.value)}
+            fullWidth
+            sx={{ mb: 2, mt: 1 }}
+          />
+          <FaqAnswerEditor
+            value={newAnswer}
+            onChange={setNewAnswer}
+            toolbarId="add-faq-toolbar"
+            onCsvImport={(question, answer) => {
+              setNewQuestion(question);
+              setNewAnswer(answer);
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddModalOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={async () => {
+              if (!newQuestion.trim() || !newAnswer.trim()) {
+                toast.error('Please fill in both fields');
+                return;
+              }
+              setLocalFaqs(prev => [
+                ...prev,
+                {
+                  id: `temp-${Date.now()}`,
+                  question: newQuestion,
+                  answer: newAnswer,
+                  enabled: true
+                }
+              ]);
+              setAddModalOpen(false);
+              setNewQuestion('');
+              setNewAnswer('');
+              toast.success('FAQ added!');
+            }}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
+
 }

@@ -269,7 +269,7 @@ const Configuration = () => {
         <CustomTab label="Configure" value="configure" />
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
-        <CustomTab label="Ai Chatbot Settings" value="ai chatbot settings" />
+        <CustomTab label="Ai Chatbot" value="ai chatbot" />
         <CustomTab label="FAQ" value="FAQ" />
         <CustomTab label="Pricing" value="Pricing" />
       </CustomTabs>
@@ -588,7 +588,7 @@ const Configuration = () => {
           </motion.div>
         </SettingsContainer>
       )}
-      {activeTab === "ai chatbot settings" && (
+      {activeTab === "ai chatbot" && (
         <SettingsContainer >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
