@@ -6,6 +6,8 @@ import {
   TextField,
   IconButton,
   CircularProgress,
+  Button,
+  Modal,
 } from "@mui/material";
 import { Send } from "lucide-react";  
 import { motion } from "framer-motion";
@@ -13,7 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getChats, addchat, uploadChatFile } from "../../../redux/slice/chatSlice";
 import { useSocket } from "../../../context/SocketContext";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import {
   ChatContainer,
   ChatHeader,
@@ -40,7 +42,6 @@ import EmojiPicker from 'emoji-picker-react';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import Popover from '@mui/material/Popover';
-import Modal from "@mui/material/Modal";
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import AssignedDropDown from '../../Tasks/AssignedDropDown/AssignedDropDown';
@@ -52,6 +53,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import InfoIcon from '@mui/icons-material/Info';
 import PersonIcon from '@mui/icons-material/Person';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import { sendChatTranscriptEmail } from "../../../redux/slice/chatSlice";
 
 interface ChatData {
   id: string;
@@ -75,17 +77,14 @@ const motionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-
-export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClose }: ChatAreaProps) {
+export default function ChatArea({ selectedThreadId, threads = [], tasks = [], onClose }: ChatAreaProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { socket } = useSocket();
   const { chats, loading } = useSelector((state: RootState) => state.chats);
-  const { user } = useSelector((state:RootState)=> state.user)
+  const { user } = useSelector((state: RootState) => state.user);
   const [inputMessage, setInputMessage] = useState("");
   const [typingAgent, setTypingAgent] = useState<string | null>(null);
-  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
   const [delayedLoading, setDelayedLoading] = useState(loading);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -94,53 +93,49 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
   const { data: agents } = useSelector((state: RootState) => state.agents);
   const [assignPopoverOpen, setAssignPopoverOpen] = useState(false);
   const [assignAnchorEl, setAssignAnchorEl] = useState<null | HTMLElement>(null);
-  const threadInfo: Thread | undefined = useSelector((state: RootState) =>state.thread.threads.find((thread) => thread.id === selectedThreadId));
+  const threadInfo: Thread | undefined = useSelector((state: RootState) => state.thread.threads.find((thread) => thread.id === selectedThreadId));
   const userInfo = threadInfo ? threadInfo : tasks[0];
   const assignedAgentId = threadInfo?.assignedTo || '';
   const assignedAgent = agents?.find(agent => agent.id === assignedAgentId);
   const [moreDetailAnchorEl, setMoreDetailAnchorEl] = useState<HTMLElement | null>(null);
-
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [assignedValue, setAssignedValue] = useState<string>("");
-  const MoreOptions= [
-  {
-    icon:<EmailIcon color="primary"/>,
-    message:"Email Chat Tansacript",
-    handler:()=>{
-      return
-    }
-  },
-   {
-    icon:threadInfo?.type === ThreadType.TRASH?< RestoreFromTrashIcon color="primary" fontSize="medium"/>:<DeleteOutlineIcon color="primary"/>,
-    message:`${threadInfo?.type === ThreadType.TRASH?"Recover":"Move to trash"}`,
-    handler:()=>{
-      if(socket){
-        socket.emit("threadTrash",{ThreadId:selectedThreadId,trash:ThreadType.TRASH,orgId:user?.orgId})
-      }else{
-        return
-      }
-    }
-  },
-   {
-    icon:<BlockIcon color="primary"/>,
-    message:"Block Sender",
-    handler:()=>{
-      return
-    }
-  },
-   {
-    icon:<ErrorIcon color="primary"/>,
-    message:"End Chat",
-    handler:()=>{
-       if(socket){
-        console.log({threadId:selectedThreadId,orgId:user?.orgId,ended_by:"bot"})
-        socket.emit("endThread",{threadId:selectedThreadId,orgId:user?.orgId,ended_by:"bot"})
-      }else{
-        return
-      }
-      return
-    }
-  }
-]
+  const MoreOptions = [
+    {
+      icon: <EmailIcon color="primary" />,
+      message: "Email Chat Transcript",
+      handler: () => {
+        setEmailModalOpen(true);
+        setEmailInput("");
+        setEmailError("");
+      },
+    },
+    {
+      icon: threadInfo?.type === ThreadType.TRASH ? <RestoreFromTrashIcon color="primary" fontSize="medium" /> : <DeleteOutlineIcon color="primary" />,
+      message: `${threadInfo?.type === ThreadType.TRASH ? "Recover" : "Move to trash"}`,
+      handler: () => {
+        if (socket) {
+          socket.emit("threadTrash", { ThreadId: selectedThreadId, trash: ThreadType.TRASH, orgId: user?.orgId });
+        }
+      },
+    },
+    {
+      icon: <BlockIcon color="primary" />,
+      message: "Block Sender",
+      handler: () => {},
+    },
+    {
+      icon: <ErrorIcon color="primary" />,
+      message: "End Chat",
+      handler: () => {
+        if (socket) {
+          socket.emit("endThread", { threadId: selectedThreadId, orgId: user?.orgId, ended_by: "bot" });
+        }
+      },
+    },
+  ];
 
   useEffect(() => {
     setAssignedValue(threadInfo?.assignedTo || "");
@@ -189,10 +184,10 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
     const handleReceiveMessage = (newMessage: ChatData) => {
       if (newMessage.threadId === selectedThreadId) {
         dispatch(addchat(newMessage));
-        socket.emit("readMessage",({selectedThreadId}))
+        socket.emit("readMessage", ({ selectedThreadId }));
       }
     };
-    const handleNewMessage = (data:any)=>{
+    const handleNewMessage = (data: any) => {
       if (
         data.data.sender === "User" &&
         data.data.threadId === selectedThreadId &&
@@ -207,7 +202,7 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
         };
         dispatch(addchat(response));
       }
-    }
+    };
 
     const handleUpdateDashboard = (data: ChatData) => {
       if (data.sender === "User" && data.threadId === selectedThreadId) { 
@@ -225,14 +220,14 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
 
     socket.on("receiveMessage", handleReceiveMessage);
     socket.on("updateDashboard", handleUpdateDashboard);
-    socket.on("newMessage",handleNewMessage);
+    socket.on("newMessage", handleNewMessage);
     socket.on("typing", handleTyping);
     socket.on("stopTyping", handleStopTyping);
 
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
       socket.off("updateDashboard", handleUpdateDashboard);
-      socket.off("newMessage",handleNewMessage);
+      socket.off("newMessage", handleNewMessage);
       socket.off("typing", handleTyping);
       socket.off("stopTyping", handleStopTyping);
     };
@@ -289,20 +284,19 @@ export default function ChatArea({ selectedThreadId, threads=[], tasks=[], onClo
       sender: "Bot",
       content: messageData.content,
       threadId: selectedThreadId,
-      agentId:user?.id
+      agentId: user?.id,
     });
-    socket.emit("assignThread",{threadId:selectedThreadId,agentId:user?.id,orgId:user?.orgId})
+    socket.emit("assignThread", { threadId: selectedThreadId, agentId: user?.id, orgId: user?.orgId });
     const tempThread = threads.find(thread => thread.id === selectedThreadId);
 
-if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assignedTo !== user?.id)) {
-  const updatedThread: Thread = {
-    ...tempThread,
-    type: ThreadType.ASSIGNED,
-    assignedTo: user?.id || null,
-  };
-
-  dispatch(updateThread(updatedThread));
-}
+    if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assignedTo !== user?.id)) {
+      const updatedThread: Thread = {
+        ...tempThread,
+        type: ThreadType.ASSIGNED,
+        assignedTo: user?.id || null,
+      };
+      dispatch(updateThread(updatedThread));
+    }
 
     setInputMessage("");
   }, [socket, selectedThreadId, inputMessage, dispatch]);
@@ -319,7 +313,7 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isTicketCreated) return; // Prevent file upload if chat is inactive
+    if (isTicketCreated) return;
     const file = event.target.files?.[0];
     if (!file || !selectedThreadId || !socket) return;
 
@@ -343,6 +337,30 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
 
   const isImage = (fileType?: string) => fileType?.startsWith("image/");
   const isDocument = (fileType?: string) => fileType && !fileType.startsWith("image/");
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSendTranscript = () => {
+    if (!validateEmail(emailInput)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+    dispatch(sendChatTranscriptEmail({threadId:selectedThreadId||"",email:emailInput}))
+    .unwrap()
+      .then((res) => {
+        if (res) {
+           toast.success("Transcript sent successfully!");
+           setEmailModalOpen(false);
+           setEmailInput("");
+           setEmailError("");
+      }})
+      .catch((error: any) => {
+        console.error("Error transcription  thread:", error);
+        toast.error(error || "Failed to send thread");
+      });
+  };
 
   const mappedAgents = (agents || []).map(agent => ({
     ...agent,
@@ -361,21 +379,20 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
     if (!selectedThreadId) return;
     setAssignedValue(agentId);
     dispatch(assignThread({ id: selectedThreadId, assignedTo: agentId }))
-    .unwrap()
-    .then((res) => {
-      if (res) {
-        // now send assigned via socket 
-        if(socket){
-          socket.emit("assignThread",{threadId:selectedThreadId,agentId,orgId:user?.orgId})
+      .unwrap()
+      .then((res) => {
+        if (res) {
+          if (socket) {
+            socket.emit("assignThread", { threadId: selectedThreadId,agentId,orgId:user?.orgId });
+          }
+          toast.success("Thread assigned successfully");
         }
-        toast.success("Thread assigned successfully");
-      }
-    })
-    .catch((error: any) => {
-      console.error("Error assigning thread:", error);
-      toast.error(error || "Failed to assign thread");
-      setAssignedValue(threadInfo?.assignedTo || ""); 
-    });
+      })
+      .catch((error: any) => {
+        console.error("Error assigning thread:", error);
+        toast.error(error || "Failed to assign thread");
+        setAssignedValue(threadInfo?.assignedTo || "");
+      });
     handleCloseAssignPopover();
   };
 
@@ -413,7 +430,6 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                 {(userInfo?.name?.charAt(0).toUpperCase() + userInfo?.name?.slice(1)) || 'Unkown Visitor'}
               </Typography>
             </Box>
-           
             <InfoDetail>
               <CloseConvButton onClick={onClose}>
                 Close Conversation
@@ -421,7 +437,7 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
               <MoreDetailVerticalIcon color="primary" onClick={handleMoreDetailClick}>
                 <MoreVertIcon/>
               </MoreDetailVerticalIcon>
-              <MoreInfoIconDetail color="primary" >
+              <MoreInfoIconDetail color="primary">
                 <InfoIcon />
               </MoreInfoIconDetail>
               <Popover
@@ -438,43 +454,115 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                   horizontal: 'right',
                 }}
                 PaperProps={{
-                  sx: { p: 2, borderRadius: 1, boxShadow: 3 , marginTop: 1},
+                  sx: { p: 2, borderRadius: 1, boxShadow: 3, marginTop: 1 },
                 }}
-                >
-                  {MoreOptions && MoreOptions.map((option)=>{
-                    return(
-                      <OptionSelect onClick={()=>{option.handler()
-                        handleMoreDetailClose()
-                      }}>
-                        {option.icon}
-                        {option.message}
-                      </OptionSelect>
-                    )
-                  })}
+              >
+                {MoreOptions.map((option) => (
+                  <OptionSelect
+                    key={option.message}
+                    onClick={() => {
+                      option.handler();
+                      handleMoreDetailClose();
+                    }}
+                  >
+                    {option.icon}
+                    {option.message}
+                  </OptionSelect>
+                ))}
               </Popover>
             </InfoDetail>
           </ChatHeader>
-            <AgentsListDropDown >
-                <Typography sx={{ color: '#252525', fontWeight: 700, fontFamily: "var(--custom-font-family)",}}>
-                  Owner
-                </Typography>
-                <Box sx={{display:'flex', alignItems:'center' , gap:'10px'}}>
-                <Avatar sx={{color:"#ababab", bgcolor:"#d2d2d26b"}} src={typeof assignedAgent?.profilePicture === 'string' ? assignedAgent?.profilePicture : undefined}>
+          <AgentsListDropDown>
+            <Typography sx={{ color: '#252525', fontWeight: 700, fontFamily: "var(--custom-font-family)" }}>
+              Owner
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Avatar sx={{ color: "#ababab", bgcolor: "#d2d2d26b" }} src={typeof assignedAgent?.profilePicture === 'string' ? assignedAgent?.profilePicture : undefined}>
                 {typeof assignedAgent?.profilePicture === 'string' ? null : <PersonIcon />}
-                </Avatar>
-                <Typography sx={{ color: '#4b667f', textAlign:'end', fontWeight: 700, cursor:'pointer'}} onClick={handleOpenAssignPopover}>
-                  {agents?.find(agent => agent.id === assignedValue)?.fullName || 'User'}
-                </Typography>
-                </Box>
-            </AgentsListDropDown>
-            <AssignedDropDown
-              open={assignPopoverOpen}
-              anchorEl={assignAnchorEl}
-              onClose={handleCloseAssignPopover}
-              agents={mappedAgents}
-              assignedTo={assignedValue}
-              onAssign={handleAssignAgent}
-            />
+              </Avatar>
+              <Typography sx={{ color: '#4b667f', textAlign: 'end', fontWeight: 700, cursor: 'pointer' }} onClick={handleOpenAssignPopover}>
+                {agents?.find(agent => agent.id === assignedValue)?.fullName || 'User'}
+              </Typography>
+            </Box>
+          </AgentsListDropDown>
+          <AssignedDropDown
+            open={assignPopoverOpen}
+            anchorEl={assignAnchorEl}
+            onClose={handleCloseAssignPopover}
+            agents={mappedAgents}
+            assignedTo={assignedValue}
+            onAssign={handleAssignAgent}
+          />
+          <Modal
+            open={emailModalOpen}
+            onClose={() => {
+              setEmailModalOpen(false);
+              setEmailInput("");
+              setEmailError("");
+            }}
+            aria-labelledby="email-transcript-modal"
+            aria-describedby="modal-to-email-chat-transcript"
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "background.paper",
+                borderRadius: 2,
+                boxShadow: 24,
+                p: 4,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <Typography
+                id="email-transcript-modal"
+                variant="h6"
+                sx={{ fontFamily: "var(--custom-font-family)", fontWeight: 600 }}
+              >
+                Email Chat Transcript
+              </Typography>
+              <TextField
+                fullWidth
+                label="Email Address"
+                variant="outlined"
+                value={emailInput}
+                onChange={(e) => {
+                  setEmailInput(e.target.value);
+                  setEmailError("");
+                }}
+                error={!!emailError}
+                helperText={emailError}
+                sx={{ fontFamily: "var(--custom-font-family)" }}
+              />
+              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setEmailModalOpen(false);
+                    setEmailInput("");
+                    setEmailError("");
+                  }}
+                  sx={{ fontFamily: "var(--custom-font-family)" }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSendTranscript}
+                  sx={{ fontFamily: "var(--custom-font-family)" }}
+                  disabled={!emailInput.trim()}
+                >
+                  Send
+                </Button>
+              </Box>
+            </Box>
+          </Modal>
           <ChatMessages id="chatMessagesContainer">
             {isTicketCreated && (
               <Box sx={{
@@ -486,7 +574,7 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                 margin: '12px 0',
                 textAlign: 'center',
                 fontWeight: 500,
-                fontFamily: 'var(--custom-font-family)'
+                fontFamily: 'var(--custom-font-family)',
               }}>
                 The chat is no longer active for messaging.<br />
                 A support ticket has been created for follow-up.
@@ -513,105 +601,105 @@ if (tempThread && (tempThread.type !== ThreadType.ASSIGNED || tempThread.assigne
                   const bubbleContent = (
                     <>
                       {hasFile && isImg && (
-                                <>
-                                <img
-                                  src={chat.fileUrl!}
-                                  alt={chat.fileName || "image"}
-                                  style={{
-                                    maxWidth: 220,
-                                    maxHeight: 160,
-                                    borderRadius: 18,
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
-                                    display: "block",
-                                  }}
-                                  onClick={() => setOpenImage(chat.fileUrl ?? null)}
-                                />
-                                <Modal open={!!openImage} onClose={() => setOpenImage(null)}>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      height: "100vh",
-                                      bgcolor: "rgba(0,0,0,0.8)",
-                                    }}
-                                    onClick={() => setOpenImage(null)}
-                                  >
-                                    <img
-                                      src={openImage || ""}
-                                      alt="Full"
-                                      style={{
-                                        maxWidth: "90vw",
-                                        maxHeight: "90vh",
-                                        borderRadius: 18,
-                                        boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-                                        cursor: "pointer",
-                                      }}
-                                      onClick={e => e.stopPropagation()}
-                                    />
-                                  </Box>
-                                </Modal>
-                              </>
-                            )}
-                      {hasFile && isDoc && (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  bgcolor: "#f5f5f5",
-                                  borderRadius: 3,
-                                  p: 1.5,
-                                  mb: 1,
-                                  boxShadow: 1,
-                                  minWidth: 220,
-                                  maxWidth: 340,
-                                  border: "4px solid var(--theme-color)",
+                        <>
+                          <img
+                            src={chat.fileUrl!}
+                            alt={chat.fileName || "image"}
+                            style={{
+                              maxWidth: 220,
+                              maxHeight: 160,
+                              borderRadius: 18,
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                              display: "block",
+                            }}
+                            onClick={() => setOpenImage(chat.fileUrl ?? null)}
+                          />
+                          <Modal open={!!openImage} onClose={() => setOpenImage(null)}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                height: "100vh",
+                                bgcolor: "rgba(0,0,0,0.8)",
+                              }}
+                              onClick={() => setOpenImage(null)}
+                            >
+                              <img
+                                src={openImage || ""}
+                                alt="Full"
+                                style={{
+                                  maxWidth: "90vw",
+                                  maxHeight: "90vh",
+                                  borderRadius: 18,
+                                  boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+                                  cursor: "pointer",
                                 }}
-                              >
-                                <InsertDriveFileIcon sx={{ color: "#388e3c", fontSize: 32, mr: 1 }} />
-                                <a
-                                  href={chat.fileUrl!}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    color: "#222",
-                                    textDecoration: "none",
-                                    fontWeight: 600,
-                                    fontSize: 16,
-                                    flex: 1,
-                                    margin: "0 8px",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                  title={chat.fileName}
-                                >
-                                  {chat.fileName || "Document"}
-                                </a>
-                                <IconButton
-                                  href={chat.fileUrl!}
-                                  download
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  sx={{
-                                    bgcolor: "transparent",
-                                    border: "2px solid var(--theme-color)",
-                                    color: "var(--theme-color)",
-                                    borderRadius: "50%",
-                                    p: 0.5,
-                                    ml: 1,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    "&:hover": { bgcolor: "#e0d3b8" }
-                                  }}
-                                  size="small"
-                                >
-                                  <DownloadIcon sx={{ color: "var(--theme-color)" }} />
-                                </IconButton>
-                              </Box>
-                            )}
+                                onClick={e => e.stopPropagation()}
+                              />
+                            </Box>
+                          </Modal>
+                        </>
+                      )}
+                      {hasFile && isDoc && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            bgcolor: "#f5f5f5",
+                            borderRadius: 3,
+                            p: 1.5,
+                            mb: 1,
+                            boxShadow: 1,
+                            minWidth: 220,
+                            maxWidth: 340,
+                            border: "4px solid var(--theme-color)",
+                          }}
+                        >
+                          <InsertDriveFileIcon sx={{ color: "#388e3c", fontSize: 32, mr: 1 }} />
+                          <a
+                            href={chat.fileUrl!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#222",
+                              textDecoration: "none",
+                              fontWeight: 600,
+                              fontSize: 16,
+                              flex: 1,
+                              margin: "0 8px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                            title={chat.fileName}
+                          >
+                            {chat.fileName || "Document"}
+                          </a>
+                          <IconButton
+                            href={chat.fileUrl!}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              bgcolor: "transparent",
+                              border: "2px solid var(--theme-color)",
+                              color: "var(--theme-color)",
+                              borderRadius: "50%",
+                              p: 0.5,
+                              ml: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              "&:hover": { bgcolor: "#e0d3b8" },
+                            }}
+                            size="small"
+                          >
+                            <DownloadIcon sx={{ color: "var(--theme-color)" }} />
+                          </IconButton>
+                        </Box>
+                      )}
                       {chat.content && !hasFile && !(
                         chat.content === chat.fileName ||
                         chat.content.startsWith("File Uploaded:")

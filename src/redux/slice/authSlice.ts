@@ -158,12 +158,12 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
   "auth/logout",
-  async (_, { rejectWithValue }) => {
+  async ({userId}:{userId:string}, { rejectWithValue }) => {
     try {
       const token = Cookies.get("access_token");
       if (!token) throw new Error("No authentication token found");
 
-      await api.post("/auth/logout", {}, { headers: { Authorization: `Bearer ${token}` } });
+      await api.post("/auth/logout", {userId}, { headers: { Authorization: `Bearer ${token}` } });
       Cookies.remove("access_token");
       return { success: true };
     } catch (error: any) {
