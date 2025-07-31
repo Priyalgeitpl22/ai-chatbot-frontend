@@ -17,7 +17,7 @@ export default function PricingConfiguration() {
   const { data: organizationData } = useSelector((state: RootState) => state.organization);
 
   const [openAiKey, setOpenAiKey] = useState<string>('');
-  const [aiEnabled] = useState<boolean>(true); 
+  const [aiEnabled] = useState<boolean>(true);
 
   const handleCreate = async () => {
     if (!user?.orgId || !openAiKey.trim()) {
@@ -44,7 +44,7 @@ export default function PricingConfiguration() {
   return (
     <Box
       sx={{
-        width: 350,
+        width: 550,
         border: '1px solid #ccc',
         borderRadius: 2,
         p: 3,
