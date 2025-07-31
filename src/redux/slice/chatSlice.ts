@@ -61,6 +61,21 @@ export const seenMessage = createAsyncThunk(
     }
   }
 )
+// thunk for sending the chat email transcribe
+export const sendChatTranscriptEmail = createAsyncThunk(
+  "chat/transcript",async({threadId,email}:{threadId:string,email:string},{rejectWithValue})=>{
+    try{
+      const response  = await api.post(`/chat/config/chats/transcript`,{thread_id:threadId,email:email},{
+        headers: { Authorization: `Bearer ${token}`}})
+        return response.data.message
+    }catch(error:any){
+      console.error("Error reading thread",error)
+      return rejectWithValue(
+        error.response?.data?.message || "Error unassigning thread"
+      );
+    }
+  }
+)
 
 export const getChatConfig = createAsyncThunk(
   "chat/getChatConfig",

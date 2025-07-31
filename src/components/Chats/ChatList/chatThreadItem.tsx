@@ -55,10 +55,10 @@ const ChatThreadItem: React.FC<ChatThreadItemProps> = ({ thread, index, isActive
           <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: 2 ,gap: 5}}>
             {thread.unseenCount ? (
               <Chip
-                label={thread?.unseenCount || ""}
+                label={thread?.unseenCount >= 10 ? "9+":thread?.unseenCount||""}
                 color="success"
                 size="small"
-                sx={{ marginLeft: "0px", width: "25px" }}
+                sx={{ marginLeft: "0px", width: "26px" , padding:"0px"}}
               />
             ) : null}
             {thread?.status === 'ended' && (
