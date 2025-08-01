@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Select, MenuItem, FormControl } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const AIEffectivenessCard = styled(Box)`
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  height: 100%;
+  width: 100%
 `;
 
 const COLORS = ['#10B981', '#3B82F6', '#EF4444']; // Green, Blue, Red
@@ -23,15 +23,10 @@ interface EffectivenessData {
 const AIEffectivenessChart: React.FC = () => {
   const [data, setData] = useState<EffectivenessData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('7d');
 
   useEffect(() => {
     const fetchAIEffectivenessData = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await api.get(`/analytics/ai-effectiveness?range=${timeRange}`);
-        
-        // Mock data for now
         const mockData: EffectivenessData[] = [
           { name: 'Answered by AI', value: 65, percentage: 65 },
           { name: 'Failed (agent)', value: 25, percentage: 25 },
@@ -50,31 +45,7 @@ const AIEffectivenessChart: React.FC = () => {
     };
 
     fetchAIEffectivenessData();
-  }, [timeRange]);
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <Box
-          sx={{
-            background: 'white',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            padding: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-          }}
-        >
-          <Typography variant="body2" fontWeight={600}>
-            {payload[0].name}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {payload[0].value}% ({payload[0].payload.percentage}%)
-          </Typography>
-        </Box>
-      );
-    }
-    return null;
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -87,28 +58,13 @@ const AIEffectivenessChart: React.FC = () => {
   }
 
   const totalAIAnswered = data.find(item => item.name === 'Answered by AI')?.percentage || 0;
-  
-  console.log('AI Effectiveness data:', data);
-  console.log('Total AI Answered:', totalAIAnswered);
 
   return (
     <AIEffectivenessCard>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography fontWeight={600} fontSize={14}>
           AI Effectiveness
         </Typography>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <Select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            displayEmpty
-            sx={{ height: 32 }}
-          >
-            <MenuItem value="7d">Last 7 days</MenuItem>
-            <MenuItem value="30d">Last 30 days</MenuItem>
-            <MenuItem value="90d">Last 90 days</MenuItem>
-          </Select>
-        </FormControl>
       </Box>
 
       <Box position="relative" height="calc(100% - 50px)" display="flex" alignItems="center" justifyContent="space-between">
@@ -126,7 +82,7 @@ const AIEffectivenessChart: React.FC = () => {
                   paddingAngle={1}
                   dataKey="value"
                 >
-                  {data.map((entry, index) => (
+                  {data.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
