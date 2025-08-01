@@ -198,7 +198,6 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange, onCs
         <button className="ql-list" value="ordered"></button>
         <button className="ql-list" value="bullet"></button>
         <button className="ql-link"></button>
-        {/* The upload icon will be injected here by useEffect */}
         <button className="ql-clean"></button>
       </div>
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
@@ -218,7 +217,7 @@ const FaqAnswerEditor: React.FC<FaqAnswerEditorProps> = ({ value, onChange, onCs
           }}
         />
       </Box>
-      {/* Hidden file input for CSV upload (toolbar icon) */}
+      {/* Hidden file input for CSV upload */}
       <input
         type="file"
         accept=".csv,.pdf,.doc,.docx"

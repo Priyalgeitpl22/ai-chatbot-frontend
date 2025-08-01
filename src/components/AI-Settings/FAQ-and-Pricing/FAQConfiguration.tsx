@@ -12,8 +12,7 @@ import {
   Stack,
   CircularProgress,
   Drawer,
-  Collapse,
-  IconButton
+  Collapse
 } from '@mui/material';
 
 import { useDispatch, useSelector } from 'react-redux';
