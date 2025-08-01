@@ -1,7 +1,4 @@
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Switch,
   FormControlLabel,
   Dialog,
@@ -14,9 +11,10 @@ import {
   Button,
   Stack,
   CircularProgress,
-  Drawer
+  Drawer,
+  Collapse
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store/store';
 import { getAIChatbotSettingsData } from '../../../redux/slice/organizationSlice';
@@ -42,6 +40,7 @@ export default function FAQConfiguration() {
 
   const [csvPreviewOpen, setCsvPreviewOpen] = useState(false);
   const [csvPreviewData, setCsvPreviewData] = useState<{ id: string; question: string; answer: string; enabled: boolean }[]>([]);
+  const [expandedFaqs, setExpandedFaqs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user?.orgId) dispatch(getAIChatbotSettingsData(user.orgId));
@@ -116,6 +115,18 @@ export default function FAQConfiguration() {
     }
   };
 
+  const handleToggleExpanded = (faqId: string) => {
+    setExpandedFaqs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(faqId)) {
+        newSet.delete(faqId);
+      } else {
+        newSet.add(faqId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <Box sx={{ position: 'relative', minHeight: 300 }}>
       {loading && (
@@ -130,28 +141,64 @@ export default function FAQConfiguration() {
       </Button>
 
       <Box sx={{ display: 'flex', gap: 3, maxWidth: 1200, mx: 'auto' }}>
-        <Box sx={{ flex: 1, border: '1px solid #ccc', borderRadius: 2, p: 2, width: 800, display: 'flex', flexDirection: 'column', height: '400px' }}>
+        <Box sx={{ flex: 1, border: '1px solid #ccc', borderRadius: 2, p: 2, width: 1000, display: 'flex', flexDirection: 'column', height: '400px' }}>
           <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
             <Typography variant="h6" sx={{ mt: 2 }}>FAQs</Typography>
             {localFaqs.length > 0 ? (
-              localFaqs.map((faq, index) => (
-                <Accordion key={faq.id || index} disabled={user?.role !== 'Admin' && !faq.enabled}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography sx={{ flexGrow: 1 }}>{faq.question || `FAQ #${index + 1}`}</Typography>
-                    {user?.role === 'Admin' && (
-                      <FormControlLabel
-                        control={<Switch checked={faq.enabled} onChange={() => handleToggleFAQ(faq.id, faq.enabled)} color="primary" disabled={saving} />}
-                        label={faq.enabled ? 'Enabled' : 'Disabled'}
-                        onClick={e => e.stopPropagation()}
-                        sx={{ marginLeft: 2 }}
-                      />
-                    )}
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography dangerouslySetInnerHTML={{ __html: faq.answer }} />
-                  </AccordionDetails>
-                </Accordion>
-              ))
+              localFaqs.map((faq, index) => {
+                const isExpanded = expandedFaqs.has(faq.id);
+                const isDisabled = user?.role !== 'Admin' && !faq.enabled;
+                
+                return (
+                  <Box key={faq.id || index} sx={{ 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1, 
+                    mb: 1,
+                    opacity: isDisabled ? 0.6 : 1,
+                    pointerEvents: isDisabled ? 'none' : 'auto'
+                  }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: 2,
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: '#f5f5f5' },
+                        borderBottom: isExpanded ? '1px solid #e0e0e0' : 'none'
+                      }}
+                      onClick={() => !isDisabled && handleToggleExpanded(faq.id)}
+                    >
+                      <Typography sx={{ flexGrow: 1, fontWeight: 500 }}>
+                        {faq.question || `FAQ #${index + 1}`}
+                      </Typography>
+                      {user?.role === 'Admin' && (
+                        <FormControlLabel
+                          control={
+                            <Switch 
+                              checked={faq.enabled} 
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                handleToggleFAQ(faq.id, faq.enabled);
+                              }} 
+                              color="primary" 
+                              disabled={saving} 
+                            />
+                          }
+                          label={faq.enabled ? 'Enabled' : 'Disabled'}
+                          onClick={e => e.stopPropagation()}
+                          sx={{ marginLeft: 2 }}
+                        />
+                      )}
+
+                    </Box>
+                    <Collapse in={isExpanded}>
+                      <Box sx={{ p: 2 }}>
+                        <Typography dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                      </Box>
+                    </Collapse>
+                  </Box>
+                );
+              })
             ) : (
               <Typography sx={{ mt: 2, textAlign: 'center', color: '#888' }}>No FAQs available. Please upload a CSV or add a new FAQ to get started.</Typography>
             )}
@@ -179,9 +226,9 @@ export default function FAQConfiguration() {
             }}
           />
           <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-            <Button variant="outlined" onClick={() => setAddDrawerOpen(false)}>Cancel</Button>
+            <Button variant="outlined" style={{width:"50%"}} onClick={() => setAddDrawerOpen(false)}>Cancel</Button>
             <Button
-              variant="contained"
+              variant="contained" style={{width:"50%"}}
               onClick={() => {
                 if (!newQuestion.trim() || !newAnswer.trim()) {
                   toast.error('Please fill in both fields');

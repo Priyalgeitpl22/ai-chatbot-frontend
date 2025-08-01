@@ -12,6 +12,7 @@ import { logoutUser } from "../../redux/slice/authSlice";
 import { AppDispatch, RootState } from "../../redux/store/store";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ProfileDetail from "./Profile-Details/ProfileDetail";
+import { useSocket } from "../../context/SocketContext";
 export interface User {
   id: string;
   email: string;
@@ -25,7 +26,7 @@ export interface User {
 const UserProfileMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
-
+  const {socket} = useSocket()
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.user);
@@ -44,7 +45,15 @@ const UserProfileMenu: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());
+    await dispatch(logoutUser({userId:user?.id||""}));
+     if (socket && user?.id) {
+        socket.emit("agentOnline", {
+          id: user.id,
+          online: false,
+          name: user.fullName,
+          orgId:user.orgId
+        });
+      }
     handleMenuClose();
     navigate("/login");
   };
