@@ -9,6 +9,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { Tabs, Tab } from "@mui/material"
 import { FormContainer } from "./aiChatBotSettings.styled";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +19,8 @@ import {
   createAiChatBotSettings,
   updateOrganization,
 } from "../../../redux/slice/organizationSlice";
+import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
+import PricingConfiguration from "../pricing/pricing";
 
 export interface AiSettings {
   isAiEnabled?: boolean;
@@ -128,6 +131,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [companyInfoError, setCompanyInfoError] = useState<string>("");
   const { user } = useSelector((state: RootState) => state.user);
+  const [selectedTab, setSelectedTab] = useState(0);
 
   useEffect(() => {
     if (orgId) {
@@ -233,9 +237,13 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
       .finally(() => setLoading(false));
   };
 
+  const handleTabChange = (_: any, newValue: number) => {
+  setSelectedTab(newValue);
+  };
+
   return (
     <FormContainer>
-      <form onSubmit={handleSubmit} style={{ padding: "1rem" }}>
+      <form onSubmit={handleSubmit} >
         <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1 }}>
           <FormControlLabel
             sx={{ color: "#35495c", marginBottom: "10px" }}
@@ -255,63 +263,76 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
         </Box>
 
         {isAiEnabled ? (
-          <Grid container spacing={1.5}>
-            {aiChatbotFields.map((field) => (
-              <Grid key={field.key} size={field.sm}>
-                <TextField
-                  label={field.label}
-                  value={aiSettings[field.key]}
-                  onChange={(e) => handleAiChange(field.key, e.target.value)}
-                  fullWidth
-                  multiline={field.multiline || false}
-                  rows={field.rows || 1}
-                  required={field.required}
-                  InputProps={{
-                    endAdornment:
-                      field.key === "companyInfo" &&
-                      aiSettings.companyInfo.length <
-                        COMPANY_INFO_MAX_LENGTH ? (
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            position: "absolute",
-                            bottom: 0,
-                            right: 10,
-                            color: "rgba(0, 0, 0, 0.6)",
-                            fontSize: "0.75rem",
-                          }}
-                        >
-                          {aiSettings.companyInfo.length} /{" "}
-                          {COMPANY_INFO_MAX_LENGTH}
-                        </Typography>
-                      ) : null,
-                  }}
-                  error={
-                    field.key === "companyInfo" && Boolean(companyInfoError)
-                  }
-                />
+          <>
+            <Tabs value={selectedTab} onChange={handleTabChange} sx={{ mb: 2 }}>
+              <Tab label="Agency Info" sx={{ fontWeight: 'bold' }} />
+              <Tab label="FAQ" sx={{ fontWeight: 'bold' }}/>
+              <Tab label="Pricing" sx={{ fontWeight: 'bold' }}/>
+            </Tabs>
+
+            {selectedTab === 0 && (
+              <Grid container spacing={1.5}>
+                {aiChatbotFields.map((field) => (
+                  <Grid key={field.key} size={field.sm}>
+                    <TextField
+                      label={field.label}
+                      value={aiSettings[field.key]}
+                      onChange={(e) => handleAiChange(field.key, e.target.value)}
+                      fullWidth
+                      multiline={field.multiline || false}
+                      rows={field.rows || 1}
+                      required={field.required}
+                      InputProps={{
+                        endAdornment:
+                          field.key === "companyInfo" &&
+                          aiSettings.companyInfo.length <
+                            COMPANY_INFO_MAX_LENGTH ? (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              position: "absolute",
+                              bottom: 0,
+                              right: 10,
+                              color: "rgba(0, 0, 0, 0.6)",
+                              fontSize: "0.75rem",
+                            }}
+                          >
+                            {aiSettings.companyInfo.length} /{" "}
+                            {COMPANY_INFO_MAX_LENGTH}
+                          </Typography>
+                        ) : null,
+                      }}
+                      error={
+                        field.key === "companyInfo" && Boolean(companyInfoError)
+                      }
+                    />
+                  </Grid>
+                ))}
+                <Grid size={12}>
+                  <Button
+                    sx={{
+                      float: "right",
+                      color: "#1e293b",
+                      marginTop: "5px",
+                      backgroundColor: "var(--theme-color)",
+                    }}
+                    type="submit"
+                    variant="contained"
+                    disabled={!isAiEnabled || loading}
+                  >
+                    {loading
+                      ? "Saving..."
+                      : isExisting
+                      ? "Edit AI Settings"
+                      : "Save AI Settings"}
+                  </Button>
+                </Grid>
               </Grid>
-            ))}
-            <Grid size={12}>
-              <Button
-                sx={{
-                  float: "right",
-                  color: "#1e293b",
-                  marginTop: "5px",
-                  backgroundColor: "var(--theme-color)",
-                }}
-                type="submit"
-                variant="contained"
-                disabled={!isAiEnabled || loading}
-              >
-                {loading
-                  ? "Saving..."
-                  : isExisting
-                  ? "Edit AI Settings"
-                  : "Save AI Settings"}
-              </Button>
-            </Grid>
-          </Grid>
+            )}
+
+            {selectedTab === 1 && <FAQConfiguration />}
+            {selectedTab === 2 && <PricingConfiguration />}
+          </>
         ) : (
           <Grid container spacing={1.5}>
             <Grid size={12}>
