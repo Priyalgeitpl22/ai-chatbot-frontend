@@ -12,7 +12,7 @@ export const SidebarContainer = styled(motion.aside)`
 `;
 
 export const HeaderContainer = styled.header`
-  height: 64px;
+  height: 46px;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -81,6 +81,7 @@ export const Sidebar = styled.div`
 
 export const ContentArea = styled.div`
   flex-grow: 1;
+  display: flex;
   padding: 5px 10px;
   background-color: var(--theme-color-light);
 `;

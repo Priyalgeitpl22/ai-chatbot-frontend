@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Chip, IconButton, CircularProgress } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, IconButton, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { motion } from 'framer-motion';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const TopIntentsCard = styled(Box)`
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  height: 100%;
+  font-size: 12px;
+  text-wrap: nowrap;
 `;
 
 const IntentItem = styled(ListItem)`
@@ -69,8 +69,8 @@ const TopIntentsList: React.FC = () => {
 
   return (
     <TopIntentsCard>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6" fontWeight={600}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} width="15%">
+        <Typography fontWeight={600} fontSize={14}>
           Top Chat Intents
         </Typography>
         <IconButton size="small" sx={{ color: '#3B82F6' }}>
@@ -78,15 +78,9 @@ const TopIntentsList: React.FC = () => {
         </IconButton>
       </Box>
 
-      <List sx={{ p: 0, height: 'calc(100% - 80px)', overflow: 'auto' }}>
+      <List >
         {intents.map((intent, index) => (
-          <motion.div
-            key={intent.name}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <IntentItem>
+            <IntentItem key={index} sx={{ padding: '5px 0px' }}>
               <ListItemText
                 primary={
                   <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -98,35 +92,10 @@ const TopIntentsList: React.FC = () => {
                     </Typography>
                   </Box>
                 }
-                secondary={
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mt={0.5}>
-                    <Typography variant="caption" color="text.secondary">
-                      {intent.percentage}% of total
-                    </Typography>
-                    <Chip
-                      label={`${intent.percentage}%`}
-                      size="small"
-                      variant="outlined"
-                      sx={{ 
-                        fontSize: '0.7rem', 
-                        height: 20,
-                        borderColor: '#3B82F6',
-                        color: '#3B82F6'
-                      }}
-                    />
-                  </Box>
-                }
               />
             </IntentItem>
-          </motion.div>
         ))}
       </List>
-
-      <Box mt={2} textAlign="center">
-        <Typography variant="body2" color="text.secondary">
-          More
-        </Typography>
-      </Box>
     </TopIntentsCard>
   );
 };

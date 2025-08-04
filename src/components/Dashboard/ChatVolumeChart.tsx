@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Select, MenuItem, FormControl, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { motion } from 'framer-motion';
 import {
   LineChart,
   Line,
@@ -17,9 +16,10 @@ import {
 const ChatVolumeCard = styled(Box)`
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  height: 100%;
+  width: 100%;
+  text-wrap: nowrap;
 `;
 
 interface ChatVolumeData {
@@ -104,7 +104,7 @@ const ChatVolumeChart: React.FC = () => {
   return (
     <ChatVolumeCard>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography fontWeight={600} fontSize={14}>
           Chat Volume
         </Typography>
         <FormControl size="small" sx={{ minWidth: 120 }}>

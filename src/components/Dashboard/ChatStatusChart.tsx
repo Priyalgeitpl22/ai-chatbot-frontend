@@ -15,65 +15,18 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from 'recharts';
-import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 
 const ChatStatusCard = styled(Box)`
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: 100%;
   display: flex;
   flex-direction: column;
+  text-wrap: nowrap;
 `;
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <Box
-        sx={{
-          background: 'white',
-          border: '1px solid #e0e0e0',
-          borderRadius: '8px',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        }}
-      >
-        <Typography variant="body2" fontWeight={600} color="text.primary">
-          Category: {label}
-        </Typography>
-        {payload.map((entry: any, index: number) => (
-          <Typography
-            key={index}
-            variant="body2"
-            sx={{
-              color: entry.color,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <Box
-              component="span"
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: entry.color,
-                display: 'inline-block',
-              }}
-            />
-            {entry.name}: {entry.value}
-          </Typography>
-        ))}
-      </Box>
-    );
-  }
-  return null;
-};
 
 const ChatStatusChart: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
@@ -83,7 +36,6 @@ const ChatStatusChart: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      // Simulate API call
       setTimeout(() => {
         const mockData = [
           {
@@ -126,21 +78,14 @@ const ChatStatusChart: React.FC = () => {
 
   return (
     <ChatStatusCard>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Header */}
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            mb: 3,
+            justifyContent: 'space-between',
           }}
         >
-          <Typography variant="h6" fontWeight={600} color="text.primary">
+          <Typography fontWeight={600} fontSize={14} color="text.primary">
             Chat Status
           </Typography>
           
@@ -249,7 +194,6 @@ const ChatStatusChart: React.FC = () => {
             </>
           )}
         </Box>
-      </motion.div>
     </ChatStatusCard>
   );
 };

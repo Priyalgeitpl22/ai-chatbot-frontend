@@ -8,7 +8,8 @@ const SatisfactionCard = styled(Box)`
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  height: 100%;
+  height: 50%;
+  text-wrap: nowrap;
 `;
 
 const EmojiContainer = styled(Box)`
@@ -39,10 +40,7 @@ const SatisfactionSummary: React.FC = () => {
   useEffect(() => {
     const fetchSatisfactionData = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await api.get('/analytics/satisfaction');
-        
-        // Mock data for now - matching the dashboard image
+
         const mockData: SatisfactionData[] = [
           { score: 1, count: 31, emoji: '😡', color: '#EF4444' },
           { score: 2, count: 57, emoji: '😐', color: '#F59E0B' },
@@ -78,8 +76,8 @@ const SatisfactionSummary: React.FC = () => {
 
   return (
     <SatisfactionCard>
-      <Box mb={2}>
-        <Typography variant="h6" fontWeight={600} mb={1}>
+      <Box mb={2} width="35%">
+        <Typography fontWeight={600} fontSize={14} mb={1}>
           Customer Satisfaction
         </Typography>
         <Typography variant="body2" color="text.secondary">

@@ -21,7 +21,6 @@ import VerifyOtp from "./pages/Verify-OTP/VerifyOtp";
 import { DashboardContainer, MainContainer, ContentArea } from "./styles/layout.styled";
 import Login from "./pages/Login/Login";
 import Sidebar from "./components/SideBar";
-import Home from "./pages/Home/Home";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import { SocketProvider } from "./context/SocketContext";
 import { Toaster } from "react-hot-toast";
