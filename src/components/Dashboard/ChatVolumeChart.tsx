@@ -1,7 +1,7 @@
-// components/Dashboard/ChatVolumeChart.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, Select, MenuItem, FormControl, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   LineChart,
   Line,
@@ -11,7 +11,10 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  ReferenceLine,
 } from 'recharts';
+import { AppDispatch, RootState } from '../../redux/store/store';
+import { fetchChatVolumeData } from '../../redux/slice/analyticsSlice';
 
 const ChatVolumeCard = styled(Box)`
   background: white;
@@ -22,14 +25,7 @@ const ChatVolumeCard = styled(Box)`
   text-wrap: nowrap;
 `;
 
-interface ChatVolumeData {
-  date: string;
-  total: number;
-  ai: number;
-  agent: number;
-}
 
-// Custom tooltip component moved outside to prevent recreation on every render
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -43,7 +39,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         }}
       >
         <Typography variant="body2" fontWeight={600} mb={1}>
-          Day {label}
+          {label}
         </Typography>
         {payload.map((entry: any, index: number) => (
           <Typography key={index} variant="body2" color={entry.color}>
@@ -57,62 +53,77 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const ChatVolumeChart: React.FC = () => {
-  const [data, setData] = useState<ChatVolumeData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('7d');
+  const dispatch = useDispatch<AppDispatch>();
+  const { chatVolumeData, chatVolumeLoading, chatVolumeError } = useSelector(
+    (state: RootState) => state.analytics
+  );
 
   useEffect(() => {
-    const fetchChatVolumeData = async () => {
-      try {
-        // TODO: Replace with actual API call
-        // const response = await api.get(`/analytics/chat-volume?range=${timeRange}`);
-        
-        // Mock data for now - matching the dashboard image
-        const mockData: ChatVolumeData[] = [
-          { date: '8', total: 320, ai: 180, agent: 140 },
-          { date: '9', total: 280, ai: 160, agent: 120 },
-          { date: '10', total: 350, ai: 200, agent: 150 },
-          { date: '11', total: 290, ai: 170, agent: 120 },
-          { date: '12', total: 380, ai: 220, agent: 160 },
-          { date: '13', total: 310, ai: 180, agent: 130 },
-          { date: '14', total: 360, ai: 210, agent: 150 }
-        ];
-        
-        setData(mockData);
-        console.log('ChatVolumeChart data loaded:', mockData);
-        console.log('ChatVolumeChart data length:', mockData.length);
-      } catch (error) {
-        console.error('Error fetching chat volume data:', error);
-      } finally {
-        setLoading(false);
-      }
+    const fetchData = async () => {
+      await dispatch(fetchChatVolumeData());
     };
 
-    fetchChatVolumeData();
-  }, [timeRange]);
+    fetchData();
+  }, [dispatch]);
 
-  if (loading) {
-    return (
-      <ChatVolumeCard>
-        <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-          <CircularProgress size={40} />
-        </Box>
-      </ChatVolumeCard>
-    );
-  }
+
+const renderCustomLegend = (props: any) => {
+  const { payload } = props;
+
+  return (
+    <ul style={{ display: 'flex', listStyle: 'none', paddingLeft: 0 }}>
+      {payload.map((entry: any, index: number) => (
+        <li
+          key={`item-${index}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginRight: 24,
+            fontSize: '12px',
+            color: 'black',
+            fontWeight: 500,
+          }}
+        >
+          <span
+            style={{
+              width: 12,
+              height: 12,
+              backgroundColor: entry.color,
+              display: 'inline-block',
+              marginRight: 8,
+              borderRadius: 2,
+            }}
+          />
+          {entry.value}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+
 
   return (
     <ChatVolumeCard>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" >
         <Typography fontWeight={600} fontSize={14}>
           Chat Volume
         </Typography>
         <FormControl size="small" sx={{ minWidth: 120 }}>
           <Select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
+            value="7d"
             displayEmpty
-            sx={{ height: 32 }}
+            sx={{ height: 24,fontSize:'0.875rem'}}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  "& .MuiMenuItem-root": {
+                    fontSize: "12px",
+                    color: 'text.secondary'
+                  },
+                },
+              },
+            }}
           >
             <MenuItem value="7d">Last 7 days</MenuItem>
             <MenuItem value="30d">Last 30 days</MenuItem>
@@ -121,17 +132,30 @@ const ChatVolumeChart: React.FC = () => {
         </FormControl>
       </Box>
 
-            <Box sx={{ height: 'calc(100% - 50px)', position: 'relative' }}>
-        {data.length === 0 ? (
+      {/* Error Display */}
+      {chatVolumeError && (
+        <Box sx={{ mb: 2, p: 1, bgcolor: '#ffebee', borderRadius: 1 }}>
+          <Typography variant="body2" color="error">
+            Error: {chatVolumeError}
+          </Typography>
+        </Box>
+      )}
+
+      <Box sx={{ height: 'calc(100% - 30px)', position: 'relative' }}>
+        {chatVolumeLoading ? (
+          <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+            <CircularProgress size={40} />
+          </Box>
+        ) : chatVolumeData.length === 0 ? (
           <Box display="flex" alignItems="center" justifyContent="center" height="100%">
             <Typography variant="body2" color="text.secondary">
               No data available
             </Typography>
           </Box>
-                ) : (
+        ) : (
           <Box sx={{ height: '100%', width: '100%', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+              <LineChart data={chatVolumeData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" />
                 <XAxis
                   dataKey="date"
@@ -140,46 +164,49 @@ const ChatVolumeChart: React.FC = () => {
                   tick={{ fontSize: 11, fill: '#666' }}
                 />
                 <YAxis
-                  allowDecimals={false}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 11, fill: '#666' }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  verticalAlign="top"
-                  height={36}
-                  iconType="circle"
-                  wrapperStyle={{ paddingBottom: '8px' }}
-                  iconSize={8}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke="#1e40af"
-                  strokeWidth={2}
-                  name="Total Chats"
-                  dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
+  allowDecimals={false}
+  axisLine={false}
+  tickLine={false}
+  tick={{ fontSize: 11, fill: '#666' }}
+/>
+<ReferenceLine y={0} stroke="#ccc" strokeDasharray="3 3" />
+<Tooltip content={<CustomTooltip />} />
+
+      <Legend
+  verticalAlign="top"
+  height={36}
+  content={renderCustomLegend}
+/>
+
+
+<Line
+  type="monotone"
+  dataKey="total"
+  stroke="#6c8efdff"
+  strokeWidth={2}
+  name="Total Chats"
+  dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
                   activeDot={{ r: 5, stroke: '#1e40af', strokeWidth: 1 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="ai"
-                  stroke="#16a34a"
-                  strokeWidth={2}
-                  name="AI Chats"
-                  dot={{ fill: '#16a34a', strokeWidth: 1, r: 3 }}
-                  activeDot={{ r: 5, stroke: '#16a34a', strokeWidth: 1 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="agent"
-                  stroke="#dc2626"
-                  strokeWidth={2}
-                  name="Chats With Agent"
-                  dot={{ fill: '#dc2626', strokeWidth: 1, r: 3 }}
-                  activeDot={{ r: 5, stroke: '#dc2626', strokeWidth: 1 }}
-                />
+/>
+<Line
+  type="monotone"
+  dataKey="ai"
+  stroke="#78a9f7ff"
+  strokeWidth={2}
+  name="AI Chats"
+  dot={{ fill: '#78a9f7ff', strokeWidth: 1, r: 3 }}
+                  activeDot={{ r: 5, stroke: '#78a9f7ff', strokeWidth: 1 }}
+/>
+<Line
+  type="monotone"
+  dataKey="agent"
+  stroke="#a1c2f7ff"
+  strokeWidth={2}
+  name="Chats With Agent"
+  dot={{ fill: '#a1c2f7ff', strokeWidth: 1, r: 3 }}
+                  activeDot={{ r: 5, stroke: '#a1c2f7ff', strokeWidth: 1 }}
+/>
+
               </LineChart>
             </ResponsiveContainer>
           </Box>

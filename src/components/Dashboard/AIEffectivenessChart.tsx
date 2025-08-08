@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store/store';
+import { fetchAIEffectivenessData } from '../../redux/slice/analyticsSlice';
 
 const AIEffectivenessCard = styled(Box)`
   background: white;
@@ -12,7 +15,7 @@ const AIEffectivenessCard = styled(Box)`
   width: 100%
 `;
 
-const COLORS = ['#10B981', '#3B82F6', '#EF4444']; // Green, Blue, Red
+const COLORS = ['#6c8efdff', '#78a9f7ff', '#a1c2f7ff']; 
 
 interface EffectivenessData {
   name: string;
@@ -21,42 +24,32 @@ interface EffectivenessData {
 }
 
 const AIEffectivenessChart: React.FC = () => {
-  const [data, setData] = useState<EffectivenessData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { aiEffectivenessData, aiEffectivenessLoading, aiEffectivenessError } = useSelector(
+    (state: RootState) => state.analytics
+  );
 
   useEffect(() => {
-    const fetchAIEffectivenessData = async () => {
-      try {
-        const mockData: EffectivenessData[] = [
-          { name: 'Answered by AI', value: 65, percentage: 65 },
-          { name: 'Failed (agent)', value: 25, percentage: 25 },
-          { name: 'Failed (ticket)', value: 10, percentage: 10 }
-        ];
-        
-        console.log('Setting mock data:', mockData);
-        
-        setData(mockData);
-        console.log('AIEffectivenessChart data loaded:', mockData);
-      } catch (error) {
-        console.error('Error fetching AI effectiveness data:', error);
-      } finally {
-        setLoading(false);
-      }
+    const fetchData = async () => {
+      await dispatch(fetchAIEffectivenessData());
     };
 
-    fetchAIEffectivenessData();
-  }, []);
+    fetchData();
+  }, [dispatch]);
 
-  if (loading) {
-    return (
-      <AIEffectivenessCard>
-        <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-          <CircularProgress size={40} />
-        </Box>
-      </AIEffectivenessCard>
-    );
-  }
+  const transformDataForComponent = (): EffectivenessData[] => {
+    if (!aiEffectivenessData || aiEffectivenessData.length === 0) return [];
 
+    const total = aiEffectivenessData.reduce((sum, item) => sum + item.value, 0);
+    
+    return aiEffectivenessData.map((item) => ({
+      name: item.name,
+      value: item.value,
+      percentage: total > 0 ? Math.round((item.value / total) * 100) : 0
+    }));
+  };
+
+  const data = transformDataForComponent();
   const totalAIAnswered = data.find(item => item.name === 'Answered by AI')?.percentage || 0;
 
   return (
@@ -67,10 +60,23 @@ const AIEffectivenessChart: React.FC = () => {
         </Typography>
       </Box>
 
+      {/* Error Display */}
+      {aiEffectivenessError && (
+        <Box sx={{ mb: 2, p: 1, bgcolor: '#ffebee', borderRadius: 1 }}>
+          <Typography variant="body2" color="error">
+            Error: {aiEffectivenessError}
+          </Typography>
+        </Box>
+      )}
+
       <Box position="relative" height="calc(100% - 50px)" display="flex" alignItems="center" justifyContent="space-between">
         {/* Chart Container */}
         <Box position="relative" width="140px" height="140px" >
-          {data.length > 0 ? (
+          {aiEffectivenessLoading ? (
+            <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+              <CircularProgress size={40} />
+            </Box>
+          ) : data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -112,17 +118,11 @@ const AIEffectivenessChart: React.FC = () => {
               variant="h3" 
               fontWeight={700} 
               color="#3B82F6"
-              sx={{ fontSize: '1.75rem', lineHeight: 1 }}
+              sx={{ fontSize: '1rem', lineHeight: 1 }}
             >
               {totalAIAnswered}%
             </Typography>
-            <Typography 
-              variant="body2" 
-              color="text.secondary"
-              sx={{ fontSize: '0.7rem', mt: 0.5 }}
-            >
-              AI Success Rate
-            </Typography>
+            
           </Box>
         </Box>
 

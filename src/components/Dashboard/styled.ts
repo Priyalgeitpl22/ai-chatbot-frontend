@@ -1,4 +1,3 @@
-// components/Dashboard/styled.ts
 import styled from '@emotion/styled';
 
 export const StatsCard = styled.div<{ background: string }>`
@@ -11,20 +10,26 @@ export const StatsCard = styled.div<{ background: string }>`
   flex-direction: column;
   justify-content: space-between;
   border-radius: 8px;
-  background-color: #fff;
+  // background-color: #fff;
+  background-color: ${({ background }) => background};
 `;
 
 export const CardHeader = styled.h3`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #333;
   margin-bottom: 10px;
 `;
 
 export const CardValue = styled.div`
-  font-size: 1.5rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
   font-weight: bold;
   color: #111;
+  color: getTrendColor(item.trend)
 `;
 
 export const CardTrend = styled.div`

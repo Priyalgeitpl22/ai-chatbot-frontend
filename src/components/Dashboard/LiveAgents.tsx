@@ -43,10 +43,6 @@ const LiveAgents: React.FC = () => {
     // Simulate fetching live agents data
     const fetchLiveAgents = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await api.get('/analytics/live-agents');
-        
-        // Mock data for now
         const mockAgents: Agent[] = [
           {
             id: '1',

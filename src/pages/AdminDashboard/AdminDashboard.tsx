@@ -31,7 +31,7 @@ export default function AdminDashboard() {
       <BottomSection>
         <ChatStatusChart />
         <TopIntentsList />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%'}}>
           <SatisfactionSummary />
           <EmailTranscripts />
         </div>

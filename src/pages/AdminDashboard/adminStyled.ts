@@ -7,16 +7,20 @@ export const DashboardContainer = styled(Box)`
   flex-direction: column;
   padding: 5px 10px;
   height: calc(100vh - 90px);
+  
 `;
 
 export const DashboardContent = styled(Grid)`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
+  gap: 8px;
+  width: 80%;
   height: 100%;
   overflow: hidden;
   box-sizing: border-box;
+  padding:0.5rem;
+  width:100%;
+  
 `;
 
 export const StatsSection = styled(Box)`
@@ -32,7 +36,7 @@ export const ChartsSection = styled(Box)`
   display: flex;
   flex-direction: row;
   gap: 16px;
-  height: 30%;
+  height: 35%;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -44,5 +48,6 @@ export const BottomSection = styled(Box)`
   flex: 1;
   width: 100%;
   box-sizing: border-box;
-  height: 40%;
+  height: 35%;
+  position:relative;
 `;

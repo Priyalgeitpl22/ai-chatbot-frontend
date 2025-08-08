@@ -1,84 +1,75 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import MailIcon from '@mui/icons-material/Mail';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store/store';
+import { fetchEmailTranscriptData } from '../../redux/slice/analyticsSlice';
 
 const EmailTranscriptsCard = styled(Box)`
   background: white;
   border-radius: 16px;
-  padding: 12px;
+  padding: 7px;
+  height:200;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  height: 100%;
+  height: 32%;
   text-wrap: nowrap;
+   position:relative;
 `;
 
+
 const EmailTranscripts: React.FC = () => {
-  const [count, setCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { emailTranscriptData, emailTranscriptLoading, emailTranscriptError } = useSelector(
+    (state: RootState) => state.analytics
+  );
 
   useEffect(() => {
-    const fetchEmailTranscriptCount = async () => {
-      try {
-        setCount(225);
-      } catch (error) {
-        console.error('Failed to fetch email transcript count:', error);
-      } finally {
-        setLoading(false);
-      }
+    const fetchData = async () => {
+      // Calculate date range for last 30 days
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 30);
+
+      await dispatch(fetchEmailTranscriptData({
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      }));
     };
 
-    fetchEmailTranscriptCount();
-  }, []);
-
-  if (loading) {
-    return (
-      <EmailTranscriptsCard>
-        <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-          <CircularProgress size={40} />
-        </Box>
-      </EmailTranscriptsCard>
-    );
-  }
+    fetchData();
+  }, [dispatch]);
 
   return (
     <EmailTranscriptsCard>
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
         <Box display="flex" alignItems="center">
-          <MailIcon sx={{ mr: 1, color: '#3B82F6', fontSize: 28 }} />
           <Typography fontWeight={600} fontSize={14}>
             Email Transcripts
           </Typography>
         </Box>
       </Box>
 
+      {/* Error Display */}
+      {emailTranscriptError && (
+        <Box sx={{ mb: 2, p: 1, bgcolor: '#ffebee', borderRadius: 1 }}>
+          <Typography variant="body2" color="error">
+            Error: {emailTranscriptError}
+          </Typography>
+        </Box>
+      )}
+
       <Box mb={2}>
-        <Typography fontSize={24} fontWeight={700} color="#3B82F6" mb={1}>
-          {count?.toLocaleString() || '—'}
-        </Typography>
+        {emailTranscriptLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="60px">
+            <CircularProgress size={30} />
+          </Box>
+        ) : (
+          <Typography fontSize={14} fontWeight={300} color="rgba(0, 0, 0, 0.87)" mb={1}>
+            {emailTranscriptData?.count?.toLocaleString() || '0'}
+          </Typography>
+        )}
       </Box>
 
-      {/* <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Button
-          variant="outlined"
-          startIcon={<DownloadIcon />}
-          onClick={handleDownloadReport}
-          fullWidth
-          sx={{
-            borderColor: '#3B82F6',
-            color: '#3B82F6',
-            '&:hover': {
-              borderColor: '#2563EB',
-              backgroundColor: '#EFF6FF'
-            }
-          }}
-        >
-          Download Report
-        </Button>
-      </motion.div> */}
     </EmailTranscriptsCard>
   );
 };
