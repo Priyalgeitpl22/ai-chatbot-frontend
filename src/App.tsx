@@ -21,7 +21,7 @@ import VerifyOtp from "./pages/Verify-OTP/VerifyOtp";
 import { DashboardContainer, MainContainer, ContentArea } from "./styles/layout.styled";
 import Login from "./pages/Login/Login";
 import Sidebar from "./components/SideBar";
-import Home from "./pages/Home/Home";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import { SocketProvider } from "./context/SocketContext";
 import { Toaster } from "react-hot-toast";
 import Tasks from "./components/Tasks/Tasks";
@@ -75,6 +75,7 @@ function AppRoutes() {
       <Toaster position="top-center" />
       <Routes>
         {/* Public Routes */}
+        {/* <Route path="/" element={<AdminDashboard />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -94,7 +95,8 @@ function AppRoutes() {
                   <Sidebar />
                   <ContentArea>
                     <Routes>
-                      <Route path="/" element={<Home />} />
+                      {/* <Route path="/" element={<Home />} /> */}
+                      <Route path="/" element={<AdminDashboard />} />
                       <Route path="/chats" element={<Chats />} />
                       <Route path="/organization" element={<Organization />} />
                       <Route path="/tasks" element={<Tasks />} />

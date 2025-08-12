@@ -8,11 +8,12 @@ export const SidebarContainer = styled(motion.aside)`
   border-right: 1px solid #e2e8f0;
   margin-top: 6px;
   border-radius: 10px;
-  min-width: 200px;
+  width: 200px;
+  max-width:20%;
 `;
 
 export const HeaderContainer = styled.header`
-  height: 64px;
+  height: 46px;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -81,8 +82,10 @@ export const Sidebar = styled.div`
 
 export const ContentArea = styled.div`
   flex-grow: 1;
+  display: flex;
   padding: 5px 10px;
   background-color: var(--theme-color-light);
+  max-width:80%;
 `;
 
 export const Button = styled.button`
