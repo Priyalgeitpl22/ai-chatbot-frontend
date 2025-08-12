@@ -67,39 +67,39 @@ const ChatVolumeChart: React.FC = () => {
   }, [dispatch]);
 
 
-const renderCustomLegend = (props: any) => {
-  const { payload } = props;
+  const renderCustomLegend = (props: any) => {
+    const { payload } = props;
 
-  return (
-    <ul style={{ display: 'flex', listStyle: 'none', paddingLeft: 0 }}>
-      {payload.map((entry: any, index: number) => (
-        <li
-          key={`item-${index}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginRight: 24,
-            fontSize: '12px',
-            color: 'black',
-            fontWeight: 500,
-          }}
-        >
-          <span
+    return (
+      <ul style={{ display: 'flex', listStyle: 'none', paddingLeft: 0 }}>
+        {payload.map((entry: any, index: number) => (
+          <li
+            key={`item-${index}`}
             style={{
-              width: 12,
-              height: 12,
-              backgroundColor: entry.color,
-              display: 'inline-block',
-              marginRight: 8,
-              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              marginRight: 24,
+              fontSize: '12px',
+              color: 'black',
+              fontWeight: 500,
             }}
-          />
-          {entry.value}
-        </li>
-      ))}
-    </ul>
-  );
-};
+          >
+            <span
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: entry.color,
+                display: 'inline-block',
+                marginRight: 8,
+                borderRadius: 2,
+              }}
+            />
+            {entry.value}
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
 
 
@@ -113,7 +113,7 @@ const renderCustomLegend = (props: any) => {
           <Select
             value="7d"
             displayEmpty
-            sx={{ height: 24,fontSize:'0.875rem'}}
+            sx={{ height: 24, fontSize: '0.875rem' }}
             MenuProps={{
               PaperProps: {
                 sx: {
@@ -164,48 +164,48 @@ const renderCustomLegend = (props: any) => {
                   tick={{ fontSize: 11, fill: '#666' }}
                 />
                 <YAxis
-  allowDecimals={false}
-  axisLine={false}
-  tickLine={false}
-  tick={{ fontSize: 11, fill: '#666' }}
-/>
-<ReferenceLine y={0} stroke="#ccc" strokeDasharray="3 3" />
-<Tooltip content={<CustomTooltip />} />
+                  allowDecimals={false}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: '#666' }}
+                />
+                <ReferenceLine y={0} stroke="#ccc" strokeDasharray="3 3" />
+                <Tooltip content={<CustomTooltip />} />
 
-      <Legend
-  verticalAlign="top"
-  height={36}
-  content={renderCustomLegend}
-/>
+                <Legend
+                  verticalAlign="top"
+                  height={36}
+                  content={renderCustomLegend}
+                />
 
 
-<Line
-  type="monotone"
-  dataKey="total"
-  stroke="#6c8efdff"
-  strokeWidth={2}
-  name="Total Chats"
-  dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#6c8efdff"
+                  strokeWidth={2}
+                  name="Total Chats"
+                  dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
                   activeDot={{ r: 5, stroke: '#1e40af', strokeWidth: 1 }}
-/>
-<Line
-  type="monotone"
-  dataKey="ai"
-  stroke="#78a9f7ff"
-  strokeWidth={2}
-  name="AI Chats"
-  dot={{ fill: '#78a9f7ff', strokeWidth: 1, r: 3 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="ai"
+                  stroke="#78a9f7ff"
+                  strokeWidth={2}
+                  name="AI Chats"
+                  dot={{ fill: '#78a9f7ff', strokeWidth: 1, r: 3 }}
                   activeDot={{ r: 5, stroke: '#78a9f7ff', strokeWidth: 1 }}
-/>
-<Line
-  type="monotone"
-  dataKey="agent"
-  stroke="#a1c2f7ff"
-  strokeWidth={2}
-  name="Chats With Agent"
-  dot={{ fill: '#a1c2f7ff', strokeWidth: 1, r: 3 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="agent"
+                  stroke="#a1c2f7ff"
+                  strokeWidth={2}
+                  name="Chats With Agent"
+                  dot={{ fill: '#a1c2f7ff', strokeWidth: 1, r: 3 }}
                   activeDot={{ r: 5, stroke: '#a1c2f7ff', strokeWidth: 1 }}
-/>
+                />
 
               </LineChart>
             </ResponsiveContainer>

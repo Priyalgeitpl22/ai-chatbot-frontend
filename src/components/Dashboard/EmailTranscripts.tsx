@@ -11,9 +11,9 @@ const EmailTranscriptsCard = styled(Box)`
   padding: 7px;
   height:200;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  height: 32%;
   text-wrap: nowrap;
    position:relative;
+   flex-grow:1;
 `;
 
 
