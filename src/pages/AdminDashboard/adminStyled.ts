@@ -18,7 +18,6 @@ export const DashboardContent = styled(Grid)`
   height: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  padding:0.5rem;
   width:100%;
   
 `;
@@ -27,7 +26,6 @@ export const StatsSection = styled(Box)`
   display: flex;
   flex-direction: row;
   gap: 16px;
-  height: 15%;
   width: 100%;
   box-sizing: border-box;
 `;
