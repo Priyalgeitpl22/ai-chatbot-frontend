@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Select, MenuItem, FormControl, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,14 +57,32 @@ const ChatVolumeChart: React.FC = () => {
   const { chatVolumeData, chatVolumeLoading, chatVolumeError } = useSelector(
     (state: RootState) => state.analytics
   );
+  
+  const [selectedPeriod, setSelectedPeriod] = useState('7d');
 
   useEffect(() => {
     const fetchData = async () => {
-      await dispatch(fetchChatVolumeData());
+      // Convert frontend period values to backend format
+      let backendPeriod = '7days';
+      switch (selectedPeriod) {
+        case '7d':
+          backendPeriod = '7days';
+          break;
+        case '30d':
+          backendPeriod = '30days';
+          break;
+        case '90d':
+          backendPeriod = '90days';
+          break;
+        default:
+          backendPeriod = '7days';
+      }
+      
+      await dispatch(fetchChatVolumeData({ period: backendPeriod }));
     };
 
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, selectedPeriod]);
 
 
   const renderCustomLegend = (props: any) => {
@@ -111,7 +129,8 @@ const ChatVolumeChart: React.FC = () => {
         </Typography>
         <FormControl size="small" sx={{ minWidth: 120 }}>
           <Select
-            value="7d"
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
             displayEmpty
             sx={{ height: 24, fontSize: '0.875rem' }}
             MenuProps={{

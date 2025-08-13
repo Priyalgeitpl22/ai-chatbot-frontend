@@ -150,11 +150,13 @@ export const fetchDashboardStats = createAsyncThunk(
 
 export const fetchChatVolumeData = createAsyncThunk(
   'analytics/fetchChatVolumeData',
-  async (_, { rejectWithValue }) => {
+  async (params: { period?: string } = {}, { rejectWithValue }) => {
     try {
-      console.log("fetchChatVolumeData: Making API call to /analytics?type=chat-volume");
-      const response = await api.get('/analytics?type=chat-volume');
-      console.log("fetchChatVolumeData: API response:", response.data);
+      
+      const queryParams = new URLSearchParams({ type: 'chat-volume' });
+      if (params.period) queryParams.append('period', params.period);
+      
+      const response = await api.get(`/analytics?${queryParams.toString()}`);
       
       if (response.data.code === 200) {
         console.log("fetchChatVolumeData: Success, returning data:", response.data.data);
@@ -172,10 +174,13 @@ export const fetchChatVolumeData = createAsyncThunk(
 
 export const fetchAIEffectivenessData = createAsyncThunk(
   'analytics/fetchAIEffectivenessData',
-  async (_, { rejectWithValue }) => {
+  async (params: { period?: string } = {}, { rejectWithValue }) => {
     try {
       console.log("fetchAIEffectivenessData: Making API call to /analytics?type=ai-effectiveness");
-      const response = await api.get('/analytics?type=ai-effectiveness');
+      const queryParams = new URLSearchParams({ type: 'ai-effectiveness' });
+      if (params.period) queryParams.append('period', params.period);
+      
+      const response = await api.get(`/analytics?${queryParams.toString()}`);
       console.log("fetchAIEffectivenessData: API response:", response.data);
       
       if (response.data.code === 200) {
