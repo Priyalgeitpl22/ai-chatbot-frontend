@@ -31,7 +31,7 @@ const AIEffectivenessChart: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await dispatch(fetchAIEffectivenessData());
+      await dispatch(fetchAIEffectivenessData({}));
     };
 
     fetchData();
