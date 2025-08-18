@@ -85,7 +85,6 @@ export const ContentArea = styled.div`
   display: flex;
   padding: 5px 10px;
   background-color: var(--theme-color-light);
-  max-width:80%;
 `;
 
 export const Button = styled.button`
