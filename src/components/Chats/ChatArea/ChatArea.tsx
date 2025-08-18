@@ -103,6 +103,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
   const [ccInput, setCcInput] = useState("");
   const [emailError, setEmailError] = useState("");
   const [assignedValue, setAssignedValue] = useState<string>("");
+  const [transcriptLoader,setTranscriptLoader]= useState<boolean>(false)
   const MoreOptions = [
     {
       icon: <EmailIcon color="primary" />,
@@ -346,6 +347,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
   const [isSending, setIsSending] = useState(false);
 
   const handleSendTranscript = () => {
+    setTranscriptLoader(true)
     if (!validateEmail(emailInput)) {
       setEmailError("Please enter a valid email address");
       return;

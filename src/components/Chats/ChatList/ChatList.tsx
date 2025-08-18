@@ -19,11 +19,12 @@ interface ChatListProps {
   onSelectThread: (threadId: string) => void;
   type: string;
   selectedThreadId: string | null;
+  listRef:React.RefObject<HTMLDivElement>
 }
 
 
 
-const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, selectedThreadId }) => {
+const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, selectedThreadId,listRef }) => {
   const { socket } = useSocket();
   const dispatch = useDispatch<AppDispatch>();
   const {user} = useSelector((state:RootState)=>state.user)
@@ -87,14 +88,17 @@ const ChatList: React.FC<ChatListProps> = ({ threads, onSelectThread, type, sele
     <ChatListContainer>
       <SearchComponent />
       <Divider />
-      <Box sx={{
+      <Box 
+      sx={{
         overflowY: 'auto', flex: 1,
         '&::-webkit-scrollbar': {
           display: 'none',
         },
         'msOverflowStyle': 'none',
         'scrollbarWidth': 'none',
-      }}>
+      }}
+      ref={listRef} 
+      >
         {threads && threads.length > 0 ? (
           <AnimatePresence>
             <ThreadList>

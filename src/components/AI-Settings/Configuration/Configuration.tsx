@@ -48,6 +48,7 @@ import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
 import Pricing from "../pricing/pricing";
+import { Settings } from "lucide-react";
 
 export interface EmailConfigData {
   host: string;
@@ -81,10 +82,14 @@ export interface ChatBotSettings {
   ChatBotLogoImage: File | null;
   orgId?: string;
   aiOrgId?: string;
+  allowCustomRecycleClear:boolean,
+  CustomRecycleClear?:number
+  customPersonalDetails?:string
 }
 
 
 const Configuration = () => {
+  const [personalDetails,setPersonalDetails]= useState({name:false,email:false,phone:false})
   const [settings, setSettings] = useState<ChatBotSettings>({
     addInitialPopupText: "",
     iconColor: "#c0dbf9",
@@ -101,6 +106,9 @@ const Configuration = () => {
     customFontFamily: '',
     addChatBotName: '',
     ChatBotLogoImage: null,
+    allowCustomRecycleClear:false,
+    CustomRecycleClear:30,
+    customPersonalDetails:JSON.stringify(personalDetails)
   });
   const [activeTab, setActiveTab] = useState("configure");
   const [embedCode, setEmbedCode] = useState("");
@@ -112,6 +120,7 @@ const Configuration = () => {
   const [logoPriviewURL, setLogoPriviewURL] = useState<string>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [subTab, setSubTab]= useState("basic");
+  
 
   useEffect(() => {
     if(user?.orgId){
@@ -138,6 +147,7 @@ const Configuration = () => {
         .unwrap()
         .then((chatConfig) => {
           if (chatConfig && Object.keys(chatConfig).length > 0) {
+            setPersonalDetails(JSON.parse(chatConfig.customPersonalDetails))
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
             setSettings((prev) => ({
               ...prev,
@@ -172,8 +182,13 @@ const Configuration = () => {
     "Franklin Gothic Medium", "Arial Black", "Cambria", "Consolas", "Helvetica"
   ];
 
+  const customDays = [{value:3,name:"3 Days"},{value:7,name:"7 Days"},{value:15,name:"15 Days"},
+    {value:30,name:"30 Days"},{value:60,name:"60 Days"},{value:90,name:"90 Days"}
+  ]
 
-  const handleChange = (field: string, value: string | boolean) => {
+
+
+  const handleChange = (field: string, value: string | boolean|number) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -474,11 +489,40 @@ const Configuration = () => {
                   control={
                     <Checkbox
                       checked={settings.allowNameEmail}
-                      onChange={(e) => handleChange("allowNameEmail", e.target.checked)}
+                      onChange={(e) => {handleChange("allowNameEmail", e.target.checked) 
+                      }}
                     />
                   }
-                  label="Allow Bot to ask Name & Email"
+                  label="Allow Bot to for Personal Details"
                 />
+                {settings.allowNameEmail && (
+                  < >
+                  <CustomFormControlLabel
+                  sx={{marginLeft:2}}
+                  control={
+                    <Checkbox
+                      checked={personalDetails.name}
+                      onChange={() => {setPersonalDetails({...personalDetails,name:!personalDetails.name})
+                      setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,name:!personalDetails.name})})
+                    }}
+                    />
+                  }
+                  label="Allow Bot to ask Name"
+                />
+                 <CustomFormControlLabel
+                 sx={{marginLeft:2}}
+                  control={
+                    <Checkbox
+                      checked={personalDetails.email}
+                      onChange={() =>{ setPersonalDetails({...personalDetails,email:!personalDetails.email})
+                        setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,email:!personalDetails.email})})
+                      }}
+                    />
+                  }
+                  label="Allow Bot to ask Email"
+                />
+                </ >
+                )}
                 <CustomFormControlLabel
                   control={
                     <Checkbox
@@ -532,6 +576,37 @@ const Configuration = () => {
                   </Select>
 
                 )}
+                <CustomFormControlLabel
+                  control={
+                    <Checkbox
+                      checked={settings.allowCustomRecycleClear}
+                      onChange={(e) => handleChange("allowCustomRecycleClear", e.target.checked)}
+                    />
+                  }
+                  label="Allow Custom Deleted Chat Clear"
+                />
+                {settings.allowCustomRecycleClear && 
+                (
+                  <Select
+                    value={settings.CustomRecycleClear }
+                    defaultValue={settings.CustomRecycleClear}
+                    onChange={(e) => {
+                      const selectedDays = e.target.value;
+                      handleChange("CustomRecycleClear", Number(selectedDays));
+                    }}
+                    displayEmpty
+                    size="small"
+                    fullWidth
+                    sx={{ mt: 1, fontFamily: `${settings.customFontFamily}` || fontFamily }}
+                  >
+                    {customDays.map((days) => (
+                      <MenuItem key={days.value} value={days.value} >
+                        {days.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+
               </FormControl>
             </Section>
             )}

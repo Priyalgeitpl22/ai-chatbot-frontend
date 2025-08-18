@@ -10,5 +10,32 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+        <script src="http://localhost:5003/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            (function () {
+                var socketScript = document.createElement("script");
+                socketScript.src = "http://localhost:5003/socket.io/socket.io.js";
+                socketScript.async = true;
+                socketScript.onload = function () {
+                    var chatWidgetScript = document.createElement("script");
+                    chatWidgetScript.src = "http://localhost:5003/chat-widget.js"; 
+                    chatWidgetScript.async = true;
+                    chatWidgetScript.onload = function () {
+                        if (typeof ChatWidget !== "undefined") {
+                            ChatWidget.init({
+                                elementId: "chat-widget",
+                                orgId: "06e1deae-c116-4b01-be0c-2c08374057d7",
+                            });
+                        }
+                    };
+                    document.body.appendChild(chatWidgetScript);
+                };
+                document.body.appendChild(socketScript);
+            })();
+            </script>
+        <div id="chat-widget"></div>
+        
+        
   </body>
 </html>

@@ -25,7 +25,7 @@ const SearchComponent: React.FC = () => {
     if (debouncedQuery.trim()) {
       dispatch(searchThreads(debouncedQuery));
     } else {
-      dispatch(getAllThreads());
+      dispatch(getAllThreads({page:1}));
     }
   }, [debouncedQuery, dispatch]);
 
