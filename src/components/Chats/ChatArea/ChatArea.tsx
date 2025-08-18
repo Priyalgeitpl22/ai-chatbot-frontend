@@ -9,7 +9,7 @@ import {
   Button,
   Modal,
 } from "@mui/material";
-import { Send } from "lucide-react";  
+import { Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
@@ -100,6 +100,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
   const [moreDetailAnchorEl, setMoreDetailAnchorEl] = useState<HTMLElement | null>(null);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
+  const [ccInput, setCcInput] = useState("");
   const [emailError, setEmailError] = useState("");
   const [assignedValue, setAssignedValue] = useState<string>("");
   const MoreOptions = [
@@ -124,7 +125,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
     {
       icon: <BlockIcon color="primary" />,
       message: "Block Sender",
-      handler: () => {},
+      handler: () => { },
     },
     {
       icon: <ErrorIcon color="primary" />,
@@ -191,7 +192,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
       if (
         data.data.sender === "User" &&
         data.data.threadId === selectedThreadId &&
-        !data.data.fileData 
+        !data.data.fileData
       ) {
         const response = {
           id: "",
@@ -205,7 +206,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
     };
 
     const handleUpdateDashboard = (data: ChatData) => {
-      if (data.sender === "User" && data.threadId === selectedThreadId) { 
+      if (data.sender === "User" && data.threadId === selectedThreadId) {
         dispatch(addchat(data));
       }
     };
@@ -342,25 +343,41 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
     return emailRegex.test(email);
   };
 
+  const [isSending, setIsSending] = useState(false);
+
   const handleSendTranscript = () => {
     if (!validateEmail(emailInput)) {
       setEmailError("Please enter a valid email address");
       return;
     }
-    dispatch(sendChatTranscriptEmail({threadId:selectedThreadId||"",email:emailInput}))
-    .unwrap()
+
+    setIsSending(true);
+
+    dispatch(sendChatTranscriptEmail({
+      threadId: selectedThreadId || "",
+      email: emailInput,
+      cc: ccInput ? ccInput.split(",").map(e => e.trim()) : [],
+    }))
+
+      .unwrap()
       .then((res) => {
         if (res) {
-           toast.success("Transcript sent successfully!");
-           setEmailModalOpen(false);
-           setEmailInput("");
-           setEmailError("");
-      }})
+          toast.success("Transcript sent successfully!");
+          setEmailModalOpen(false);
+          setEmailInput("");
+          setCcInput("");
+          setEmailError("");
+        }
+      })
       .catch((error: any) => {
-        console.error("Error transcription  thread:", error);
+        console.error("Error transcription thread:", error);
         toast.error(error || "Failed to send thread");
+      })
+      .finally(() => {
+        setIsSending(false);
       });
   };
+
 
   const mappedAgents = (agents || []).map(agent => ({
     ...agent,
@@ -383,7 +400,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
       .then((res) => {
         if (res) {
           if (socket) {
-            socket.emit("assignThread", { threadId: selectedThreadId,agentId,orgId:user?.orgId });
+            socket.emit("assignThread", { threadId: selectedThreadId, agentId, orgId: user?.orgId });
           }
           toast.success("Thread assigned successfully");
         }
@@ -398,7 +415,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
 
   return (
     <ChatContainer>
-      {!selectedThreadId || selectedThreadId==="" ? (
+      {!selectedThreadId || selectedThreadId === "" ? (
         <>
           <ChatListHeader>
             <Typography
@@ -435,7 +452,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
                 Close Conversation
               </CloseConvButton>
               <MoreDetailVerticalIcon color="primary" onClick={handleMoreDetailClick}>
-                <MoreVertIcon/>
+                <MoreVertIcon />
               </MoreDetailVerticalIcon>
               <MoreInfoIconDetail color="primary">
                 <InfoIcon />
@@ -539,6 +556,14 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
                 helperText={emailError}
                 sx={{ fontFamily: "var(--custom-font-family)" }}
               />
+              <TextField
+                fullWidth
+                label="CC (comma separated)"
+                variant="outlined"
+                value={ccInput}
+                onChange={(e) => setCcInput(e.target.value)}
+                sx={{ fontFamily: "var(--custom-font-family)" }}
+              />
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                 <Button
                   variant="outlined"
@@ -555,10 +580,10 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
                   variant="contained"
                   color="primary"
                   onClick={handleSendTranscript}
+                  disabled={isSending}
                   sx={{ fontFamily: "var(--custom-font-family)" }}
-                  disabled={!emailInput.trim()}
                 >
-                  Send
+                  {isSending ? "Sending..." : "Send"}
                 </Button>
               </Box>
             </Box>
@@ -704,10 +729,10 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
                         chat.content === chat.fileName ||
                         chat.content.startsWith("File Uploaded:")
                       ) && (
-                        <Box>
-                          {chat.content}
-                        </Box>
-                      )}
+                          <Box>
+                            {chat.content}
+                          </Box>
+                        )}
                     </>
                   );
                   return (
