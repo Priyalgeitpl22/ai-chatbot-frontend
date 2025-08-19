@@ -147,7 +147,7 @@ const Configuration = () => {
         .unwrap()
         .then((chatConfig) => {
           if (chatConfig && Object.keys(chatConfig).length > 0) {
-            setPersonalDetails(JSON.parse(chatConfig.customPersonalDetails)?JSON.parse(chatConfig.customPersonalDetails):JSON.parse(chatConfig.customPersonalDetails))
+            setPersonalDetails(JSON.parse(JSON.parse(chatConfig.customPersonalDetails)?JSON.parse(chatConfig.customPersonalDetails):{name:false,email:false,phone:false}))
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
             setSettings((prev) => ({
               ...prev,
