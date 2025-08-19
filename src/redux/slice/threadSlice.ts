@@ -25,6 +25,7 @@ export interface Thread {
 
 
 interface ThreadState {
+  totalThreads:number | null
   threads: Thread[];
   loading: boolean;
   error: string | null;
@@ -32,6 +33,7 @@ interface ThreadState {
 }
 
 const initialState: ThreadState = {
+  totalThreads:0,
   threads: [],
   loading: false,
   error: null,
@@ -43,16 +45,23 @@ const token = Cookies.get("access_token");
 // Thunk to fetch all threads
 export const getAllThreads = createAsyncThunk(
   "threads/getAll",
-  async (_, { rejectWithValue }) => {
+  async ({page}:{page:number}, { rejectWithValue }) => {
     try {
-      const response = await api.get("/thread", {
+      console.log(page) 
+      const response = await api.get(`/thread`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const threads = response.data?.data?.threads;
+
+      console.log( {
+     thread: threads,
+     TotalThreads: response.data?.data?.TotalThreads})
       if (!Array.isArray(threads)) {
         return rejectWithValue("Invalid API response format");
       }
-      return threads;
+      return {
+     thread: threads,
+     TotalThreads: response.data?.data?.TotalThreads|| 0};
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Network error");
     }
@@ -213,9 +222,15 @@ newMessage:(state,action:PayloadAction<{latestMessage:string,threadId:string}>)=
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllThreads.fulfilled, (state, action: PayloadAction<any[]>) => {
+      .addCase(getAllThreads.fulfilled, (state, action: PayloadAction<{thread:any[],TotalThreads:number}>) => {
         state.loading = false;
-        state.threads = action.payload;
+       state.totalThreads = action.payload.TotalThreads;
+
+  const newThreads = action.payload.thread.filter(
+    (t) => !state.threads.some((existing) => existing.id === t.id)
+  );
+
+  state.threads = [...state.threads, ...newThreads];
       })
       .addCase(getAllThreads.rejected, (state, action) => {
         state.loading = false;

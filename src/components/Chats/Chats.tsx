@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllThreads } from "../../redux/slice/threadSlice";
 import { AppDispatch, RootState } from "../../redux/store/store";
@@ -18,6 +18,7 @@ import { updateThread } from "../../redux/slice/threadSlice";
 export default function Chats() {
   const dispatch = useDispatch<AppDispatch>();
   const { threads = [] } = useSelector((state: RootState) => state.thread);
+  const totalThread = useSelector((state:RootState)=>state.thread.totalThreads)
   const { socket } = useSocket();
   const location = useLocation();
   const notificationThreadId = location.state?.threadId;
@@ -26,10 +27,12 @@ export default function Chats() {
   const [isLoading, setIsLoading] = useState(true);
   const {user} = useSelector((state: RootState) => state.user);
   const selectedThread = threads.find((thread)=> selectedThreadId === thread.id)
+  const [page,Setpage] = useState(1)
+  const listRef = useRef<HTMLDivElement>()
   // const [isUpdated,setIsUpdated] = useState<boolean>(false)
   useEffect(() => {
     setIsLoading(true);
-    dispatch(getAllThreads()).then((res: any) => {
+    dispatch(getAllThreads({page})).then((res: any) => {
       const loadedThreads = res.payload || [];
       if (notificationThreadId) {
         const matchedThread = loadedThreads.find(
@@ -48,6 +51,31 @@ export default function Chats() {
     dispatch(fetchAgents(user.orgId));
   }
 }, [dispatch, user?.orgId]);
+
+
+// now creating the useeffect for the scroll 
+useEffect(() => {
+  const el = listRef.current;
+  if (!el) return;
+
+  const handleScroll = () => {
+    const isNearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 50;
+    console.log("Pagination triggered");
+    if (isNearBottom && totalThread && threads.length < totalThread) {
+      console.log("Pagination triggered");
+      dispatch(getAllThreads({ page: page + 1 }));
+      Setpage(prev => prev + 1);
+    }
+  };
+
+  el.addEventListener("scroll", handleScroll);
+
+  return () => {
+    el.removeEventListener("scroll", handleScroll);
+  };
+}, [threads.length, totalThread, page,listRef.current]);
+
+
   
   useEffect(() => {
     if (!socket || !selectedThreadId) return;
@@ -110,6 +138,7 @@ export default function Chats() {
         onSelectThread={setSelectedThreadId}
         type={selectedThreadType}
         selectedThreadId={selectedThreadId}
+        // listRef={listRef}
       />
         <ChatArea
           selectedThreadId={selectedThreadId}
