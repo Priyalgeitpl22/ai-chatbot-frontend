@@ -108,7 +108,7 @@ const Configuration = () => {
     ChatBotLogoImage: null,
     allowCustomRecycleClear:false,
     CustomRecycleClear:30,
-    customPersonalDetails:JSON.stringify(personalDetails)
+    customPersonalDetails:JSON.stringify(personalDetails)?JSON.stringify(personalDetails):JSON.stringify({name:false,email:false,phone:false})
   });
   const [activeTab, setActiveTab] = useState("configure");
   const [embedCode, setEmbedCode] = useState("");
@@ -147,7 +147,7 @@ const Configuration = () => {
         .unwrap()
         .then((chatConfig) => {
           if (chatConfig && Object.keys(chatConfig).length > 0) {
-            setPersonalDetails(JSON.parse(chatConfig.customPersonalDetails))
+            setPersonalDetails(JSON.parse(chatConfig.customPersonalDetails)?JSON.parse(chatConfig.customPersonalDetails):JSON.parse(chatConfig.customPersonalDetails))
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
             setSettings((prev) => ({
               ...prev,
