@@ -48,7 +48,7 @@ import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
 import Pricing from "../pricing/pricing";
-import { Settings } from "lucide-react";
+
 
 export interface EmailConfigData {
   host: string;

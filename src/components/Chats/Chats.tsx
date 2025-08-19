@@ -138,7 +138,7 @@ useEffect(() => {
         onSelectThread={setSelectedThreadId}
         type={selectedThreadType}
         selectedThreadId={selectedThreadId}
-        listRef={listRef}
+        // listRef={listRef}
       />
         <ChatArea
           selectedThreadId={selectedThreadId}

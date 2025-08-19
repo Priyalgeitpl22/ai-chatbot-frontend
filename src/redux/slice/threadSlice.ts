@@ -47,7 +47,8 @@ export const getAllThreads = createAsyncThunk(
   "threads/getAll",
   async ({page}:{page:number}, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/thread?limit=10&page=${page}`, {
+      console.log(page) 
+      const response = await api.get(`/thread`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const threads = response.data?.data?.threads;
