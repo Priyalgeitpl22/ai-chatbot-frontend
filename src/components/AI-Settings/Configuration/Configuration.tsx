@@ -502,8 +502,8 @@ const Configuration = () => {
                   control={
                     <Checkbox
                       checked={personalDetails.name}
-                      onChange={() => {setPersonalDetails({...personalDetails,name:!personalDetails.name})
-                      setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,name:!personalDetails.name})})
+                      onChange={() => {setPersonalDetails({...personalDetails,name:!personalDetails?.name})
+                      setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,name:!personalDetails?.name})})
                     }}
                     />
                   }
@@ -514,8 +514,8 @@ const Configuration = () => {
                   control={
                     <Checkbox
                       checked={personalDetails.email}
-                      onChange={() =>{ setPersonalDetails({...personalDetails,email:!personalDetails.email})
-                        setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,email:!personalDetails.email})})
+                      onChange={() =>{ setPersonalDetails({...personalDetails,email:!personalDetails?.email})
+                        setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,email:!personalDetails?.email})})
                       }}
                     />
                   }
