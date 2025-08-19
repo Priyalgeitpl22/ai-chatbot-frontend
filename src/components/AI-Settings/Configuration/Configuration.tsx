@@ -146,9 +146,24 @@ const Configuration = () => {
       dispatch(getChatConfig(user.orgId))
         .unwrap()
         .then((chatConfig) => {
-          if (chatConfig && Object.keys(chatConfig).length > 0) {
-            setPersonalDetails(JSON.parse(JSON.parse(chatConfig.customPersonalDetails)?JSON.parse(chatConfig.customPersonalDetails):{name:false,email:false,phone:false}))
+    if (chatConfig && Object.keys(chatConfig).length > 0) {
+      let details = { name: false, email: false, phone: false };
+
+      if (chatConfig.customPersonalDetails) {
+        try {
+          if (typeof chatConfig.customPersonalDetails === "string") {
+            details = JSON.parse(chatConfig.customPersonalDetails);
+          } 
+          else if (typeof chatConfig.customPersonalDetails === "object") {
+            details = chatConfig.customPersonalDetails;
+          }
+        } catch (e) {
+          console.error("Failed to parse customPersonalDetails:", e);
+        }
+      }
+      setPersonalDetails(details);
             setLogoPriviewURL(chatConfig.ChatBotLogoImage);
+            
             setSettings((prev) => ({
               ...prev,
               ...chatConfig,
@@ -493,7 +508,7 @@ const Configuration = () => {
                       }}
                     />
                   }
-                  label="Allow Bot to for Personal Details"
+                  label="Allow Bot to ask for Personal Details"
                 />
                 {settings.allowNameEmail && (
                   < >
