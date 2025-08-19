@@ -98,7 +98,7 @@ const Header = () => {
       <LogoContainer>
         <img src={logo} style={{ width: "55px", height: "55px", cursor:'pointer' }} onClick={() => navigate("/")}></img>
         <TitleContainer>
-          <AppTitle>Golden Boat</AppTitle>
+          <AppTitle>Golden Boaaat</AppTitle>
           <AppSubtitle>Automate, Assist, Accelerate</AppSubtitle>
         </TitleContainer>
       </LogoContainer>
