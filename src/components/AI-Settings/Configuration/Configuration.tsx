@@ -536,6 +536,18 @@ const Configuration = () => {
                   }
                   label="Allow Bot to ask Email"
                 />
+                <CustomFormControlLabel
+                 sx={{marginLeft:2}}
+                  control={
+                    <Checkbox
+                      checked={personalDetails.phone}
+                      onChange={() =>{ setPersonalDetails({...personalDetails,phone:!personalDetails?.phone})
+                        setSettings({...settings,customPersonalDetails:JSON.stringify({...personalDetails,phone:!personalDetails?.phone})})
+                      }}
+                    />
+                  }
+                  label="Allow Bot to ask Phone"
+                />
                 </ >
                 )}
                 <CustomFormControlLabel
