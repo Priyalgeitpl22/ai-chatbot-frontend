@@ -4,12 +4,13 @@ import {
   TextField,
   Button,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store/store';
 import { updateOrganization } from '../../../redux/slice/organizationSlice';
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PricingConfiguration() {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,6 +19,13 @@ export default function PricingConfiguration() {
 
   const [openAiKey, setOpenAiKey] = useState<string>('');
   const [aiEnabled] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  useEffect(() => {
+    if (organizationData?.openAiKey) {
+      setOpenAiKey(organizationData.openAiKey);
+    }
+  }, [organizationData]);
 
   const handleCreate = async () => {
     if (!user?.orgId || !openAiKey.trim()) {
@@ -26,18 +34,26 @@ export default function PricingConfiguration() {
     }
 
     try {
-      await dispatch(updateOrganization({
+      setIsLoading(true);
+      const response = await dispatch(updateOrganization({
         orgId: user.orgId,
         data: {
           ...organizationData,
           openAiKey: openAiKey.trim(),
         }
       })).unwrap();
-      toast.success("OpenAI key updated successfully!");
-      setOpenAiKey('');
+
+      if (response) {
+        setIsLoading(false);
+        setOpenAiKey(response?.data?.openAiKey || '');
+        toast.success("OpenAI key updated successfully!");
+      }
     } catch (error: unknown) {
+      setIsLoading(false);
       const errorMessage = typeof error === 'string' ? error : "Failed to update OpenAI key";
       toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,9 +101,10 @@ export default function PricingConfiguration() {
             variant="contained"
             fullWidth
             onClick={handleCreate}
-            disabled={openAiKey.trim() === ""}
+            disabled={openAiKey.trim() === "" || isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
-            Create
+            {isLoading ? "Adding..." : "Add OpenAI Key"}
           </Button>
         </>
       ) : (
