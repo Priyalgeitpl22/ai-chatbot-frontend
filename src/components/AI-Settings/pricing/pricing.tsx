@@ -20,6 +20,7 @@ export default function PricingConfiguration() {
   const [openAiKey, setOpenAiKey] = useState<string>('');
   const [aiEnabled] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRemoving, setIsRemoving] = useState<boolean>(false);
   
   useEffect(() => {
     if (organizationData?.openAiKey) {
@@ -56,6 +57,31 @@ export default function PricingConfiguration() {
       setIsLoading(false);
     }
   };
+
+  const handleRemoveOpenAiKey = async () => {
+    try {
+      setIsRemoving(true);
+      const response = await dispatch(updateOrganization({
+        orgId: user?.orgId || '',
+        data: {
+          ...organizationData,
+          openAiKey: '',
+        }
+      })).unwrap();
+
+      if (response) {
+        setIsRemoving(false);
+        setOpenAiKey('');
+        toast.success("OpenAI key removed successfully!");
+      }
+    } catch (error: unknown) {
+      setIsRemoving(false);
+      const errorMessage = typeof error === 'string' ? error : "Failed to remove OpenAI key";
+      toast.error(errorMessage);
+    } finally {
+      setIsRemoving(false);
+    }
+  }
 
   return (
     <Box
@@ -100,12 +126,26 @@ export default function PricingConfiguration() {
           <Button
             variant="contained"
             fullWidth
+            sx={{ mb: 2 }}
             onClick={handleCreate}
             disabled={openAiKey.trim() === "" || isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
             {isLoading ? "Adding..." : "Add OpenAI Key"}
           </Button>
+
+          {openAiKey.length > 0 && (
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{ color: 'error.main', borderColor: 'error.main' }}
+              onClick={handleRemoveOpenAiKey}
+              disabled={isRemoving}
+              startIcon={isRemoving ? <CircularProgress size={20} /> : null}
+            >
+              {isRemoving ? "Removing..." : "Remove OpenAI Key"}
+            </Button>
+          )}
         </>
       ) : (
         <Box
