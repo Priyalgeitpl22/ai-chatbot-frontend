@@ -21,6 +21,7 @@ import {
 } from "../../../redux/slice/organizationSlice";
 import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
 import PricingConfiguration from "../pricing/pricing";
+import DynamicData from "./DynamicData/DynamicData";
 
 export interface AiSettings {
   isAiEnabled?: boolean;
@@ -268,6 +269,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
               <Tab label="Agency Info" sx={{ fontWeight: 'bold' }} />
               <Tab label="FAQ" sx={{ fontWeight: 'bold' }}/>
               <Tab label="Pricing" sx={{ fontWeight: 'bold' }}/>
+              <Tab label="Dynamic Data" sx={{ fontWeight: 'bold' }}/>
             </Tabs>
 
             {selectedTab === 0 && (
@@ -332,6 +334,9 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
             {selectedTab === 1 && <FAQConfiguration />}
             {selectedTab === 2 && <PricingConfiguration />}
+            {selectedTab === 2 && <DynamicData />}
+            
+           
           </>
         ) : (
           <Grid container spacing={1.5}>

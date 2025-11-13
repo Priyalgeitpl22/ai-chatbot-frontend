@@ -12,7 +12,11 @@ import {
   Stack,
   CircularProgress,
   Drawer,
-  Collapse
+  IconButton,
+  Tooltip,
+  AccordionSummary,
+  Accordion,
+  AccordionDetails,
 } from '@mui/material';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +27,9 @@ import { useEffect, useState } from 'react';
 import { fetchFAQs, createFAQs, updateFAQStatus } from '../../../redux/slice/faqSlice';
 import FaqAnswerEditor from '../FaqAnswerEditor/FaqAnswerEditor';
 import Papa from 'papaparse';
+import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function FAQConfiguration() {
   const dispatch = useDispatch<AppDispatch>();
@@ -134,69 +141,87 @@ export default function FAQConfiguration() {
           <CircularProgress size={48} />
         </Box>
       )}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+      <Tooltip title="Upload FAQ CSV">
+        <IconButton component="label" color="primary" aria-label="upload-faq-csv">
+          <UploadFileIcon />
+          <input type="file" accept=".csv" hidden onChange={handleCsvUpload} />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Add new FAQ">
+        <IconButton color="primary" onClick={() => setAddDrawerOpen(true)} aria-label="add-faq">
+          <AddIcon />
+        </IconButton>
+      </Tooltip>
+      </Box>
 
-      <Button variant="outlined" component="label" sx={{ mb: 2 }}>
-        Upload FAQ CSV
-        <input type="file" accept=".csv" hidden onChange={handleCsvUpload} />
-      </Button>
-
-      <Box sx={{ display: 'flex', gap: 3, maxWidth: 1200, mx: 'auto' }}>
+      <Box sx={{ display: 'flex', gap: 3, maxWidth: 1200, mx: 'auto',  }}>
         <Box sx={{ flex: 1, border: '1px solid #ccc', borderRadius: 2, p: 2, width: 1000, display: 'flex', flexDirection: 'column', height: '400px' }}>
           <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
-            <Typography variant="h6" sx={{ mt: 2 }}>FAQs</Typography>
+            <Typography variant="h6" sx={{ m: 2  }}>Fequently Asked Questions</Typography>
             {localFaqs.length > 0 ? (
               localFaqs.map((faq, index) => {
                 const isExpanded = expandedFaqs.has(faq.id);
                 const isDisabled = user?.role !== 'Admin' && !faq.enabled;
-                
-                return (
-                  <Box key={faq.id || index} sx={{ 
-                    border: '1px solid #e0e0e0', 
-                    borderRadius: 1, 
-                    mb: 1,
-                    opacity: isDisabled ? 0.6 : 1,
-                    pointerEvents: isDisabled ? 'none' : 'auto'
-                  }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        p: 2,
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: '#f5f5f5' },
-                        borderBottom: isExpanded ? '1px solid #e0e0e0' : 'none'
-                      }}
-                      onClick={() => !isDisabled && handleToggleExpanded(faq.id)}
-                    >
-                      <Typography sx={{ flexGrow: 1, fontWeight: 500 }}>
-                        {faq.question || `FAQ #${index + 1}`}
-                      </Typography>
-                      {user?.role === 'Admin' && (
-                        <FormControlLabel
-                          control={
-                            <Switch 
-                              checked={faq.enabled} 
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                handleToggleFAQ(faq.id, faq.enabled);
-                              }} 
-                              color="primary" 
-                              disabled={saving} 
-                            />
-                          }
-                          label={faq.enabled ? 'Enabled' : 'Disabled'}
-                          onClick={e => e.stopPropagation()}
-                          sx={{ marginLeft: 2 }}
-                        />
-                      )}
 
-                    </Box>
-                    <Collapse in={isExpanded}>
-                      <Box sx={{ p: 2 }}>
-                        <Typography dangerouslySetInnerHTML={{ __html: faq.answer }} />
-                      </Box>
-                    </Collapse>
-                  </Box>
+                return (
+                  <Accordion
+                  key={faq.id || index}
+                  expanded={isExpanded}
+                  disabled={isDisabled}
+                  onChange={() => !isDisabled && handleToggleExpanded(faq.id)}
+                  sx={{
+                    mb: 1.5,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    opacity: isDisabled ? 0.6 : 1,
+                    "&:before": { display: "none" },
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                    },
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{
+                      backgroundColor: "#fff",
+                      "&:hover": { backgroundColor: "#f9f9f9" },
+                    }}
+                  >
+                    <Typography sx={{ flexGrow: 1, fontWeight: 500 }}>
+                      {faq.question || `FAQ #${index + 1}`}
+                    </Typography>
+
+                    {user?.role === "Admin" && (
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={faq.enabled}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleToggleFAQ(faq.id, faq.enabled);
+                            }}
+                            color="primary"
+                            disabled={saving}
+                          />
+                        }
+                        label={faq.enabled ? "Enabled" : "Disabled"}
+                        onClick={(e) => e.stopPropagation()}
+                        sx={{ ml: 2 }}
+                      />
+                    )}
+                  </AccordionSummary>
+
+                  <AccordionDetails sx={{ backgroundColor: "#fcfcfc" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ whiteSpace: "pre-wrap", color: "#555" }}
+                      dangerouslySetInnerHTML={{ __html: faq.answer }}
+                    />
+                  </AccordionDetails>
+                </Accordion>
                 );
               })
             ) : (
@@ -204,9 +229,8 @@ export default function FAQConfiguration() {
             )}
           </Box>
 
-          <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: '1px solid #e0e0e0', justifyContent: 'space-between' }}>
-            <Button variant="contained" onClick={handleSave} sx={{ width: '50%' }} disabled={!aiEnabled || !hasNewFaqs || saving}>Save All FAQs</Button>
-            <Button variant="outlined" onClick={() => setAddDrawerOpen(true)}>ADD NEW FAQ</Button>
+          <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: '1px solid #e0e0e0', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Button variant="contained" onClick={handleSave} disabled={!aiEnabled || !hasNewFaqs || saving}>Save All FAQs</Button>
           </Stack>
         </Box>
       </Box>
@@ -226,9 +250,9 @@ export default function FAQConfiguration() {
             }}
           />
           <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-            <Button variant="outlined" style={{width:"50%"}} onClick={() => setAddDrawerOpen(false)}>Cancel</Button>
+            <Button variant="outlined" style={{ width: "50%" }} onClick={() => setAddDrawerOpen(false)}>Cancel</Button>
             <Button
-              variant="contained" style={{width:"50%"}}
+              variant="contained" style={{ width: "50%" }}
               onClick={() => {
                 if (!newQuestion.trim() || !newAnswer.trim()) {
                   toast.error('Please fill in both fields');
