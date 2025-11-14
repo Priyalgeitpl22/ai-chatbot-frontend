@@ -269,6 +269,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
               <Tab label="Agency Info" sx={{ fontWeight: 'bold' }} />
               <Tab label="FAQ" sx={{ fontWeight: 'bold' }}/>
               <Tab label="Pricing" sx={{ fontWeight: 'bold' }}/>
+              <Tab label="Dynamic Data" sx={{ fontWeight: 'bold' }}/>
             </Tabs>
 
             {selectedTab === 0 && (
@@ -334,7 +335,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
             {selectedTab === 1 && <FAQConfiguration />}
             {selectedTab === 2 && <PricingConfiguration />}
             {selectedTab === 3 && <DynamicData />}
-            
+                
            
           </>
         ) : (
