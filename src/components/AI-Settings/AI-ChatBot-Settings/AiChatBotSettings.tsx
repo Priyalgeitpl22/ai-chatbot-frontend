@@ -21,6 +21,7 @@ import {
 } from "../../../redux/slice/organizationSlice";
 import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
 import PricingConfiguration from "../pricing/pricing";
+import DynamicData from "./DynamicData/DynamicData";
 
 export interface AiSettings {
   isAiEnabled?: boolean;
