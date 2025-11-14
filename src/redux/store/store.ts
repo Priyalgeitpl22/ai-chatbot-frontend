@@ -12,6 +12,7 @@ import notificationReducer from "../slice/notificationSlice";
 import securityReducer from "../slice/securitySlice";
 import selectedThreadReducer from "../slice/selectedThread";
 import analyticsReducer from "../slice/analyticsSlice";
+import dynamicDataReducer from "../slice/dynamicDataSlice";
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +28,8 @@ export const store = configureStore({
     notification:notificationReducer,
     security: securityReducer,
     selectedThread:selectedThreadReducer,
-    analytics: analyticsReducer
+    analytics: analyticsReducer,
+    dynamicData: dynamicDataReducer
   },
 });
 

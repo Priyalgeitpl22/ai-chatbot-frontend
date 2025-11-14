@@ -694,8 +694,9 @@ const Configuration = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            style={{ width: '95%' }}
           >
-            <Section style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
+            <Section style={{ width: "100%", paddingBlock: "1rem" }}>
               {user?.orgId && <AiChatBotSettings orgId={user?.orgId} />}
             </Section>
           </motion.div>

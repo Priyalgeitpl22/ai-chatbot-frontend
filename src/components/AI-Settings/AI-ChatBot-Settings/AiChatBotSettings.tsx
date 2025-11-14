@@ -332,6 +332,9 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
             {selectedTab === 1 && <FAQConfiguration />}
             {selectedTab === 2 && <PricingConfiguration />}
+            {selectedTab === 3 && <DynamicData />}
+            
+           
           </>
         ) : (
           <Grid container spacing={1.5}>
