@@ -334,7 +334,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
             {selectedTab === 1 && <FAQConfiguration />}
             {selectedTab === 2 && <PricingConfiguration />}
-            {selectedTab === 2 && <DynamicData />}
+            {selectedTab === 3 && <DynamicData />}
             
            
           </>

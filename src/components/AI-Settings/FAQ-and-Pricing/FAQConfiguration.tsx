@@ -157,7 +157,7 @@ export default function FAQConfiguration() {
 
       <Box sx={{ display: 'flex', gap: 3, maxWidth: 1200, mx: 'auto',  }}>
         <Box sx={{ flex: 1, border: '1px solid #ccc', borderRadius: 2, p: 2, width: 1000, display: 'flex', flexDirection: 'column', height: '400px' }}>
-          <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
+          <Box sx={{ flex: 1, overflow: 'auto', mb: 2,}}>
             <Typography variant="h6" sx={{ m: 2  }}>Fequently Asked Questions</Typography>
             {localFaqs.length > 0 ? (
               localFaqs.map((faq, index) => {
@@ -174,12 +174,13 @@ export default function FAQConfiguration() {
                     mb: 1.5,
                     borderRadius: 2,
                     overflow: "hidden",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    // boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                     opacity: isDisabled ? 0.6 : 1,
                     "&:before": { display: "none" },
                     transition: "all 0.2s ease-in-out",
                     "&:hover": {
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      // boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      // border:" 1px solid #bbb",
                     },
                   }}
                 >
