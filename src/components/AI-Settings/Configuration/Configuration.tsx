@@ -48,6 +48,7 @@ import AiChatBotSettings from "../AI-ChatBot-Settings/AiChatBotSettings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import FAQConfiguration from "../FAQ-and-Pricing/FAQConfiguration";
 import Pricing from "../pricing/pricing";
+import WebHook from "./WebHook/WebHook";
 
 
 export interface EmailConfigData {
@@ -300,6 +301,7 @@ const Configuration = () => {
         <CustomTab label="Tracking Code" value="tracking_code" />
         <CustomTab label="Email Configuration" value="email configuration" />
         <CustomTab label="Ai Chatbot" value="ai chatbot" />
+        <CustomTab label="Web Hook" value="web_hook" />
       </CustomTabs>
 
       {activeTab === "configure" && (
@@ -702,21 +704,36 @@ const Configuration = () => {
           </motion.div>
         </SettingsContainer>
       )}
- {activeTab === "FAQ" && (
+
+       {activeTab === "web_hook" && (
+        <SettingsContainer >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Section style={{ position:"absolute", width:"80%", display: "flex", alignItems: "center", justifyContent: "center", paddingBlock: "1rem" }}>
+              <WebHook />
+            </Section>
+          </motion.div>
+        </SettingsContainer>
+      )}
+
+     {activeTab === "FAQ" && (
   <SettingsContainer >
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-<Section style={{ width: "150%", paddingBlock: "1rem" }}>
+   <Section style={{ width: "150%", paddingBlock: "1rem" }}>
         {user?.orgId && <FAQConfiguration />} {/* FAQ upload + list */}
       </Section>
     </motion.div>
   </SettingsContainer>
-)}
+     )}
 
-{activeTab === "Pricing" && (
+     {activeTab === "Pricing" && (
   <SettingsContainer>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -728,7 +745,7 @@ const Configuration = () => {
       </Section>
     </motion.div>
   </SettingsContainer>
-)}
+    )}
 
 {loading && <Loader />}
 
