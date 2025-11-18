@@ -101,7 +101,7 @@ function Login() {
     if (loginSubmitted) {
       (async () => {
         try {
-          const data = await dispatch(loginUser({ email, password })).unwrap();
+          const data = await dispatch(loginUser({ email:email.toLowerCase(), password })).unwrap();
 
           if (data.require2FA && data.tempToken) {
             setShowOtp(true);
@@ -130,7 +130,7 @@ function Login() {
     e.preventDefault();
     setOtpError('');
     try {
-      const data = await dispatch(verify2FASetup({ token: otp, email, isLogin: true })).unwrap();
+      const data = await dispatch(verify2FASetup({ token: otp, email:email.toLowerCase(), isLogin: true })).unwrap();
       if (data.token) {
         Cookies.set('access_token', data.token);
         await dispatch(getUserDetails(data.token)).unwrap();
