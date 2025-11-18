@@ -23,6 +23,7 @@ import toast, { Toaster } from "react-hot-toast";
 import dayjs, { Dayjs } from "dayjs";
 import { Button } from "../../../styles/layout.styled";
 import { StatusIndicator } from "../../Chats/ChatSideBar/chatSidebar.styled";
+import ConfirmDialog from "../../../layout/ConfirmDialog";
 
 export interface Agent {
   id: string;
@@ -85,6 +86,8 @@ const Agents: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useSelector((state: RootState) => state.user);
   const { data } = useSelector((state: RootState) => state.agents);
+  const [openDelete, setOpenDelete] = useState<boolean>(false);
+
   const isAdmin = user?.role === "Admin"; 
 
   useEffect(() => {
@@ -163,6 +166,7 @@ const Agents: React.FC = () => {
       .then(({message}) => {
         toast.success(message);
         setAgents(agents.filter((agent) => agent.id !== id));
+        setOpenDelete(false);  
       })
       .catch((error) => {
         toast.error(error);
@@ -256,13 +260,22 @@ const Agents: React.FC = () => {
                       <ActionButton
                         color="error"
                         size="small"
-                        onClick={() => handleDeleteAgent(agent.id)}
+                        onClick={() => setOpenDelete(true)}
                       >
                         <Trash2 size={18} />
                       </ActionButton>
                       </Box>
                     </StyledTableCell>
                   )}
+                <ConfirmDialog
+                        open={openDelete}
+                        onClose={() => setOpenDelete(false)}
+                        onConfirm={()=>handleDeleteAgent(agent.id)}
+                        title="Delete?"
+                        description="Are you sure you want to delete this agent?"
+                        icon={<Trash2 style={{ fontSize: 38, color: "var(--error-color)" }} />}
+                        confirmText="Delete"
+                      />
                 </TableRow>
               ))
             ) : (

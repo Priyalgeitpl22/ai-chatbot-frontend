@@ -13,6 +13,8 @@ import { AppDispatch, RootState } from "../../redux/store/store";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ProfileDetail from "./Profile-Details/ProfileDetail";
 import { useSocket } from "../../context/SocketContext";
+import { Logout } from "@mui/icons-material";
+import ConfirmDialog from "../../layout/ConfirmDialog";
 export interface User {
   id: string;
   email: string;
@@ -26,7 +28,8 @@ export interface User {
 const UserProfileMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
-  const {socket} = useSocket()
+  const [openLogout, setOpenLogout] = useState<boolean>(false);
+  const { socket } = useSocket()
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.user);
@@ -45,15 +48,15 @@ const UserProfileMenu: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await dispatch(logoutUser({userId:user?.id||""}));
-     if (socket && user?.id) {
-        socket.emit("agentOnline", {
-          id: user.id,
-          online: false,
-          name: user.fullName,
-          orgId:user.orgId
-        });
-      }
+    await dispatch(logoutUser({ userId: user?.id || "" }));
+    if (socket && user?.id) {
+      socket.emit("agentOnline", {
+        id: user.id,
+        online: false,
+        name: user.fullName,
+        orgId: user.orgId
+      });
+    }
     handleMenuClose();
     navigate("/login");
   };
@@ -81,7 +84,7 @@ const UserProfileMenu: React.FC = () => {
           <img
             src={user.profilePicture}
             alt="Profile"
-            style={{ width: "35px", height: "35px" }}
+            style={{ width: "35px", height: "35px"}}
           />
         ) : (
           <AccountCircleIcon style={{ width: "35px", height: "35px" }} />
@@ -120,13 +123,21 @@ const UserProfileMenu: React.FC = () => {
           </Link>
         </StyledMenuItem>
 
-        <StyledMenuItem onClick={handleLogout}>
+        <StyledMenuItem onClick={() => { handleMenuClose(); setOpenLogout(true) }}>
           <Typography variant="body2" fontFamily={"var(--custom-font-family)"} color="textSecondary">
             Logout
           </Typography>
         </StyledMenuItem>
       </Menu>
-
+      <ConfirmDialog
+        open={openLogout}
+        onClose={() => setOpenLogout(false)}
+        onConfirm={handleLogout}
+        title="Log Out?"
+        description="Are you sure you want to logout from your account?"
+        icon={<Logout sx={{ fontSize: 38, color: "var(--error-color)" }} />}
+        confirmText="Log Out"
+      />
       <ProfileDetail
         open={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
