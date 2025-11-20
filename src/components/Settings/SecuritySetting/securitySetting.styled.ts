@@ -1,6 +1,5 @@
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import { Paper, Typography,Button,Box} from '@mui/material';
 
 export const SecurityContainer = styled(Box)`
   max-width: 700px;
@@ -154,7 +153,6 @@ export const OutlinedBlueButton = styled(Button)(({ }) => ({
 export const RoundedBlueButton = styled(Button)(({ }) => ({
   color: '#1a73e8',
   borderColor: '#1a73e8',
-  borderRadius: '24px',
   textTransform: 'none',
   cursor: "pointer",
   fontWeight: 500,
@@ -177,3 +175,36 @@ export const SecuritySettingsContainer = styled(Box)`
   position: relative;
   flex-direction: row;
 `;
+
+export const ModalPaper = styled(Paper)({
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 420,
+  borderRadius: "12px",
+  padding: "24px",
+  boxShadow: "0px 8px 32px rgba(0,0,0,0.35)",
+  outline: "none",
+});
+
+export const TitleTypography = styled(Typography)({
+  marginBottom: "16px",
+});
+
+export const DescriptionTypography = styled(Typography)({
+  fontSize: "0.95rem",
+  marginBottom: "24px",
+  lineHeight: 1.6,
+});
+
+export const TwoFABox = styled(Box)({
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: "8px",
+  padding: "16px",
+  background: "rgba(255,255,255,0.05)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: "16px",
+});

@@ -30,10 +30,12 @@ export default function Chats() {
   const [page,Setpage] = useState(1)
   const listRef = useRef<HTMLDivElement>()
   // const [isUpdated,setIsUpdated] = useState<boolean>(false)
-  useEffect(() => {
+   useEffect(() => {
     setIsLoading(true);
     dispatch(getAllThreads({page})).then((res: any) => {
-      const loadedThreads = res.payload || [];
+     const loadedThreads = Array.isArray(res.payload?.thread)
+    ? res.payload.thread
+    : [];
       if (notificationThreadId) {
         const matchedThread = loadedThreads.find(
           (t: any) => t.id === notificationThreadId
@@ -41,11 +43,15 @@ export default function Chats() {
         if (matchedThread) {
           setSelectedThreadId(matchedThread.id);
         }
-      }
-      setIsLoading(false);
-      window.history.replaceState({}, document.title);
-    });
-  }, [dispatch, notificationThreadId]);
+       }
+       setIsLoading(false);
+       window.history.replaceState({}, document.title);
+    }).catch((error) => {
+        console.error("Failed to load threads", error);
+      }).finally(() => {
+        setIsLoading(false);
+      });
+   }, [dispatch, notificationThreadId]);
   useEffect(() => {
   if (user?.orgId) {
     dispatch(fetchAgents(user.orgId));
@@ -140,18 +146,19 @@ useEffect(() => {
         selectedThreadId={selectedThreadId}
         // listRef={listRef}
       />
-        <ChatArea
+        <ChatArea 
           selectedThreadId={selectedThreadId}
           onSelectThread={setSelectedThreadId}
-          threads={threads.filter((thread) => {
-            if (selectedThreadType === "assigned") {
-              return thread.type === selectedThreadType && thread.assignedTo === user?.id;
-            }
-            if (selectedThreadType === "open") {
-              return true;
-            }
-            return thread.type === selectedThreadType;
-          })}
+          threads={threads}
+          // threads={threads.filter((thread) => {
+          //   if (selectedThreadType === "assigned") {
+          //     return thread.type === selectedThreadType && thread.assignedTo === user?.id;
+          //   }
+          //   if (selectedThreadType === "open") {
+          //     return true;
+          //   }
+          //   return thread.type === selectedThreadType;
+          // })}
           onClose={()=>setSelectedThreadId(null)}
         />
         </>
