@@ -18,10 +18,13 @@ import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import {
   PrimaryButton,
   OutlinedBlueButton,
-  RoundedBlueButton,
   Title,
   Label,
   InfoText,
+  ModalPaper,
+  TitleTypography,
+  DescriptionTypography,
+  TwoFABox,
 } from "./securitySetting.styled";
 import {
   CustomWrapper,
@@ -55,10 +58,10 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
 
   const daysAgo = user?.twoFactorAuth?.authenticatorAppAddedAt
     ? Math.floor(
-        (Date.now() -
-          new Date(user?.twoFactorAuth?.authenticatorAppAddedAt).getTime()) /
-          (1000 * 60 * 60 * 24)
-      )
+      (Date.now() -
+        new Date(user?.twoFactorAuth?.authenticatorAppAddedAt).getTime()) /
+      (1000 * 60 * 60 * 24)
+    )
     : null;
 
   const handleStartSetup = async () => {
@@ -224,12 +227,12 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
                 </>
               ) : (
                 <>
-                <InfoText>
-                  2-Step Verification is not enabled for your organization.
-                  Please contact your administrator to enable this security
-                  feature.
-                </InfoText>
-                <Stack direction="row" spacing={2} mt={3}>
+                  <InfoText>
+                    2-Step Verification is not enabled for your organization.
+                    Please contact your administrator to enable this security
+                    feature.
+                  </InfoText>
+                  <Stack direction="row" spacing={2} mt={3}>
                     <OutlinedBlueButton
                       variant="outlined"
                       disabled={true}
@@ -248,85 +251,69 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
         </Box>
 
         {/* Authenticator Details Modal */}
-        <Modal
-          open={showAuthenticatorModal}
-          onClose={() => setShowAuthenticatorModal(false)}
-        >
-          <Paper
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              minWidth: 400,
-              p: 4,
-              outline: "none",
-              borderRadius: 2,
-            }}
+   <Modal
+    open={showAuthenticatorModal} 
+    onClose={() => setShowAuthenticatorModal(false)}
+    >
+      <ModalPaper>
+        <TitleTypography variant="h6" fontFamily={"var(--custom-font-family)"}>
+          Authenticator app
+        </TitleTypography>
+        <DescriptionTypography fontFamily={"var(--custom-font-family)"}>
+          Instead of waiting for text messages, get verification codes from an
+          authenticator app. It works even if your phone is offline.
+          <br />
+          <br />
+          First, download Google Authenticator from the{" "}
+          <a
+            href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&pli=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#60a5fa", textDecoration: "underline" }}
           >
-            <Typography variant="h5" fontWeight={600} mb={2}>
-              Authenticator app
-            </Typography>
-            <Typography color="text.secondary" mb={3}>
-              Instead of waiting for text messages, get verification codes from
-              an authenticator app. It works even if your phone is offline.
-              <br />
-              <br />
-              First, download Google Authenticator from the{" "}
-              <a
-                href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&pli=1"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#1a73e8" }}
-              >
-                Google Play Store
-              </a>{" "}
-              or the{" "}
-              <a
-                href="https://apps.apple.com/us/app/google-authenticator/id388497605"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#1a73e8" }}
-              >
-                iOS App Store
-              </a>
-              .
-            </Typography>
-            {user?.twoFactorAuth?.isEnabled ? (
-              <Box
-                sx={{
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 2,
-                  p: 2,
-                  background: "#fafafa",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  mb: 2,
-                }}
-              >
-                <Box display="flex" alignItems="center" gap={2}>
-                  <QrCode2Icon color="action" />
-                  <Box>
-                    <Typography fontWeight={500}>Authenticator</Typography>
-                    <Typography color="text.secondary" fontSize={14}>
-                      Added {daysAgo !== null ? `${daysAgo} days ago` : "N/A"}
-                    </Typography>
-                  </Box>
-                </Box>
+            Google Play Store
+          </a>{" "}
+          or the{" "}
+          <a
+            href="https://apps.apple.com/us/app/google-authenticator/id388497605"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#60a5fa", textDecoration: "underline" }}
+          >
+            iOS App Store
+          </a>
+          .
+        </DescriptionTypography>
+
+        {/* If 2FA already enabled */}
+        {user?.twoFactorAuth?.isEnabled ? (
+          <TwoFABox>
+            <Box display="flex" alignItems="center" gap={2}>
+              <QrCode2Icon sx={{ color: "#94a3b8" }} />
+              <Box>
+                <Typography fontWeight={500} color="#fff">
+                  Authenticator
+                </Typography>
+                <Typography color="#94a3b8" fontSize={14}>
+                  Added {daysAgo !== null ? `${daysAgo} days ago` : "N/A"}
+                </Typography>
               </Box>
-            ) : (
-              <RoundedBlueButton
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={handleSetupAuthenticator}
-                disabled={loadingQR}
-              >
-                Set up authenticator
-              </RoundedBlueButton>
-            )}
-          </Paper>
-        </Modal>
+            </Box>
+          </TwoFABox>
+        ) : (
+          <Box display="flex" justifyContent="end">
+            <OutlinedBlueButton
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={handleSetupAuthenticator}
+              disabled={loadingQR}
+            >
+              Set up authenticator
+            </OutlinedBlueButton>
+          </Box>
+        )}
+      </ModalPaper>
+    </Modal>
 
         {/* QR Setup Modal */}
         <Modal open={showSetupModal} onClose={() => setShowSetupModal(false)}>
