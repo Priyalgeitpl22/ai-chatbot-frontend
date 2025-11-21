@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dialog, TextField, Button, Box } from "@mui/material";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import {
   DialogHeader,
   StyledTitle,
@@ -8,6 +9,12 @@ import {
   DialogFooter,
   FieldWrapper,
   ProfileImage,
+  StyledButton,
+  CardWrapper,
+  IconBox,
+  TitleText,
+  SubText,
+  StatusBadge,
 } from "./profileDetail.styled";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EditIcon from "@mui/icons-material/Edit";
@@ -16,8 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import toast, {Toaster} from 'react-hot-toast';
 import Loader from "../../Loader";
-import TwoFactorSettings from "../../Settings/SecuritySetting/securitySetting";
-import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileDetailProps {
   open: boolean;
@@ -27,7 +33,10 @@ interface ProfileDetailProps {
 
 const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const org = useSelector((state: RootState) => state.organization.data);
   const userData = useSelector((state: RootState) => state.user.user);
+  
   const [formData, setFormData] = useState({
     name: userData?.fullName || "",
     email: userData?.email || "",
@@ -38,6 +47,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
   const [preview, setPreview] = useState<string | null>(userData?.profilePicture || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const TwoStepVerificaton = org?.enable_totp_auth && userData?.twoFactorAuth?.isEnabled; 
 
   useEffect(() => {
     setFormData({
@@ -72,7 +82,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     formDataToSend.append("name", formData.name);
     formDataToSend.append("email", formData.email);
     formDataToSend.append("role", formData.role);
-    
+
     if (newProfilePicture) {
       formDataToSend.append("profilePicture", newProfilePicture);
     }
@@ -80,7 +90,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     try {
       await dispatch(updateUserDetails({ userData: formDataToSend })).unwrap();
       toast.success("User details updated successfully!");
-      onClose(); 
+      onClose();
       window.location.reload();
       setLoading(false);
     } catch (error) {
@@ -98,8 +108,6 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     setPreview(userData?.profilePicture || null);
     onClose();
   };
-
-  const token = Cookies.get("access_token");
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -176,7 +184,32 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
 
         {/* 2FA Section */}
         <FieldWrapper>
-          <TwoFactorSettings token={token || ""} />
+          <CardWrapper elevation={0}>
+            <IconBox>
+              <SecurityOutlinedIcon sx={{ fontSize: 24 }} />
+            </IconBox>
+
+            <Box sx={{ flex: 1 }}>
+              <TitleText>Two-Step Verification</TitleText>
+
+              <SubText>
+                Keep your account safe by enabling additional protection.
+              </SubText>
+
+              <StatusBadge enabled={!!TwoStepVerificaton}>
+                {TwoStepVerificaton ? "Enabled" : "Disabled"}
+              </StatusBadge>
+            </Box>
+
+            <StyledButton
+              onClick={() => {
+                onClose();
+                navigate("/settings?tab=Security");
+              }}
+            >
+              {TwoStepVerificaton ? "Manage" : "Enable"}
+            </StyledButton>
+          </CardWrapper>
         </FieldWrapper>
       </DialogBody>
 
