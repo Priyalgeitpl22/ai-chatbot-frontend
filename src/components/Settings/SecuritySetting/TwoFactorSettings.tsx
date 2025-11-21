@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import api from "../../../services/api";
@@ -36,9 +36,7 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
   const org = useSelector((state: RootState) => state.organization.data);
   const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch<AppDispatch>();
-  const [twoFA, setTwoFA] = useState(
-    org?.enable_totp_auth && user?.twoFactorAuth?.isEnabled
-  );
+  const twoFA = org?.enable_totp_auth && user?.twoFactorAuth?.isEnabled;
   const [error, setError] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState("");
   const [showSetupModal, setShowSetupModal] = useState(false);
