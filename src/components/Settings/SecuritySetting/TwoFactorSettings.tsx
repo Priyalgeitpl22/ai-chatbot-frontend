@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store/store";
 import api from "../../../services/api";
 import {
   Box,
@@ -30,10 +30,12 @@ import {
   CustomWrapper,
   TitleWrapper,
 } from "../NotificationSettings/notificationSettingsStyled";
+import { getUserDetails, updateUserDetails } from "../../../redux/slice/userSlice";
 
 const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
   const org = useSelector((state: RootState) => state.organization.data);
   const user = useSelector((state: RootState) => state.user.user);
+  const dispatch = useDispatch<AppDispatch>();
   const [twoFA, setTwoFA] = useState(
     org?.enable_totp_auth && user?.twoFactorAuth?.isEnabled
   );
@@ -106,6 +108,20 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
       setTwoFA(true);
       setEnabledAt(now);
       setShowAuthenticatorModal(false);
+      await dispatch(
+        updateUserDetails({
+          userData: {
+            id: user?.id,
+            twoFactorAuth: {
+              isEnabled: true,
+              enabledAt: now,
+            }
+          }
+        })
+      ).unwrap();
+      await dispatch(getUserDetails(token));  // <-- ADD THIS
+
+
     } catch {
       setVerifyError("Invalid code. Try again.");
     }
@@ -251,69 +267,69 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
         </Box>
 
         {/* Authenticator Details Modal */}
-   <Modal
-    open={showAuthenticatorModal} 
-    onClose={() => setShowAuthenticatorModal(false)}
-    >
-      <ModalPaper>
-        <TitleTypography variant="h6" fontFamily={"var(--custom-font-family)"}>
-          Authenticator app
-        </TitleTypography>
-        <DescriptionTypography fontFamily={"var(--custom-font-family)"}>
-          Instead of waiting for text messages, get verification codes from an
-          authenticator app. It works even if your phone is offline.
-          <br />
-          <br />
-          First, download Google Authenticator from the{" "}
-          <a
-            href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&pli=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#60a5fa", textDecoration: "underline" }}
-          >
-            Google Play Store
-          </a>{" "}
-          or the{" "}
-          <a
-            href="https://apps.apple.com/us/app/google-authenticator/id388497605"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#60a5fa", textDecoration: "underline" }}
-          >
-            iOS App Store
-          </a>
-          .
-        </DescriptionTypography>
+        <Modal
+          open={showAuthenticatorModal}
+          onClose={() => setShowAuthenticatorModal(false)}
+        >
+          <ModalPaper>
+            <TitleTypography variant="h6" fontFamily={"var(--custom-font-family)"}>
+              Authenticator app
+            </TitleTypography>
+            <DescriptionTypography fontFamily={"var(--custom-font-family)"}>
+              Instead of waiting for text messages, get verification codes from an
+              authenticator app. It works even if your phone is offline.
+              <br />
+              <br />
+              First, download Google Authenticator from the{" "}
+              <a
+                href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&pli=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#60a5fa", textDecoration: "underline" }}
+              >
+                Google Play Store
+              </a>{" "}
+              or the{" "}
+              <a
+                href="https://apps.apple.com/us/app/google-authenticator/id388497605"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#60a5fa", textDecoration: "underline" }}
+              >
+                iOS App Store
+              </a>
+              .
+            </DescriptionTypography>
 
-        {/* If 2FA already enabled */}
-        {user?.twoFactorAuth?.isEnabled ? (
-          <TwoFABox>
-            <Box display="flex" alignItems="center" gap={2}>
-              <QrCode2Icon sx={{ color: "#94a3b8" }} />
-              <Box>
-                <Typography fontWeight={500} color="#fff">
-                  Authenticator
-                </Typography>
-                <Typography color="#94a3b8" fontSize={14}>
-                  Added {daysAgo !== null ? `${daysAgo} days ago` : "N/A"}
-                </Typography>
+            {/* If 2FA already enabled */}
+            {user?.twoFactorAuth?.isEnabled ? (
+              <TwoFABox>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <QrCode2Icon sx={{ color: "#94a3b8" }} />
+                  <Box>
+                    <Typography fontWeight={500} color="#fff">
+                      Authenticator
+                    </Typography>
+                    <Typography color="#94a3b8" fontSize={14}>
+                      Added {daysAgo !== null ? `${daysAgo} days ago` : "N/A"}
+                    </Typography>
+                  </Box>
+                </Box>
+              </TwoFABox>
+            ) : (
+              <Box display="flex" justifyContent="end">
+                <OutlinedBlueButton
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={handleSetupAuthenticator}
+                  disabled={loadingQR}
+                >
+                  Set up authenticator
+                </OutlinedBlueButton>
               </Box>
-            </Box>
-          </TwoFABox>
-        ) : (
-          <Box display="flex" justifyContent="end">
-            <OutlinedBlueButton
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={handleSetupAuthenticator}
-              disabled={loadingQR}
-            >
-              Set up authenticator
-            </OutlinedBlueButton>
-          </Box>
-        )}
-      </ModalPaper>
-    </Modal>
+            )}
+          </ModalPaper>
+        </Modal>
 
         {/* QR Setup Modal */}
         <Modal open={showSetupModal} onClose={() => setShowSetupModal(false)}>
@@ -503,6 +519,18 @@ const TwoFactorSettings: React.FC<{ token: string }> = ({ token }) => {
                     setOtpToDisable("");
                     setTwoFA(false); // <-- Update local state
                     setEnabledAt(null);
+                    await dispatch(
+                      updateUserDetails({
+                        userData: {
+                          id: user?.id,
+                          twoFactorAuth: {
+                            isEnabled: false,
+                            enabledAt: null,
+                          }
+                        }
+                      })
+                    ).unwrap();
+                    await dispatch(getUserDetails(token));
                   } catch {
                     setDisableError("Invalid OTP. Try again.");
                   }

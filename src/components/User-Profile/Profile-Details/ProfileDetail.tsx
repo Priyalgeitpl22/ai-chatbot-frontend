@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dialog, TextField, Button, Box } from "@mui/material";
+import { Dialog, TextField, Button, Box, Typography, Switch, Paper } from "@mui/material";
 import {
   DialogHeader,
   StyledTitle,
@@ -16,8 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import toast, {Toaster} from 'react-hot-toast';
 import Loader from "../../Loader";
-import TwoFactorSettings from "../../Settings/SecuritySetting/securitySetting";
-import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileDetailProps {
   open: boolean;
@@ -27,6 +26,7 @@ interface ProfileDetailProps {
 
 const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const userData = useSelector((state: RootState) => state.user.user);
   const [formData, setFormData] = useState({
     name: userData?.fullName || "",
@@ -72,7 +72,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     formDataToSend.append("name", formData.name);
     formDataToSend.append("email", formData.email);
     formDataToSend.append("role", formData.role);
-    
+
     if (newProfilePicture) {
       formDataToSend.append("profilePicture", newProfilePicture);
     }
@@ -80,7 +80,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     try {
       await dispatch(updateUserDetails({ userData: formDataToSend })).unwrap();
       toast.success("User details updated successfully!");
-      onClose(); 
+      onClose();
       window.location.reload();
       setLoading(false);
     } catch (error) {
@@ -98,8 +98,6 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
     setPreview(userData?.profilePicture || null);
     onClose();
   };
-
-  const token = Cookies.get("access_token");
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -176,7 +174,44 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
 
         {/* 2FA Section */}
         <FieldWrapper>
-          <TwoFactorSettings token={token || ""} />
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              border: "1px solid rgba(0, 0, 0, 0.29)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <Box>
+              <Typography
+                fontFamily="var(--custom-font-family)"
+                fontSize="1rem"
+                fontWeight={600}
+              >
+                Two Step Verification
+              </Typography>
+
+              <Typography
+                fontSize="0.83rem"
+                color="text.secondary"
+                mt={0.3}
+              >
+                Protect your account with an additional security layer.
+              </Typography>
+            </Box>
+
+            <Switch
+              checked={userData?.twoFactorAuth?.isEnabled}
+              onChange={() => {
+                onClose();
+                navigate("/settings?tab=Security");
+              }}
+            />
+          </Paper>
         </FieldWrapper>
       </DialogBody>
 
