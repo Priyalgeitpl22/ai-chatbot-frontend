@@ -204,7 +204,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             <StyledButton
               onClick={() => {
                 onClose();
-                navigate("/settings?tab=Security");
+                navigate("/settings?tab=security");
               }}
             >
               {TwoStepVerificaton ? "Manage" : "Enable"}

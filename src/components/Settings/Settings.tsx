@@ -13,27 +13,33 @@ import { useLocation,useNavigate } from "react-router-dom";
 const Settings = () => {
   const dispatch = useDispatch<AppDispatch>();
   const org = useSelector((state: RootState) => state.organization.data);
-  const user = useSelector((state: RootState) => state.user.user);
+  const user = useSelector((state: RootState) => state?.user?.user);
   const orgId = user?.orgId || org?.id;
   const location = useLocation();
   const navigate = useNavigate();
+  const token = Cookies.get("access_token") || "";
+
   
   const getInitialTab = () => {
     const params = new URLSearchParams(location.search);
-    const tabFromUrl = params.get("tab"); 
-    const tabFromStorage = localStorage.getItem("activeTab"); 
-    return tabFromUrl || tabFromStorage || "Notifications";
+    const tabFromUrl = params.get("tab")?.toLowerCase(); 
+    const tabFromStorage = localStorage.getItem("activeTab")?.toLowerCase(); 
+    return tabFromUrl || tabFromStorage || "notifications";
   };
   
   const [selectedTab, setSelectedTabState] = useState(getInitialTab);
 
   const setSelectedTab = (tab: string) => {
-    setSelectedTabState(tab);
-    localStorage.setItem("activeTab", tab);
-    navigate(`/settings?tab=${tab}`, { replace: true });
-  };
+    const tabLowercase = tab.toLowerCase();
+    setSelectedTabState(tabLowercase);
+    localStorage.setItem("activeTab", tabLowercase);
+    navigate(`/settings?tab=${tabLowercase}`, { replace: true });
+};
 
-
+const tabComponents: Record<string, JSX.Element> = {
+  notifications: <NotificationSettings />,
+  security: <TwoFactorSettings token={token || ""} />,
+};
 
   useEffect(() => {
     localStorage.setItem("activeTab", selectedTab);
@@ -41,7 +47,7 @@ const Settings = () => {
 
   useEffect(() => {
   const params = new URLSearchParams(location.search);
-  const tab = params.get("tab");
+  const tab = params.get("tab")?.toLowerCase();
 
   if (tab) setSelectedTab(tab);
 }, [location.search]);
@@ -52,18 +58,15 @@ useEffect(() => {
     }
   }, [dispatch, orgId]);
 
-  const token = Cookies.get("access_token") || "";
 
   return (
     <SettingsContainer>
-      <SettingsList
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-      />
-
-      {selectedTab === "Notifications" && <NotificationSettings />}
-      {selectedTab === "Security" && <TwoFactorSettings token={token || ""} />}
-    </SettingsContainer>
+  <SettingsList
+    selectedTab={selectedTab}
+    setSelectedTab={setSelectedTab}
+  />
+  {tabComponents[selectedTab]}
+</SettingsContainer>
   );
 };
 
