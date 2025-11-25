@@ -41,11 +41,9 @@ const Sidebar = () => {
   useEffect(()=>{
     if(!socket)return;
     socket.on('unreadTaskCount',(data:any)=>{
-      console.log("SOCKET COUNT...",data.count);
       dispatch(updateUnreadCount(data.count));
     })
     socket.on('openTaskCount',(data:any)=>{
-      console.log("SOCKET COUNT...",data.count);
       dispatch(updateUnreadCount(data));
     })
   },[socket,dispatch]);
