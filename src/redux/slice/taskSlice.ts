@@ -123,7 +123,10 @@ const taskSlice = createSlice({
       const taskId = action.payload
       const index = state.tasks.findIndex((task)=> task.id === taskId)
       state.tasks[index].readed=true
-    }
+    },
+    updateUnreadCount: (state, action: PayloadAction<number>) => {
+      state.unreadCount = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -160,5 +163,5 @@ const taskSlice = createSlice({
   },
 });
 
-export const {markReaded} = taskSlice.actions;
+export const { markReaded, updateUnreadCount } = taskSlice.actions;
 export default taskSlice.reducer;

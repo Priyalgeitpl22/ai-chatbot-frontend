@@ -15,8 +15,9 @@ import { useLocation } from "react-router-dom";
 import Badge from "@mui/material/Badge";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUnreadTaskCount } from "../redux/slice/taskSlice";
+import { updateUnreadCount, fetchUnreadTaskCount } from "../redux/slice/taskSlice";
 import { RootState, AppDispatch } from "../redux/store/store";
+import { useSocket } from "../context/SocketContext";
 
 const sidebarAnimation = {
   initial: { x: -260 },
@@ -29,12 +30,23 @@ const Sidebar = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
   const unreadCount = useSelector((state: RootState) => state.task.unreadCount);
+  const {socket} = useSocket()
 
   useEffect(() => {
     if (user?.orgId) {
       dispatch(fetchUnreadTaskCount(user.orgId));
     }
   }, [dispatch, user?.orgId]);
+
+  useEffect(()=>{
+    if(!socket)return;
+    socket.on('unreadTaskCount',(data:any)=>{
+      dispatch(updateUnreadCount(data.count));
+    })
+    socket.on('openTaskCount',(data:any)=>{
+      dispatch(updateUnreadCount(data));
+    })
+  },[socket,dispatch]);
 
   return (
     <SidebarContainer

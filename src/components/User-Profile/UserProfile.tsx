@@ -134,7 +134,7 @@ const UserProfileMenu: React.FC = () => {
         onClose={() => setOpenLogout(false)}
         onConfirm={handleLogout}
         title="Log Out?"
-        description="Are you sure you want to logout from your account?"
+        description="Are you sure you want to log out from your account?"
         icon={<Logout sx={{ fontSize: 38, color: "var(--error-color)" }} />}
         confirmText="Log Out"
       />

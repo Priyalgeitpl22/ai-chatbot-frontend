@@ -40,7 +40,7 @@ export default function Tasks() {
   const handleSelectTask = (taskId: string) => {
     setSelectedTaskId(taskId); 
     if(socket && taskId){
-      socket.emit("readedTask",{data:taskId})
+      socket.emit("readedTask",{data:taskId,orgId:user?.orgId})
     }
   };
 
