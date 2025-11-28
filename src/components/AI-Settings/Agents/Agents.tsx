@@ -175,7 +175,7 @@ const Agents: React.FC = () => {
 
   return (
     <AgentsContainer>
-      {loading && <Loader />}
+      {/* {loading && <Loader />} */}
       <AgentHeader>
         <SectionTitle>Users</SectionTitle>
         <AgentDialog

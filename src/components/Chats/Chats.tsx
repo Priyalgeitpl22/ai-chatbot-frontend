@@ -116,7 +116,7 @@ useEffect(() => {
       socket.off("threadAssigned")
     };
   }, [socket, selectedThreadId, selectedThread, dispatch]);
-  if (isLoading) return <Loader />;
+  // if (isLoading) return <Loader />;
   return (
     <ChatContainer>
       <ChatSideBar

@@ -48,13 +48,13 @@ export default function Tasks() {
 
   return (
     <TaskContainer>
-      {loading ? (
+      {/* {loading ? (
         <Box sx={{ width:'100%', display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
           <CircularProgress />
         </Box>
       ) : error ? (
-        <Typography color="error">{error}</Typography>
-      ) : tasks.length > 0 ? (
+        <Typography color="error">{error}</Typography> */}
+      {/* ) : tasks.length > 0 ? ( */}
         <>
           <TaskList
             tasks={tasks}
@@ -70,9 +70,9 @@ export default function Tasks() {
             />
           )}
         </>
-      ) : (
+      {/* ) : (
         <Box sx={{width:'100%', fontFamily:'var(--custom-font-family)', display:'flex', alignItems:'center', justifyContent:'center'}}>No tasks available</Box>
-      )}
+      )} */}
     </TaskContainer>
   );
 }
