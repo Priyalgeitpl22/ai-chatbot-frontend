@@ -4,7 +4,7 @@ import { AppDispatch, RootState } from "../../redux/store/store";
 import TaskList from "./TaskList/TaskList";
 import { TaskContainer } from "./tasks.styled";
 import { getAllTasks, markReaded } from "../../redux/slice/taskSlice";
-import { CircularProgress, Box, Typography } from "@mui/material";
+// import { CircularProgress, Box, Typography } from "@mui/material";
 import ChatArea from "../Chats/ChatArea/ChatArea";
 import { fetchAgents } from "../../redux/slice/agentsSlice";
 import { useSocket } from "../../context/SocketContext";
@@ -35,7 +35,7 @@ export default function Tasks() {
   }, [dispatch, user,socket]);
   
 
-  const { tasks, loading, error } = useSelector((state: RootState) => state.task);
+  const { tasks} = useSelector((state: RootState) => state.task);
 
   const handleSelectTask = (taskId: string) => {
     setSelectedTaskId(taskId); 

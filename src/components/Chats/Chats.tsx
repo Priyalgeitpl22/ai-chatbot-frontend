@@ -6,7 +6,6 @@ import ChatArea from "./ChatArea/ChatArea";
 import ChatList from "./ChatList/ChatList";
 import ChatSideBar from "./ChatSideBar/ChatSideBar";
 import { useSocket } from "../../context/SocketContext";
-import Loader from "../../components/Loader";
 import { ChatContainer } from "./ChatSideBar/chatSidebar.styled";
 import { ThreadType } from "../../enums";
 import { PlaceholderContainer } from "./ChatArea/chatArea.styled";
@@ -24,14 +23,11 @@ export default function Chats() {
   const notificationThreadId = location.state?.threadId;
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [selectedThreadType, setSelectedThreadType] = useState<string>(ThreadType.UNASSIGNED);
-  const [isLoading, setIsLoading] = useState(true);
   const {user} = useSelector((state: RootState) => state.user);
   const selectedThread = threads.find((thread)=> selectedThreadId === thread.id)
   const [page,Setpage] = useState(1)
   const listRef = useRef<HTMLDivElement>()
-  // const [isUpdated,setIsUpdated] = useState<boolean>(false)
    useEffect(() => {
-    setIsLoading(true);
     dispatch(getAllThreads({page})).then((res: any) => {
      const loadedThreads = Array.isArray(res.payload?.thread)
     ? res.payload.thread
@@ -44,12 +40,10 @@ export default function Chats() {
           setSelectedThreadId(matchedThread.id);
         }
        }
-       setIsLoading(false);
        window.history.replaceState({}, document.title);
     }).catch((error) => {
         console.error("Failed to load threads", error);
       }).finally(() => {
-        setIsLoading(false);
       });
    }, [dispatch, notificationThreadId]);
   useEffect(() => {
@@ -116,7 +110,6 @@ useEffect(() => {
       socket.off("threadAssigned")
     };
   }, [socket, selectedThreadId, selectedThread, dispatch]);
-  // if (isLoading) return <Loader />;
   return (
     <ChatContainer>
       <ChatSideBar

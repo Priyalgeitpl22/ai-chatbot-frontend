@@ -18,7 +18,6 @@ import AgentDialog from "./AgentDialogBox/AgentDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { deleteAgent, fetchAgents } from "../../../redux/slice/agentsSlice";
-import Loader from "../../../components/Loader";
 import toast, { Toaster } from "react-hot-toast";
 import dayjs, { Dayjs } from "dayjs";
 import { Button } from "../../../styles/layout.styled";
@@ -83,7 +82,6 @@ const Agents: React.FC = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const { user } = useSelector((state: RootState) => state.user);
   const { data } = useSelector((state: RootState) => state.agents);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
@@ -111,12 +109,10 @@ const Agents: React.FC = () => {
   
 
   useEffect(() => {
-    setLoading(true);
     if (user) {
       dispatch(fetchAgents(user.orgId))
         .unwrap()
         .then(({message}) => {
-          setLoading(false);
           toast.success(message); 
         })
         .catch((error) => {
@@ -175,7 +171,6 @@ const Agents: React.FC = () => {
 
   return (
     <AgentsContainer>
-      {/* {loading && <Loader />} */}
       <AgentHeader>
         <SectionTitle>Users</SectionTitle>
         <AgentDialog
