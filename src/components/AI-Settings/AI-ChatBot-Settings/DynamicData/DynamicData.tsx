@@ -20,6 +20,14 @@ import { toast } from "react-hot-toast";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import {
+  PageWrapper,
+  EntryCard,
+  EntryHeader,
+  BottomActions,
+  StyledButton,
+} from "./DynamicData.styled";
+
 
 interface NewEntry {
   id: string; // local id for form management
@@ -146,15 +154,15 @@ export default function DynamicData() {
           updateCount > 1 ? "ies" : "y"
         } updated and ${createCount} entr${
           createCount > 1 ? "ies" : "y"
-        } created successfully`;
+          } created successfully`;
       } else if (updateCount > 0) {
         message = `${updateCount} entr${
           updateCount > 1 ? "ies" : "y"
-        } updated successfully`;
+          } updated successfully`;
       } else {
         message = `${createCount} entr${
           createCount > 1 ? "ies" : "y"
-        } created successfully`;
+          } created successfully`;
       }
 
       toast.success(message);
@@ -188,17 +196,8 @@ export default function DynamicData() {
 
   return (
     <>
-      <Box
-        sx={{
-          width: "100%",
-          border: "1px solid #ccc",
-          borderRadius: 2,
-          p: 3,
-          boxSizing: "border-box",
-          height: "fit-content",
-        }}
-      >
-        <Typography variant="h6" sx={{ mb: 3 }}>
+        <PageWrapper>
+        <Typography fontFamily={"var(--custom-font-family)"} variant="h6" sx={{fontWeight:"600", mb: 3 }}>
           Dynamic Data Configuration
         </Typography>
 
@@ -208,27 +207,23 @@ export default function DynamicData() {
           </Box>
         ) : (
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2 }}>
+            <Typography fontFamily={"var(--custom-font-family)"} variant="subtitle1" sx={{mb:1}}>
               Dynamic Data Entries
             </Typography>
 
             {newEntries.map((entry, index) => (
-              <Box key={entry.id} sx={{ mb: 3 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 1,
-                  }}
-                >
+              <EntryCard
+                key={entry.id}
+              >
+                <EntryHeader>
                   <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "#666" }}
+                    variant="subtitle2"
+                    fontFamily={"var(--custom-font-family)"}
                   >
                     Entry {index + 1}{" "}
                     {entry.dbId && (
-                      <span style={{ color: "#999", fontSize: "0.85em" }}>
+
+                      <span style={{ marginLeft: 4, fontSize: "0.8rem" }}>
                         (Existing)
                       </span>
                     )}
@@ -256,11 +251,11 @@ export default function DynamicData() {
                       </IconButton>
                     )}
                   </Box>
-                </Box>
+                </EntryHeader>
                 <Grid container spacing={2}>
                   <Grid size={12}>
                     <TextField
-                      label="Prompt"
+                      // label="prompt"
                       multiline
                       rows={3}
                       fullWidth
@@ -268,46 +263,41 @@ export default function DynamicData() {
                       onChange={(e) =>
                         updateNewEntry(entry.id, "prompt", e.target.value)
                       }
-                      placeholder="Enter your AI prompt..."
+                      placeholder="Enter your Prompt here..."
                     />
                   </Grid>
                   <Grid size={12}>
+                    <Typography
+                    variant="subtitle2"
+                    fontFamily={"var(--custom-font-family)"}
+                   >URL</Typography>
                     <TextField
-                      label="Url"
+                      // label="url"
                       fullWidth
                       value={entry.apiCurl}
                       onChange={(e) =>
                         updateNewEntry(entry.id, "apiCurl", e.target.value)
                       }
-                      placeholder="Enter curl endpoint..."
+                      placeholder="https://example.com"
                     />
                   </Grid>
                 </Grid>
                 {index < newEntries.length - 1 && <Divider sx={{ mt: 2 }} />}
-              </Box>
+              </EntryCard>
             ))}
 
             {/* Save All Button */}
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mt: 3,
-              }}
-            >
+            <BottomActions>
               <Button
                 variant="outlined"
                 startIcon={<AddIcon />}
                 onClick={addNewEntry}
                 sx={{ textTransform: "none" }}
               >
-                Add New
+                Add New Entry
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
+              <StyledButton
                 onClick={saveAllEntries}
                 disabled={
                   loading ||
@@ -319,26 +309,24 @@ export default function DynamicData() {
                       !e.apiCurl.trim()
                   )
                 }
-                sx={{ textTransform: "none", px: 4 }}
               >
                 {loading ? (
                   <CircularProgress size={20} color="inherit" />
                 ) : (
-                  `Save All (${
-                    newEntries.filter(
-                      (e) =>
-                        e.prompt &&
-                        e.apiCurl &&
-                        e.prompt.trim() &&
-                        e.apiCurl.trim()
-                    ).length
+                  `Save All Changes(${newEntries.filter(
+                    (e) =>
+                      e.prompt &&
+                      e.apiCurl &&
+                      e.prompt.trim() &&
+                      e.apiCurl.trim()
+                  ).length
                   })`
                 )}
-              </Button>
-            </Box>
+              </StyledButton>
+            </BottomActions>
           </Box>
         )}
-      </Box>
+      </PageWrapper>
 
       {loading && (<Box
         sx={{

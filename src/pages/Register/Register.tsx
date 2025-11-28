@@ -189,7 +189,7 @@ const Register = () => {
       console.log('otpExpireTime', res.otpExpireTime, otpExpireTime);
       navigate("/verify-otp", { state: { email: formData.email, otpExpireTime } });
     } catch (err: any) {
-      toast.error(err.message || "Registration failed. Please try again.");
+      toast.error(err || err.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
