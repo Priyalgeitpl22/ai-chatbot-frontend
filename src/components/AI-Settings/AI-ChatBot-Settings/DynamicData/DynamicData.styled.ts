@@ -4,13 +4,8 @@ import { Box} from "@mui/material";
 export const PageWrapper = styled(Box)`
   padding: 24px;
   border-radius: 16px;
-  background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   transition: 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
-  }
 `;
 
 export const EntryCard = styled(Box)`
@@ -18,7 +13,6 @@ export const EntryCard = styled(Box)`
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   margin-bottom: 20px;
-  background: #fafafa;
 `;
 
 export const EntryHeader = styled(Box)`
