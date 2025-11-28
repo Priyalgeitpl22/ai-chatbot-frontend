@@ -173,7 +173,7 @@ function Login() {
                 onChange={handleEmailChange}
                 error={!!errors.email}
                 helperText={errors.email}
-                autoComplete='nope'
+                autoComplete="off"
                 InputLabelProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
               />
               <PasswordInput 

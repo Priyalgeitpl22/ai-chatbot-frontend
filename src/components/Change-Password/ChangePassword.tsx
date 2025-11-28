@@ -108,6 +108,7 @@ const ChangePassword: React.FC = () => {
           </Typography>
           <PasswordInput
             label="Existing Password"
+            autoComplete="off"
             value={existingPassword}
             onkeydown={()=>""}
             onChange={(e) => {
@@ -116,9 +117,11 @@ const ChangePassword: React.FC = () => {
             }}
             error={!!errors.existingPassword}
             helperText={errors.existingPassword}
+            sx={{mb:2}}
           />
           <PasswordInput
             label="New Password"
+            autoComplete="off"
             value={newPassword}
             onkeydown={()=>""}
             onChange={(e) => {
@@ -127,8 +130,10 @@ const ChangePassword: React.FC = () => {
             }}
             error={!!errors.newPassword}
             helperText={errors.newPassword}
+            sx={{mb:2}}
           />
           <PasswordInput
+            autoComplete="off"
             label="Confirm Password"
             value={confirmPassword}
             onkeydown={(e:React.KeyboardEvent)=>{if(e.key==="Enter")handleChangePassword()}}
@@ -142,7 +147,8 @@ const ChangePassword: React.FC = () => {
             }}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
-          />
+            sx={{mb:2}}
+            />
           <StyledButton variant="contained" onClick={handleChangePassword} disabled={isDisabled}>
             Change Password
           </StyledButton>

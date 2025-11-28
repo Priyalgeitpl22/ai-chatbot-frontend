@@ -152,6 +152,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             variant="outlined"
             fullWidth
             name="name"
+            autoComplete="off"
             value={formData.name}
             onChange={handleInputChange}
             InputProps={{style: {fontFamily: 'var(--custom-font-family)'}}}
@@ -164,6 +165,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
             variant="outlined"
             fullWidth
             name="email"
+            autoComplete="off"
             value={formData.email}
             onChange={handleInputChange}
             InputProps={{style: {fontFamily: 'var(--custom-font-family)'}}}

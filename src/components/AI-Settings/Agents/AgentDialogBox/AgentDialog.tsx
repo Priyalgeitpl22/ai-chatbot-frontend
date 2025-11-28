@@ -410,6 +410,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
               <TextField
                 label="Name"
                 name="fullName"
+                autoComplete="off"
                 value={formData.fullName}
                 onChange={handleInputChange}
                 fullWidth
@@ -430,6 +431,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 value={formData.email}
                 onChange={handleInputChange}
                 fullWidth
+                autoComplete="off"
                 variant="outlined"
                 error={!!errors.email}
                 helperText={errors.email}
@@ -447,6 +449,7 @@ const AgentDialog: React.FC<AgentDialogProps> = ({ open, onClose, onSave, agent 
                 value={formData.phone}
                 onChange={handleInputChange}
                 fullWidth
+                autoComplete="off"
                 variant="outlined"
                 error={!!errors.phone}
                 helperText={errors.phone}
