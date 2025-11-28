@@ -211,12 +211,16 @@ const Configuration = () => {
     try {
       const orgId= user?.orgId
       const response = await dispatch(getScript(orgId)).unwrap();
+       if (response && typeof response === "object" && Object.keys(response).length === 0) {
+        setEmbedCode("Please configure the chatbot first.");
+      return;
+    }
       if (response) {
         setEmbedCode(response);
       }
     } catch (error) {
       console.error("Error fetching script:", error);
-      toast.error("Error fetching script");
+      toast.error("Error fetching script"); 
       setEmbedCode("Please configure the chatbot first.");
     }
   };
@@ -231,7 +235,7 @@ const Configuration = () => {
       await fetchScript();
       setTimeout(() => {
         setLoading(false);
-        setActiveTab("tracking_code");
+        // setActiveTab("tracking_code");
       }, 1000);
     } catch (error) {
       console.error("Error saving settings:", error);

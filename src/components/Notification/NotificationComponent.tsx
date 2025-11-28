@@ -119,7 +119,9 @@ toast.custom(() => (
       minWidth: 300,
     }}
   >
-    <div style={{ flex: 1 }}>
+    <div style={{ flex: 1 }}  onClick={() => {
+          handleNotificationClick(threadId)
+        }}>
       <Typography variant="subtitle1" fontWeight={600}>
         📩 Message from {data.thread?.name || 'Unknown Visitor'}
       </Typography>
