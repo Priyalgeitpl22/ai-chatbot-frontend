@@ -4,7 +4,7 @@ import { AppDispatch, RootState } from "../../redux/store/store";
 import TaskList from "./TaskList/TaskList";
 import { TaskContainer } from "./tasks.styled";
 import { getAllTasks, markReaded } from "../../redux/slice/taskSlice";
-import { CircularProgress, Box, Typography } from "@mui/material";
+// import { CircularProgress, Box, Typography } from "@mui/material";
 import ChatArea from "../Chats/ChatArea/ChatArea";
 import { fetchAgents } from "../../redux/slice/agentsSlice";
 import { useSocket } from "../../context/SocketContext";
@@ -35,7 +35,7 @@ export default function Tasks() {
   }, [dispatch, user,socket]);
   
 
-  const { tasks, loading, error } = useSelector((state: RootState) => state.task);
+  const { tasks} = useSelector((state: RootState) => state.task);
 
   const handleSelectTask = (taskId: string) => {
     setSelectedTaskId(taskId); 
@@ -48,13 +48,13 @@ export default function Tasks() {
 
   return (
     <TaskContainer>
-      {loading ? (
+      {/* {loading ? (
         <Box sx={{ width:'100%', display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
           <CircularProgress />
         </Box>
       ) : error ? (
-        <Typography color="error">{error}</Typography>
-      ) : tasks.length > 0 ? (
+        <Typography color="error">{error}</Typography> */}
+      {/* ) : tasks.length > 0 ? ( */}
         <>
           <TaskList
             tasks={tasks}
@@ -70,9 +70,9 @@ export default function Tasks() {
             />
           )}
         </>
-      ) : (
+      {/* ) : (
         <Box sx={{width:'100%', fontFamily:'var(--custom-font-family)', display:'flex', alignItems:'center', justifyContent:'center'}}>No tasks available</Box>
-      )}
+      )} */}
     </TaskContainer>
   );
 }

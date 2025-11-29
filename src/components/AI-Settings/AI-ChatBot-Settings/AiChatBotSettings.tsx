@@ -244,7 +244,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
 
   return (
     <FormContainer>
-      <form onSubmit={handleSubmit} >
+      <form onSubmit={handleSubmit} autoComplete="off" >
         <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1 }}>
           <FormControlLabel
             sx={{ color: "#35495c", marginBottom: "10px" }}
@@ -281,6 +281,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
                       value={aiSettings[field.key]}
                       onChange={(e) => handleAiChange(field.key, e.target.value)}
                       fullWidth
+                      autoComplete="off"
                       multiline={field.multiline || false}
                       rows={field.rows || 1}
                       required={field.required}

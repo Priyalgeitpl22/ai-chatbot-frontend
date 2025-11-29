@@ -207,6 +207,7 @@ const OrganizationForm: React.FC = () => {
                   variant="outlined"
                   value={values.description}
                   onChange={handleChange}
+                  autoComplete='off'
                   error={!!errors.description}
                   helperText={errors.description || ""}
                   multiline
@@ -237,6 +238,7 @@ const OrganizationForm: React.FC = () => {
                     name="industry"
                     value={values.industry}
                     onChange={handleSelectChange}
+                    autoCorrect='off'
                     label="Industry"
                     MenuProps={{
                       PaperProps: { style: { maxHeight: 250 } },
@@ -252,6 +254,7 @@ const OrganizationForm: React.FC = () => {
                   fullWidth
                   name={field.key}
                   label={field.label}
+                  autoComplete='off'
                   variant="outlined"
                   value={
                     field.key === "zip"

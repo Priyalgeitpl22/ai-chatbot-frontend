@@ -259,6 +259,7 @@ export default function DynamicData() {
                       multiline
                       rows={3}
                       fullWidth
+                      autoComplete="off"
                       value={entry.prompt}
                       onChange={(e) =>
                         updateNewEntry(entry.id, "prompt", e.target.value)
@@ -274,6 +275,7 @@ export default function DynamicData() {
                     <TextField
                       // label="url"
                       fullWidth
+                      autoComplete="off"
                       value={entry.apiCurl}
                       onChange={(e) =>
                         updateNewEntry(entry.id, "apiCurl", e.target.value)

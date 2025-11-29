@@ -153,6 +153,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             value={formData.host}
             onChange={handleChange}
             fullWidth
+            autoComplete="off"
             InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
             InputProps={{
               readOnly: !isEditable,
@@ -171,6 +172,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             value={formData.port}
             onChange={handleChange}
             fullWidth
+            autoComplete="off"
             InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
             InputProps={{
               readOnly: !isEditable,
@@ -189,6 +191,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             value={formData.secure}
             onChange={handleChange}
             fullWidth
+            autoComplete="off"
             InputProps={{ readOnly: !isEditable }}
             InputLabelProps={{ style: { fontFamily: 'var(--custom-font-family)' } }}
           />
@@ -197,7 +200,7 @@ const EmailConfiguration: React.FC<EmailConfigurationProps> = ({ onSubmit }) => 
             name="user"
             value={formData.user}
             onChange={handleChange}
-            autoComplete="nope"
+            autoComplete="off"
             fullWidth
             required
             error={!!errors.user}
