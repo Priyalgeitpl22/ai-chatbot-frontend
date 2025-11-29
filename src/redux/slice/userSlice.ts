@@ -99,6 +99,19 @@ const userSlice = createSlice({
           state.error = action.error.message;
         }
       })
+      .addCase(updateUserDetails.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.user = action.payload; 
+        state.success = "User updated successfully";
+      })
+      .addCase(updateUserDetails.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUserDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
   },
 });
 
