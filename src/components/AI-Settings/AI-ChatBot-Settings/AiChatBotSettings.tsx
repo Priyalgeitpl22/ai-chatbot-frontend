@@ -200,7 +200,7 @@ const AiChatBotSettings: React.FC<AiChatbotFormProps> = ({ orgId }) => {
       ).unwrap();
 
       toast.success("AI chatbot status updated successfully!");
-      window.location.reload();
+      setIsAiEnabled(newValue);
     } catch (error: unknown) {
       setAiSettings((prev) => ({ ...prev, isAiEnabled: !newValue }));
       setIsAiEnabled(!newValue);

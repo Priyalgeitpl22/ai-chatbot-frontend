@@ -1,4 +1,7 @@
-
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/store/store";
+import { fetchAnalyticsAll } from "../../redux/slice/analyticsSlice";
 import {
   StatsOverview,
   ChatVolumeChart,
@@ -15,7 +18,14 @@ import {
   StatsSection,
 } from "./adminStyled";
 
+
 export default function AdminDashboard() {
+  const dispatch = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+    dispatch(fetchAnalyticsAll());
+  }, [dispatch]);
+
   return (
     <DashboardContent container>
 

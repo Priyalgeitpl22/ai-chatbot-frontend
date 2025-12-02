@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, {useState } from 'react';
+import {useSelector } from 'react-redux';
 import {
   Box,
   Typography,
@@ -13,8 +13,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { TrendingUp, Close } from '@mui/icons-material';
-import { AppDispatch, RootState } from '../../redux/store/store';
-import { fetchTopIntentsData } from '../../redux/slice/analyticsSlice';
+import {RootState } from '../../redux/store/store';
 
 const TopIntentsCard = styled(Box)`
   background: white;
@@ -29,16 +28,12 @@ const TopIntentsCard = styled(Box)`
 `;
 
 const TopIntentsList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { topIntentsData, topIntentsLoading, topIntentsError } = useSelector(
     (state: RootState) => state.analytics
   );
 
   const [openDialog, setOpenDialog] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchTopIntentsData());
-  }, [dispatch]);
 
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);

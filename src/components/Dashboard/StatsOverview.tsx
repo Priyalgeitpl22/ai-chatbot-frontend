@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Grid from "@mui/material/Grid";
 import { motion } from "framer-motion";
-import { useDispatch, useSelector } from "react-redux";
+import {useSelector } from "react-redux";
 import {
   StatsCard,
   CardHeader,
   CardValue,
 } from "./styled"
-import { AppDispatch, RootState } from "../../redux/store/store";
-import { fetchDashboardStats } from "../../redux/slice/analyticsSlice";
+import {RootState } from "../../redux/store/store";
 
 interface StatItem {
   label: string;
@@ -18,17 +17,10 @@ interface StatItem {
 }
 
 const StatsOverview: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
   const { dashboardStats, dashboardStatsLoading, dashboardStatsError } = useSelector(
     (state: RootState) => state.analytics
   );
-
-
-
-  useEffect(() => {
-    console.log("StatsOverview: Dispatching fetchDashboardStats");
-    dispatch(fetchDashboardStats());
-  }, [dispatch]);
 
 
   if (dashboardStatsLoading) {

@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../redux/store/store';
-import { fetchEmailTranscriptData } from '../../redux/slice/analyticsSlice';
+import {useSelector } from 'react-redux';
+import {RootState } from '../../redux/store/store';
 
 const EmailTranscriptsCard = styled(Box)`
   background: white;
@@ -18,26 +17,10 @@ const EmailTranscriptsCard = styled(Box)`
 
 
 const EmailTranscripts: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { emailTranscriptData, emailTranscriptLoading, emailTranscriptError } = useSelector(
     (state: RootState) => state.analytics
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Calculate date range for last 30 days
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(endDate.getDate() - 30);
-
-      await dispatch(fetchEmailTranscriptData({
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
-      }));
-    };
-
-    fetchData();
-  }, [dispatch]);
 
   return (
     <EmailTranscriptsCard>
