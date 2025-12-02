@@ -16,9 +16,19 @@ export const HeaderContainer = styled.header`
   height: 46px;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 10px 16px;
   background: var(--white-fade-gradient);
   justify-content: space-between;
+
+  @media (max-width: 768px) {
+    height: auto; 
+    padding: 8px 12px;
+  }
+
+  @media (max-width: 320px) {
+    flex-direction: column;
+    align-items: flex-center;
+  }
 `;
 
 export const Logo = styled.div`

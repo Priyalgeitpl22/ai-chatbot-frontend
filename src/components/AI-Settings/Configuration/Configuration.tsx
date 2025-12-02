@@ -40,7 +40,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store/store";
 import { getChatConfig, getScript, saveConfigurations } from "../../../redux/slice/chatSlice";
 import { ContentContainer } from "./configuration.styled";
-import Loader from "../../Loader";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../../styles/layout.styled";
 import EmailConfiguration from "../EmailConfiguration/EmailConfiguration";
@@ -115,7 +114,6 @@ const Configuration = () => {
   const colors = ["#45607c", "#c0dbf9", "#b15194", "#f8b771", "#546db9", "custom"];
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
-  const [loading, setLoading] = useState<boolean>(false);
   const [fontFamily, setFontFamily] = useState("Arial");
   const [logoPriviewURL, setLogoPriviewURL] = useState<string>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -226,20 +224,16 @@ const Configuration = () => {
   };
 
   const handleSave = async () => {
-    setLoading(true);
     try {
-      await dispatch(
+     const res = await dispatch(
         saveConfigurations({ ...settings, orgId: user?.orgId, aiOrgId: user?.aiOrgId })
       ).unwrap();
-
+      if(res?.code==200){
+        toast.success(res.message || "Chat configuration updated successfully");
+      }
       await fetchScript();
-      setTimeout(() => {
-        setLoading(false);
-        // setActiveTab("tracking_code");
-      }, 1000);
     } catch (error) {
       console.error("Error saving settings:", error);
-      setLoading(false);
     }
   };
 
@@ -732,12 +726,6 @@ const Configuration = () => {
   </SettingsContainer>
 )}
 
-{loading && <Loader />}
-
-
-      {loading && (
-        <Loader />
-      )}
       <Toaster />
     </ContentContainer>
   );
