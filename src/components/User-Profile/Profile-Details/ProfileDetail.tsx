@@ -91,7 +91,6 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({ open, onClose }) => {
       await dispatch(updateUserDetails({ userData: formDataToSend })).unwrap();
       toast.success("User details updated successfully!");
       onClose();
-      window.location.reload();
       setLoading(false);
     } catch (error) {
       toast.error("Failed to update user details!");

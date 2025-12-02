@@ -154,7 +154,7 @@ export const saveConfigurations = createAsyncThunk(
         },
       });
 
-      return response.data?.data || {};
+      return response.data || {};
     } catch (error: any) {
       console.error("API Error:", error);
       return rejectWithValue(error.response?.data || "Failed to save configurations");
