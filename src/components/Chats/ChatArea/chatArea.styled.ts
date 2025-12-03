@@ -94,6 +94,8 @@ export const BotMessageBubble = styled(Box)({
   padding: '12px 16px',
   borderRadius: '12px',
   wordWrap: 'break-word',
+  whiteSpace: 'pre-wrap',
+  overflowWrap:'anywhere',
   maxWidth:'80%',
   fontFamily: 'var(--custom-font-family)',
 });
@@ -115,6 +117,8 @@ export const UserMessageBubble = styled(Box)({
   maxWidth: '80%',
   wordWrap: 'break-word',
   fontFamily: 'var(--custom-font-family)',
+  whiteSpace: 'pre-wrap',  
+  overflowWrap: 'anywhere'
 });
 export const OptionSelect = styled(MenuItem)({
   width:"17rem",
