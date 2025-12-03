@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../redux/store/store';
-import { fetchAIEffectivenessData } from '../../redux/slice/analyticsSlice';
+import {useSelector } from 'react-redux';
+import {RootState } from '../../redux/store/store';
 
 const AIEffectivenessCard = styled(Box)`
   background: white;
@@ -24,18 +23,9 @@ interface EffectivenessData {
 }
 
 const AIEffectivenessChart: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { aiEffectivenessData, aiEffectivenessLoading, aiEffectivenessError } = useSelector(
     (state: RootState) => state.analytics
   );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await dispatch(fetchAIEffectivenessData({}));
-    };
-
-    fetchData();
-  }, [dispatch]);
 
   const transformDataForComponent = (): EffectivenessData[] => {
     if (!aiEffectivenessData || aiEffectivenessData.length === 0) return [];

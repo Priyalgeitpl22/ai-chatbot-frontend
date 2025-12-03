@@ -106,7 +106,8 @@ const NotificationComponent: React.FC = () => {
         };
       });
       // toast.success(`📩 Message from ${data.thread?.name || "Unknown Visitor"}: ${data.message}`);
-toast.custom(() => (
+   toast.custom(() => (
+   <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
   <Paper
     elevation={6}
     sx={{
@@ -116,7 +117,10 @@ toast.custom(() => (
       color: 'black',
       borderRadius: 2,
       p: 2,
-      minWidth: 300,
+      maxWidth: 380,
+      width:"380px",
+      overflow: "hidden",
+
     }}
   >
     <div style={{ flex: 1 }}  onClick={() => {
@@ -125,7 +129,18 @@ toast.custom(() => (
       <Typography variant="subtitle1" fontWeight={600}>
         📩 Message from {data.thread?.name || 'Unknown Visitor'}
       </Typography>
-      <Typography variant="body2" sx={{ mt: 0.5 }}>
+       <Typography
+        variant="body2"
+        sx={{
+          mt: 0.5,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          maxHeight: "3.2em",
+        }}
+      >
         {data.message}
       </Typography>
     </div>
@@ -144,6 +159,7 @@ toast.custom(() => (
       </Button>
     </div>
   </Paper>
+  </Box>
 ));
 
 

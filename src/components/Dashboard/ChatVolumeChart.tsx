@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React,{ useState }  from 'react';
 import { Box, Typography, Select, MenuItem, FormControl, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import {useSelector } from 'react-redux';
 import {
   LineChart,
   Line,
@@ -13,8 +13,7 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts';
-import { AppDispatch, RootState } from '../../redux/store/store';
-import { fetchChatVolumeData } from '../../redux/slice/analyticsSlice';
+import {RootState } from '../../redux/store/store';
 
 const ChatVolumeCard = styled(Box)`
   background: white;
@@ -53,36 +52,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const ChatVolumeChart: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { chatVolumeData, chatVolumeLoading, chatVolumeError } = useSelector(
     (state: RootState) => state.analytics
   );
   
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Convert frontend period values to backend format
-      let backendPeriod = '7days';
-      switch (selectedPeriod) {
-        case '7d':
-          backendPeriod = '7days';
-          break;
-        case '30d':
-          backendPeriod = '30days';
-          break;
-        case '90d':
-          backendPeriod = '90days';
-          break;
-        default:
-          backendPeriod = '7days';
-      }
-      
-      await dispatch(fetchChatVolumeData({ period: backendPeriod }));
-    };
-
-    fetchData();
-  }, [dispatch, selectedPeriod]);
 
 
   const renderCustomLegend = (props: any) => {

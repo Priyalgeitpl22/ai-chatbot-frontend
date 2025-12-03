@@ -18,7 +18,6 @@ import {
 } from 'recharts';
 import { styled } from '@mui/material/styles';
 import { AppDispatch, RootState } from '../../redux/store/store';
-import { fetchChatStatusData } from '../../redux/slice/analyticsSlice';
 
 const ChatStatusCard = styled(Box)`
   background: white;
@@ -57,10 +56,6 @@ const ChatStatusChart: React.FC = () => {
           startDate.setDate(endDate.getDate() - 30);
       }
 
-      await dispatch(fetchChatStatusData({
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
-      }));
     };
 
     fetchData();

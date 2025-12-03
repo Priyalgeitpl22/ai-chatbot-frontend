@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import {useSelector } from 'react-redux';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import { AppDispatch, RootState } from '../../redux/store/store';
-import { fetchSatisfactionData } from '../../redux/slice/analyticsSlice';
+import {RootState } from '../../redux/store/store';
 
 const SatisfactionCard = styled(Box)`
   background: white;
@@ -37,14 +36,9 @@ interface SatisfactionData {
 }
 
 const SatisfactionSummary: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { satisfactionData, satisfactionLoading, satisfactionError } = useSelector(
     (state: RootState) => state.analytics
   );
-
-  useEffect(() => {
-    dispatch(fetchSatisfactionData());
-  }, [dispatch]);
 
   // Transform backend data to component format
   const transformDataForComponent = (): SatisfactionData[] => {
