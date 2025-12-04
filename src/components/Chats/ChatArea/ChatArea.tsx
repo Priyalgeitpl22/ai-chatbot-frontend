@@ -318,7 +318,7 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
   return str.replace(/\s/g, "").length; 
   };
 
-  const MAX_CHAR_LIMIT = 100; 
+  const MAX_CHAR_LIMIT = 300; 
   const charCount = getCharCountWithoutSpaces(inputMessage);
   const isCharLimitExceeded = charCount > MAX_CHAR_LIMIT;
 
