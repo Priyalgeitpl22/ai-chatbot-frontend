@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Button,
   Modal,
+  Tooltip,
 } from "@mui/material";
 import { Send } from "lucide-react";
 import { motion } from "framer-motion";
@@ -312,6 +313,14 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
     setShowEmojiPicker(false);
     setAnchorEl(null);
   };
+
+  const getCharCountWithoutSpaces = (str: string) => {
+  return str.replace(/\s/g, "").length; 
+  };
+
+  const MAX_CHAR_LIMIT = 100; 
+  const charCount = getCharCountWithoutSpaces(inputMessage);
+  const isCharLimitExceeded = charCount > MAX_CHAR_LIMIT;
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (isTicketCreated) return;
@@ -823,9 +832,27 @@ export default function ChatArea({ selectedThreadId, threads = [], tasks = [], o
                         disabled={isTicketCreated}
                       />
                     </IconButton>
-                    <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim() || isTicketCreated}>
+                    <Tooltip
+                      title={isCharLimitExceeded ? "Message is too long" : ""}
+                      slotProps={{
+                        tooltip: {
+                          sx: {
+                            background: "white",
+                            color: "red",
+                            fontSize: "13px",
+                            padding: "8px 12px",
+                            borderRadius: "8px",
+                          },
+                        },
+                      }}
+                      disableHoverListener={!isCharLimitExceeded}
+                      >
+                    <span>
+                    <IconButton color="primary" onClick={sendMessage} disabled={!inputMessage.trim() || isTicketCreated || isCharLimitExceeded}>
                       <Send size={20} />
                     </IconButton>
+                      </span>
+                    </Tooltip>
                   </>
                 ),
               }}
